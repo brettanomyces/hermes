@@ -8,34 +8,36 @@ void setup() {
 
 void loop() {
 
-  float analog0;
-  float analog1;
+  float analog;
   
-  float resistance0;
-  float resistance1;
+  int i;
+  int j;
+  for (i = 0; i < 3; i++){
+    
+    // Get average of ten readings 
+    float sum = 0;
+    for (j = 0; j < 10; j++) {
+      sum +=  analogRead(i);
+    }
+    analog = sum / 10;
+    
+    Serial.print(calculateResistance(calculateVoltage(analog)));
+    Serial.print(", ");
+  }
   
-  float voltage0;
-  float voltage1;
-  
-  
-  //Obtain RAW voltage data
-  analog0 = analogRead(0);
-  analog1 = analogRead(1);
-
-  //Convert to actual voltage (0 - 5 Vdc)
-  voltage0 = (analog0 / 1024) * 5.0;
-  voltage1 = (analog1 / 1024) * 5.0;
-
-  resistance0 = 100000 * (1 / ((5 / voltage0) - 1));
-  resistance1 = 100000 * (1 / ((5 / voltage1) - 1));
-
-  //Output to serial
-  Serial.print(resistance0);
-  Serial.print(", ");
-  Serial.println(resistance1);
+  Serial.println();
 
   //Delay to make serial out readable
-  delay(500);
+  delay(1000);
 
 } // void loop close
+
+
+float calculateVoltage(float analog){
+  return (analog / 1024) * 5.0;
+}
+
+float calculateResistance(float voltage){
+  return 100000 * (1 / ((5 / voltage) - 1));
+}
 
