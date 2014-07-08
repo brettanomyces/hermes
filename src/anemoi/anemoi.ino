@@ -17,13 +17,19 @@ Thermistor offset using digital pots
 #include <SPI.h>
 #include <math.h> 
 
-// set pin 10 as the slave select for the difital pot
+// set pin 10 as the slave select for the 100kOhm digital pot
 const int SLAVE_SELECT_100 = 10;
+// set pin 9 as the slave select for the 5kOhm digital pot
 const int SLAVE_SELECT_5 = 9;
 const int FREEZER_1 = 0;
 const int FREEZER_2 = 1;
 const int FRIDGE_1 = 2;
 const int FRIDGE_2 = 3;
+// default settings of internal temperature controller
+const int FREEZER_CONT_TEMP = -18;
+const int FRIDGE_CONT_TEMP= 3;
+// resistors used in voltage divider with thermistors
+const int RESISTOR_VALUE = 100000;
 
 void setup() {
 
