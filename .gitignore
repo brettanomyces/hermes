@@ -8,7 +8,6 @@
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
 
@@ -39,4 +38,5 @@ Session.vim
 # KDE directory preferences
 .directory
 
-
+# Arduino
+.build
