@@ -35,27 +35,12 @@ const int FRIDGE_DESIRED_TEMP = 19;
 const double LARGE_STEP = 390.5;
 const double SMALL_STEP = 20;
 
-// decimal 16
+// Figure 7-1
+// Memory Address: first 4 bits
+// Command Bits: next 2 (00 is write)
+// Last two bits can be part of the data but we'll just set them to 00.
 const uint8_t writeNVWiper0 = B00100000;
-// decimal 24
 const uint8_t writeNVWiper1 = B00110000;
-
-
-/* struct Pot { */
-/*   int slaveSelect; */
-/*   int maxResistence; */
-/*   double numSteps; */
-/*   double stepSize; */
-/* } */
-
-/* struct Section { */
-/*   int defaultTemp; */
-/*   int desiredTemp; */
-/*   int sensorOne; */
-/*   int sensorTwo; */
-/*   int sensorThree; */
-
-/* }; */
 
 void setup() {
 
@@ -70,7 +55,18 @@ void setup() {
 } // Void Setup Close
 
 void loop() {
+  updateTemperature(2, 0);
+  updateTemperature(3, 1);
+}
 
+/*
+ * Read in, do calculations, set out.
+ * Just get it working. - Steve
+ *
+ * in: The analog input to read voltage from
+ * out: the pot to set on both microchips
+ */ 
+void updateTemperature(int in, int out){
   /*
      1. Read analog in voltage.
      2. Convert to resistence
@@ -83,11 +79,10 @@ void loop() {
   float analog;
 
   int j;
-
   // Get average of ten readings 
   float sum = 0;
   for (j = 0; j < 10; j++) {
-    sum +=  analogRead(5);
+    sum +=  analogRead(in);
   }
   analog = sum / 10;
 
@@ -110,23 +105,23 @@ void loop() {
   Serial.print(" degrees");
   Serial.println();
 
-  double t2 = getTrickTemp(t, FRIDGE_DESIRED_TEMP, FRIDGE_DEFAULT_TEMP);
-  Serial.print(t2);
+  double trickTemp = getTrickTemp(t, FRIDGE_DESIRED_TEMP, FRIDGE_DEFAULT_TEMP);
+  Serial.print(trickTemp);
   Serial.print(" degrees");
   Serial.println();
 
-  double r2 = temperatureToResistance(t2);
-  Serial.print(r2);
+  double trickRes = temperatureToResistance(trickTemp);
+  Serial.print(trickRes);
   Serial.print(" Ohms");
   Serial.println();
 
-  double largePotR = setLargePot(r2);
+  double largePotR = setLargePot(out, trickRes);
   Serial.print(largePotR);
   Serial.print(" Ohms");
   Serial.println();
 
-  double diff = r2 - largePotR;
-  double smallPotR = setSmallPot(diff);
+  double diff = trickRes - largePotR;
+  double smallPotR = setSmallPot(out, diff);
   Serial.print(smallPotR);
   Serial.print(" Ohms");
   Serial.println();
@@ -136,8 +131,7 @@ void loop() {
   //Delay to make serial out readable
   delay(3000);
 
-} // void loop close
-
+} 
 
 float calculateVoltage(float analog){
   return (analog / 1024) * 5.0;
@@ -155,19 +149,33 @@ float calculateResistance(float vOut){
 
 /* Set the large pot value to the step closest to the given resistance. 
 Return the acutal resistance value */
-double setLargePot(double r){
+double setLargePot(int out, double r){
+
+  uint8_t cmd;
+  if ( out == 0 ){
+    cmd = writeNVWiper0;
+  } else {
+    cmd = writeNVWiper1;
+  }
 
   int value = map(r, 0, 100000, 0, 255);
-  digitalPotWrite(SLAVE_SELECT_100, writeNVWiper0, value);
+  digitalPotWrite(SLAVE_SELECT_100, cmd, value);
   Serial.print("large pot value: ");
   Serial.println(value);
   return value * LARGE_STEP;
 }
 
+double setSmallPot(int out, double r){
 
-double setSmallPot(double r){
+  uint8_t cmd;
+  if ( out == 0 ){
+    cmd = writeNVWiper0;
+  } else {
+    cmd = writeNVWiper1;
+  }
+
   int value = map(r, 0, 5000, 0, 255);
-  digitalPotWrite(SLAVE_SELECT_5, writeNVWiper0, value);
+  digitalPotWrite(SLAVE_SELECT_5, cmd, value);
   Serial.print("small pot value: ");
   Serial.println(value);
   return value * SMALL_STEP;
@@ -271,11 +279,10 @@ double getTrickTemp(double currentTemp, double desiredTemp, double defaultTemp){
  * address is the digital pot within the microchip to write to.
  * value is the value to set for that micochip and pot.
  **/
-void digitalPotWrite(int potSS, int address, int value) {
+void digitalPotWrite(int potSS, uint8_t cmd, int value) {
   // take the SS pin low to select the chip
   digitalWrite(potSS, LOW);
-  // send in the address and value via SPI
-  SPI.transfer(address);
+  SPI.transfer(cmd);
   SPI.transfer(value);
   // take the SS pin high to de-select the chip
   digitalWrite(potSS, HIGH);
