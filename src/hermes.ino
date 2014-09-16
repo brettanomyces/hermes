@@ -1,50 +1,4 @@
 /*
-
- http://forum.arduino.cc/index.php?topic=158803.0
- Digital Pot Control
-  
-  Based on the original sketch for AD5206....
-  
-  This example controls a Microchip digital potentiometer.
-  The MCP42 has 2 potentiometer channels. Each channel's pins are labeled
-  PAx - connect this to voltage
-  PWx - this is the pot's wiper, which changes when you set it
-  PBx - connect this to ground.
- 
- The MCP42 is SPI-compatible,and to command it, you send two bytes: 
- 
- The first byte is the Command Byte which has this format when
- the next byte is to be data: XX01XXpp
- note these bits ...............^^....  the 01 means the next byte is data
- (where pp = potentiometer selection, X= don't care)
- pp= 00 = dummy code, no pot selected
- pp= 01 = pot0
- pp= 10 = pot1
- pp= 11 = both pots
- 
- Simplest case is to have X= 0 so the Command Byte will be:
- pp= 00: 00010000 = 16 
- pp= 01: 00010001 = 17
- pp= 10: 00010010 = 18
- pp= 11: 00010011 = 19
- 
- The second byte is the resistance value for the channel (0 - 255).  
- 
- The circuit:
-  * All PA pins of MCP42 connected to +5V
-  * All PB pins of MCP42 connected to ground
-  * An LED and a 220-ohm resisor in series connected from each PW pin to ground
-  * CS - to digital pin 10  (SS pin)
-  * SI - to digital pin 11 (MOSI pin)
-  * SCK - to digital pin 13 (SCK pin)
- 
- created 10 Aug 2010 
- by Tom Igoe
- 
- Thanks to Heather Dewey-Hagborg for the original tutorial, 2005
- 
- Version for MCP42xx April 2013, Jim Brown
- 
  * Thermistor offset using digital pots
  * CS100 - YELLOW - to digital pin 10  (SS pin)
  * CS5 - YELLOW - to digital pin 9 (SS pin)
@@ -81,8 +35,11 @@ const int FRIDGE_DESIRED_TEMP = 19;
 const double LARGE_STEP = 390.5;
 const double SMALL_STEP = 20;
 
-const int POT_0 = 17;
-const int POT_1 = 18;
+// decimal 16
+const uint8_t writeNVWiper0 = B00100000;
+// decimal 24
+const uint8_t writeNVWiper1 = B00110000;
+
 
 /* struct Pot { */
 /*   int slaveSelect; */
@@ -201,15 +158,16 @@ Return the acutal resistance value */
 double setLargePot(double r){
 
   int value = map(r, 0, 100000, 0, 255);
-  digitalPotWrite(SLAVE_SELECT_100, POT_0, value);
+  digitalPotWrite(SLAVE_SELECT_100, writeNVWiper0, value);
   Serial.print("large pot value: ");
   Serial.println(value);
   return value * LARGE_STEP;
 }
 
+
 double setSmallPot(double r){
   int value = map(r, 0, 5000, 0, 255);
-  digitalPotWrite(SLAVE_SELECT_5, POT_0, value);
+  digitalPotWrite(SLAVE_SELECT_5, writeNVWiper0, value);
   Serial.print("small pot value: ");
   Serial.println(value);
   return value * SMALL_STEP;
