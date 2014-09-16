@@ -39,8 +39,8 @@ const double SMALL_STEP = 20;
 // Memory Address: first 4 bits
 // Command Bits: next 2 (00 is write)
 // Last two bits can be part of the data but we'll just set them to 00.
-const uint8_t writeNVWiper0 = B00100000;
-const uint8_t writeNVWiper1 = B00110000;
+const uint8_t writeVWiper0 = B00000000;
+const uint8_t writeVWiper1 = B00010000;
 
 void setup() {
 
@@ -55,7 +55,7 @@ void setup() {
 } // Void Setup Close
 
 void loop() {
-  updateTemperature(2, 0);
+  updateTemperature(0, 0);
   updateTemperature(3, 1);
 }
 
@@ -87,7 +87,7 @@ void updateTemperature(int in, int out){
   analog = sum / 10;
 
   Serial.print("Input ");
-  Serial.print(5);
+  Serial.print(in);
   Serial.println();
 
   double v = calculateVoltage(analog);
@@ -153,9 +153,9 @@ double setLargePot(int out, double r){
 
   uint8_t cmd;
   if ( out == 0 ){
-    cmd = writeNVWiper0;
+    cmd = writeVWiper0;
   } else {
-    cmd = writeNVWiper1;
+    cmd = writeVWiper1;
   }
 
   int value = map(r, 0, 100000, 0, 255);
@@ -169,9 +169,9 @@ double setSmallPot(int out, double r){
 
   uint8_t cmd;
   if ( out == 0 ){
-    cmd = writeNVWiper0;
+    cmd = writeVWiper0;
   } else {
-    cmd = writeNVWiper1;
+    cmd = writeVWiper1;
   }
 
   int value = map(r, 0, 5000, 0, 255);
