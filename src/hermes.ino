@@ -158,7 +158,8 @@ double setLargePot(int out, double r){
     cmd = writeVWiper1;
   }
 
-  int value = map(r, 0, 100000, 0, 255);
+  int value = map(r, 0, 100000, 0, 256);
+  value = 256 - value;
   digitalPotWrite(SLAVE_SELECT_100, cmd, value);
   Serial.print("large pot value: ");
   Serial.println(value);
@@ -174,7 +175,8 @@ double setSmallPot(int out, double r){
     cmd = writeVWiper1;
   }
 
-  int value = map(r, 0, 5000, 0, 255);
+  int value = map(r, 0, 5000, 0, 256);
+  value = 256 - value;
   digitalPotWrite(SLAVE_SELECT_5, cmd, value);
   Serial.print("small pot value: ");
   Serial.println(value);
