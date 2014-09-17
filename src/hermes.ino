@@ -14,40 +14,40 @@
 #include <SPI.h>
 #include <math.h> 
 
+// 256 resistors means 257 steps
+const int STEPS = 257;
 // slave select for the 100kOhm digital pot
-const int SLAVE_SELECT_100 = 9;
+const int LARGE_SS = 9;
+const int LARGE_OHMS = 100000;
+const double LARGE_STEP_SIZE = 390.625;
 // slave select for the 5kOhm digital pot
-const int SLAVE_SELECT_5 = 10;
-const int FREEZER_1 = 0;
-const int FREEZER_2 = 1;
-const int FREEZER_3 = 2;
-const int FRIDGE_1 = 3;
-const int FRIDGE_2 = 4;
-const int FRIDGE_3 = 5;
+const int SMALL_SS = 10;
+const int SMALL_OHMS = 5000;
+const double SMALL_STEP_SIZE = 19.53125;
 
-// default settings of internal temperature controller
-const int FREEZER_DEFAULT_TEMP = -18;
-const int FREEZER_DESIRED_TEMP = 7;
-const int FRIDGE_DEFAULT_TEMP= 3;
-const int FRIDGE_DESIRED_TEMP = 19;
-
-// Resistance of each step on digital pots. Pots have 256 steps
-const double LARGE_STEP = 390.5;
-const double SMALL_STEP = 20;
-
-// Figure 7-1
-// Memory Address: first 4 bits
-// Command Bits: next 2 (00 is write)
-// Last two bits can be part of the data but we'll just set them to 00.
-const uint8_t writeVWiper0 = B00000000;
-const uint8_t writeVWiper1 = B00010000;
+struct Side {
+  int number;
+  uint8_t writeCmd;
+  int defaultTemp;
+  int desiredTemp;
+} fridge, freezer;
 
 void setup() {
+  
+  fridge.number = 0;
+  fridge.writeCmd = B00000000;
+  fridge.defaultTemp = 3;
+  fridge.desiredTemp = 20;
+
+  freezer.number = 1;
+  freezer.writeCmd = B00010000;
+  freezer.defaultTemp = -18;
+  freezer.desiredTemp = 7;
 
   Serial.begin(9600);
   // set the slaveSelectPin as an output
-  pinMode(SLAVE_SELECT_100, OUTPUT);
-  pinMode(SLAVE_SELECT_5, OUTPUT);
+  pinMode(LARGE_SS, OUTPUT);
+  pinMode(SMALL_SS, OUTPUT);
 
   // initialize SPI
   SPI.begin();
@@ -55,132 +55,77 @@ void setup() {
 } // Void Setup Close
 
 void loop() {
-  updateTemperature(0, 0);
-  updateTemperature(3, 1);
+  
+  // update temperature settings
+  updateSide(fridge);
+  updateSide(freezer);
+  delay(10000);
+
 }
 
-/*
- * Read in, do calculations, set out.
- * Just get it working. - Steve
- *
- * in: The analog input to read voltage from
- * out: the pot to set on both microchips
- */ 
-void updateTemperature(int in, int out){
-  /*
-     1. Read analog in voltage.
-     2. Convert to resistence
-     3. Convert to temperature
-     4. Negate difference between desired temp and fridge/freezer cont temp
-     5. Convert new temp to resistence 
-     6. Set resistence on digital pots
-   */
+void updateSide(struct Side s) {
+  double tr = getThermistorReading(s);
+  double t = resistanceToTemperature(tr);
+  double ot = offsetTemperature(t, s.desiredTemp, s.defaultTemp);
+  double r = temperatureToResistance(ot);
+  
+  int lv = map(r, 0, LARGE_OHMS, 0, STEPS);
+  // Invert value because I connectted to the A pin instead of the B.
+  lv = STEPS - lv;
+  writeValue(LARGE_SS, s.writeCmd, uint8_t(lv));
 
-  float analog;
+  // Get the difference between the resistance we want and what we can set on the large pot
+  double dr = r - lv * LARGE_STEP_SIZE;
 
-  int j;
-  // Get average of ten readings 
-  float sum = 0;
-  for (j = 0; j < 10; j++) {
-    sum +=  analogRead(in);
+  int sv = map(dr, 0, SMALL_OHMS, 0, STEPS);
+  // Invert
+  sv = STEPS - sv;
+  writeValue(SMALL_SS, s.writeCmd, uint8_t(sv));
+
+  // TODO output to serial
+}
+
+double getThermistorReading(struct Side s){
+  // themistors may not be plugged in so we need to keep track of how many readings we get.
+  int n = 0;
+  double sum = 0;
+  // input values will be 0, 1, 2 for side 0 and 3, 4, 5 for side 1
+  int i;
+  for(i = 0; i < 3; i++){
+    int input = i + s.number * 3;
+    double analog = readInput(input);
+    if (analog > 1.0 ){
+      // if not then the thermistor is not plugged in.
+      double inputVoltage  = analogToVoltage(analog);
+      double inputResistance = voltageToResistance(inputVoltage);
+      n += 1;
+      sum += inputResistance;
+    }
   }
-  analog = sum / 10;
+  return  sum / (double)n;
+}
 
-  Serial.print("Input ");
-  Serial.print(in);
-  Serial.println();
+double readInput(int pin){
+  int sum = 0;
+  int i;
+  for (i = 1; i < 100; i ++){
+    sum += analogRead(pin);
+  }
+  return (double)sum / 100.0;
+}
 
-  double v = calculateVoltage(analog);
-  Serial.print(v);
-  Serial.print("V");
-  Serial.println();
-
-  double r = calculateResistance(v);
-  Serial.print(r);
-  Serial.print(" Ohms");
-  Serial.println();
-
-  double t = resistanceToTemperature(r);
-  Serial.print(t);
-  Serial.print(" degrees");
-  Serial.println();
-
-  double trickTemp = getTrickTemp(t, FRIDGE_DESIRED_TEMP, FRIDGE_DEFAULT_TEMP);
-  Serial.print(trickTemp);
-  Serial.print(" degrees");
-  Serial.println();
-
-  double trickRes = temperatureToResistance(trickTemp);
-  Serial.print(trickRes);
-  Serial.print(" Ohms");
-  Serial.println();
-
-  double largePotR = setLargePot(out, trickRes);
-  Serial.print(largePotR);
-  Serial.print(" Ohms");
-  Serial.println();
-
-  double diff = trickRes - largePotR;
-  double smallPotR = setSmallPot(out, diff);
-  Serial.print(smallPotR);
-  Serial.print(" Ohms");
-  Serial.println();
-
-  Serial.println();
-
-  //Delay to make serial out readable
-  delay(3000);
-
-} 
-
-float calculateVoltage(float analog){
-  return (analog / 1024) * 5.0;
+double analogToVoltage(double analog){
+  return (analog / 1024.0) * 5.0;
 }
 
 /* Calculate the resistance (r1) of the thermistor in the resistive divider circuit */
-float calculateResistance(float vOut){
+double voltageToResistance(double vOut){
   
   double vIn = 5; // Volts
   double r2 = 100000; // Ohms
   double r1 = ((r2 * vIn) / vOut) - r2;
 
   return r1;
-}
-
-/* Set the large pot value to the step closest to the given resistance. 
-Return the acutal resistance value */
-double setLargePot(int out, double r){
-
-  uint8_t cmd;
-  if ( out == 0 ){
-    cmd = writeVWiper0;
-  } else {
-    cmd = writeVWiper1;
-  }
-
-  int value = map(r, 0, 100000, 0, 256);
-  value = 256 - value;
-  digitalPotWrite(SLAVE_SELECT_100, cmd, value);
-  Serial.print("large pot value: ");
-  Serial.println(value);
-  return value * LARGE_STEP;
-}
-
-double setSmallPot(int out, double r){
-
-  uint8_t cmd;
-  if ( out == 0 ){
-    cmd = writeVWiper0;
-  } else {
-    cmd = writeVWiper1;
-  }
-
-  int value = map(r, 0, 5000, 0, 256);
-  value = 256 - value;
-  digitalPotWrite(SLAVE_SELECT_5, cmd, value);
-  Serial.print("small pot value: ");
-  Serial.println(value);
-  return value * SMALL_STEP;
 }
 
 double temperatureToResistance(double t) {
@@ -272,7 +217,7 @@ double resistanceToTemperature(double Rt){
 }
 
 /* Returns the temperature that we want the device to think it is */
-double getTrickTemp(double currentTemp, double desiredTemp, double defaultTemp){
+double offsetTemperature(double currentTemp, double desiredTemp, double defaultTemp){
   return defaultTemp + (currentTemp - desiredTemp);
 }
 
@@ -281,12 +226,12 @@ double getTrickTemp(double currentTemp, double desiredTemp, double defaultTemp){
  * address is the digital pot within the microchip to write to.
  * value is the value to set for that micochip and pot.
  **/
-void digitalPotWrite(int potSS, uint8_t cmd, int value) {
+void writeValue(int ss, uint8_t c, uint8_t v) {
   // take the SS pin low to select the chip
-  digitalWrite(potSS, LOW);
-  SPI.transfer(cmd);
-  SPI.transfer(value);
+  digitalWrite(ss, LOW);
+  SPI.transfer(c);
+  SPI.transfer(v);
   // take the SS pin high to de-select the chip
-  digitalWrite(potSS, HIGH);
+  digitalWrite(ss, HIGH);
 }
 
