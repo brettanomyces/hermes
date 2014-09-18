@@ -59,7 +59,7 @@ void loop() {
   // update temperature settings
   updateSide(fridge);
   updateSide(freezer);
-  delay(10000);
+  delay(300);
 
 }
 
@@ -95,7 +95,7 @@ double getThermistorReading(struct Side s){
     int input = i + s.number * 3;
     double analog = readInput(input);
     if (analog > 1.0 ){
-      // if not then the thermistor is not plugged in.
+      // if not then the thermistor is (probably) not plugged in.
       double inputVoltage  = analogToVoltage(analog);
       double inputResistance = voltageToResistance(inputVoltage);
       n += 1;
@@ -106,12 +106,12 @@ double getThermistorReading(struct Side s){
 }
 
 double readInput(int pin){
-  int sum = 0;
+  double sum = 0;
   int i;
-  for (i = 1; i < 100; i ++){
-    sum += analogRead(pin);
+  for (i = 0; i < 100; i++){
+    sum += (double) analogRead(pin);
   }
-  return (double)sum / 100.0;
+  return sum / 100.0;
 }
 
 double analogToVoltage(double analog){
