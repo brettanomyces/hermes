@@ -1,32 +1,86 @@
 /*
- * Thermistor offset using digital pots
- * CS100 - YELLOW - to digital pin 10  (SS pin)
- * CS5 - YELLOW - to digital pin 9 (SS pin)
- * SDI - GREEN - to digital pin 11 (MOSI pin)
- * SDK (CLK) ORANGE - to digital pin 13 (SCK pin)
- *
- * There are 6 possible inputs and two outputs. 
- * The inputs are resistance values from a thermistor.
- * The ouputs are resistance values set on two digital pots in series.
- */
+Hermes
 
-// include the SPI library
+I recently acquired a side by side fridge freezer. I plan to use the freezer
+section of the FF as a keezer (keg fridge) and the fridge section as a
+fermentation chamger. Unfortunately the temperature ranges allowed by the FF's
+inbuilt digital temperature controller do not match up with the ranges I require
+for my purpose.
+
+The FF has a digital temperature controller (TC) which also controls the door
+switches, lights and baffels.  Not wanting to rip out the exisiting TC I decided
+to trick it into thinking the temperature is different to what it actually is.
+
+The TC uses thermistors, resistors whose resistance changes with temperature, to
+read the temperature. My unit (Hermes) basically sits inbetween the TC and the
+thermistor, reading the resistance of the thermistor and offsetting it by some
+about. The TC then reads this offset resistance. 
+
+Hermes can take readings from up to 6 thermistors, however I will explain its
+operation for only one thermistor per side of the FF.
+
+#1 Read get the resistance of the thermistor. To do this the thermistor is
+placed in a resistive divider, allowing the Arduino to read the voltage out and
+calculate the resistance from that. 
+
+#2 Convert the resistance to a temperature. This is done using the calculation
+provided in the datasheet for the thermistors. 
+
+#3 Offset this temperature. To do this I subtract the desired temperature (which
+I have set) from the current temperature which I have measured. I then add the
+current temperature setting from the TC. 
+
+For example. I want the fridge at 20C, the current temperature is 18C and the TC
+is set to 3C. I then set Hermes to (18 - 20) + 3 = 1C. The TC will try raise its
+temperature by 2C, raising the actual temperature from 18C to 20C, my desired
+temp.
+
+#4 Set the resistance that the TC will read. To achieve I use two digital
+potentiometers (pots), one 100kOhm and the other 5kOhm. Two pot are required
+because the 100kOhm pot can only increment the resistance in 390 Ohm steps.
+This is a problem becuase at high temperates the difference in resistance of a
+thermistor between X degrees and X + 1 degrees is less than 390 Ohms. The 5kOhm
+pot has a small enough step size to handle this but at low temperatures the
+resistance of the thermistor will exceed 5kOhms. Course/fine grain adjustments,
+scales. 
+
+
+Pin Connections:
+
+A0-A5 are each attached to the voltage out of a resistive divder. There can be
+up to 6 thermistos, 3 for each side.
+
+D13 is shared by both digital pots, connecting to their clock (CLK) pin via the
+orange wire.
+
+D11 is shared by both digital pots, connecting to their serial data in (SDI) pin
+via the green wire.
+
+D10 is connection to the 100kOhm pot's slave select (SS) pin via it's yellow wire.
+
+D9 is connection to the 5kOhm pot's slave select (SS) pin via it's yellow wire.
+*/
+
 #include <SPI.h>
 #include <math.h> 
 
-// 256 resistors means 257 steps
+// Each pot has 256 resistors -> 257 steps
 const int STEPS = 257;
-// slave select for the 100kOhm digital pot
 const int LARGE_SS = 9;
-const int LARGE_OHMS = 100000;
-const double LARGE_STEP_SIZE = 390.625;
-// slave select for the 5kOhm digital pot
 const int SMALL_SS = 10;
+const int LARGE_OHMS = 100000;
 const int SMALL_OHMS = 5000;
+
+// OHMS / 256
+const double LARGE_STEP_SIZE = 390.625;
 const double SMALL_STEP_SIZE = 19.53125;
 
-struct Side {
+struct Section {
+  // TODO improve naming
+  // number is used to determine which inputs to read
   int number;
+  // TODO improve naming
+  // writeCmd determines which side of the pot to write to
   uint8_t writeCmd;
   int defaultTemp;
   int desiredTemp;
@@ -35,16 +89,19 @@ struct Side {
 void setup() {
   
   fridge.number = 0;
+  // See table 7-2 in digital pot datasheet
   fridge.writeCmd = B00000000;
   fridge.defaultTemp = 3;
   fridge.desiredTemp = 20;
 
   freezer.number = 1;
+  // See table 7-2 in digital pot datasheet
   freezer.writeCmd = B00010000;
   freezer.defaultTemp = -18;
   freezer.desiredTemp = 7;
 
   Serial.begin(9600);
+
   // set the slaveSelectPin as an output
   pinMode(LARGE_SS, OUTPUT);
   pinMode(SMALL_SS, OUTPUT);
@@ -57,35 +114,66 @@ void setup() {
 void loop() {
   
   // update temperature settings
-  updateSide(fridge);
-  updateSide(freezer);
-  delay(300);
+  Serial.println("**** fridge ****");
+  updateSection(fridge);
+  Serial.println("**** freezer ****");
+  updateSection(freezer);
+  delay(3000);
 
 }
 
-void updateSide(struct Side s) {
-  double tr = getThermistorReading(s);
-  double t = resistanceToTemperature(tr);
-  double ot = offsetTemperature(t, s.desiredTemp, s.defaultTemp);
-  double r = temperatureToResistance(ot);
+void updateSection(struct Section s) {
+  Serial.print("temp: ");
+  Serial.println(s.desiredTemp);
+  double thermistorRes = getThermistorReading(s);
+  Serial.print("curr res: ");
+  Serial.println(thermistorRes);
+  double currentTemp = resistanceToTemperature(thermistorRes);
+  Serial.print("curr temp: ");
+  Serial.println(currentTemp);
+  double offsetTemp = offsetTemperature(currentTemp, s.desiredTemp, s.defaultTemp);
+  Serial.print("offset temp: ");
+  Serial.println(offsetTemp);
+  double currentRes = temperatureToResistance(offsetTemp);
+  Serial.print("offset res: ");
+  Serial.println(currentRes);
   
-  int lv = map(r, 0, LARGE_OHMS, 0, STEPS);
+  int largePotValue = map(currentRes, 0, 100000, 0, STEPS);
   // Invert value because I connectted to the A pin instead of the B.
-  lv = STEPS - lv;
-  writeValue(LARGE_SS, s.writeCmd, uint8_t(lv));
+  /* largePotValue = STEPS - largePotValue; */
+  Serial.print("large pot: ");
+  Serial.println(largePotValue);
+  writeValue(LARGE_SS, s.writeCmd, uint8_t(STEPS - largePotValue));
+
+  double largePotRes = largePotValue * LARGE_STEP_SIZE;
+
+  // we want the large pot res to be less than the offset res so we don't set
+  // some silly value for the small pot
+  if (largePotRes > currentRes ) {
+    largePotValue--;
+  }
 
   // Get the difference between the resistance we want and what we can set on the large pot
-  double dr = r - lv * LARGE_STEP_SIZE;
+  double deltaRes = currentRes - largePotValue * LARGE_STEP_SIZE;
+  Serial.print("diff: ");
+  Serial.println(deltaRes);
 
-  int sv = map(dr, 0, SMALL_OHMS, 0, STEPS);
+  int smallPotValue = map(deltaRes, 0, SMALL_OHMS, 0, STEPS);
+  double smallPotRes = largePotValue * SMALL_STEP_SIZE;
+  double totalRes = largePotRes + smallPotRes;
   // Invert
-  sv = STEPS - sv;
-  writeValue(SMALL_SS, s.writeCmd, uint8_t(sv));
+  /* smallPotValue = STEPS - smallPotValue; */
+  Serial.print("small pot: ");
+  Serial.println(smallPotValue);
+  writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
+
+  Serial.print("total: ");
+  Serial.println(totalRes);
 
   // TODO output to serial
 }
 
-double getThermistorReading(struct Side s){
+double getThermistorReading(struct Section s){
   // themistors may not be plugged in so we need to keep track of how many readings we get.
   int n = 0;
   double sum = 0;
