@@ -118,7 +118,7 @@ void loop() {
   updateSection(fridge);
   Serial.println("**** freezer ****");
   updateSection(freezer);
-  delay(3000);
+  delay(10000);
 
 }
 
@@ -127,12 +127,12 @@ void updateSection(struct Section s) {
   double thermistorRes = getThermistorReading(s);
   double currentTemp = resistanceToTemperature(thermistorRes);
   double offsetTemp = offsetTemperature(currentTemp, s.desiredTemp, s.defaultTemp);
-  double currentRes = temperatureToResistance(offsetTemp);
+  double offsetRes = temperatureToResistance(offsetTemp);
   
-  int largePotValue = map(currentRes, 0, LARGE_OHMS, 0, STEPS);
+  int largePotValue = map(offsetRes, 0, LARGE_OHMS, 0, STEPS);
   // we want the large pot res to be less than the offset res so we don't set
   // some silly value for the small pot
-  if (largePotValue * LARGE_STEP_SIZE > currentRes ) {
+  if (largePotValue * LARGE_STEP_SIZE > offsetRes ) {
     largePotValue--;
   }
   double largePotRes = largePotValue * LARGE_STEP_SIZE;
@@ -141,10 +141,10 @@ void updateSection(struct Section s) {
 
   // Get the difference between the resistance we want and what we can set on
   // the large pot
-  double deltaRes = currentRes - largePotValue * LARGE_STEP_SIZE;
+  double deltaRes = offsetRes - largePotValue * LARGE_STEP_SIZE;
 
   int smallPotValue = map(deltaRes, 0, SMALL_OHMS, 0, STEPS);
-  double smallPotRes = largePotValue * SMALL_STEP_SIZE;
+  double smallPotRes = smallPotValue * SMALL_STEP_SIZE;
   double totalRes = largePotRes + smallPotRes;
   // Invert
   writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
@@ -162,7 +162,7 @@ void updateSection(struct Section s) {
   Serial.println(offsetTemp);
 
   Serial.print("offset res: ");
-  Serial.println(currentRes);
+  Serial.println(offsetRes);
 
   Serial.print("large pot: ");
   Serial.print(largePotValue);
@@ -179,6 +179,9 @@ void updateSection(struct Section s) {
 
   Serial.print("total: ");
   Serial.println(totalRes);
+
+  Serial.print("res err: ");
+  Serial.println(offsetRes - totalRes);
 }
 
 double getThermistorReading(struct Section s){
