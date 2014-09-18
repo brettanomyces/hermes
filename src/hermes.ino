@@ -139,21 +139,19 @@ void updateSection(struct Section s) {
   Serial.println(currentRes);
   
   int largePotValue = map(currentRes, 0, 100000, 0, STEPS);
+  // we want the large pot res to be less than the offset res so we don't set
+  // some silly value for the small pot
+  if (largePotValue * LARGE_STEP_SIZE > currentRes ) {
+    largePotValue--;
+  }
+  double largePotRes = largePotValue * LARGE_STEP_SIZE;
   // Invert value because I connectted to the A pin instead of the B.
-  /* largePotValue = STEPS - largePotValue; */
   Serial.print("large pot: ");
   Serial.println(largePotValue);
   writeValue(LARGE_SS, s.writeCmd, uint8_t(STEPS - largePotValue));
 
-  double largePotRes = largePotValue * LARGE_STEP_SIZE;
-
-  // we want the large pot res to be less than the offset res so we don't set
-  // some silly value for the small pot
-  if (largePotRes > currentRes ) {
-    largePotValue--;
-  }
-
-  // Get the difference between the resistance we want and what we can set on the large pot
+  // Get the difference between the resistance we want and what we can set on
+  // the large pot
   double deltaRes = currentRes - largePotValue * LARGE_STEP_SIZE;
   Serial.print("diff: ");
   Serial.println(deltaRes);
@@ -162,7 +160,6 @@ void updateSection(struct Section s) {
   double smallPotRes = largePotValue * SMALL_STEP_SIZE;
   double totalRes = largePotRes + smallPotRes;
   // Invert
-  /* smallPotValue = STEPS - smallPotValue; */
   Serial.print("small pot: ");
   Serial.println(smallPotValue);
   writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
@@ -174,7 +171,8 @@ void updateSection(struct Section s) {
 }
 
 double getThermistorReading(struct Section s){
-  // themistors may not be plugged in so we need to keep track of how many readings we get.
+  // themistors may not be plugged in so we need to keep track of how many
+  // readings we get.
   int n = 0;
   double sum = 0;
   // input values will be 0, 1, 2 for side 0 and 3, 4, 5 for side 1
@@ -206,7 +204,9 @@ double analogToVoltage(double analog){
   return (analog / 1024.0) * 5.0;
 }
 
-/* Calculate the resistance (r1) of the thermistor in the resistive divider circuit */
+/* Calculate the resistance (r1) of the thermistor in the resistive divider
+ * circuit 
+ */
 double voltageToResistance(double vOut){
   
   double vIn = 5; // Volts
