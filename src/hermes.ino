@@ -68,8 +68,8 @@ D9 is connection to the 5kOhm pot's slave select (SS) pin via it's yellow wire.
 const int STEPS = 257;
 const int LARGE_SS = 9;
 const int SMALL_SS = 10;
-const int LARGE_OHMS = 100000;
-const int SMALL_OHMS = 5000;
+const double LARGE_OHMS = 100000;
+const double SMALL_OHMS = 5000;
 
 // OHMS / 256
 const double LARGE_STEP_SIZE = 390.625;
@@ -123,22 +123,13 @@ void loop() {
 }
 
 void updateSection(struct Section s) {
-  Serial.print("temp: ");
-  Serial.println(s.desiredTemp);
+
   double thermistorRes = getThermistorReading(s);
-  Serial.print("curr res: ");
-  Serial.println(thermistorRes);
   double currentTemp = resistanceToTemperature(thermistorRes);
-  Serial.print("curr temp: ");
-  Serial.println(currentTemp);
   double offsetTemp = offsetTemperature(currentTemp, s.desiredTemp, s.defaultTemp);
-  Serial.print("offset temp: ");
-  Serial.println(offsetTemp);
   double currentRes = temperatureToResistance(offsetTemp);
-  Serial.print("offset res: ");
-  Serial.println(currentRes);
   
-  int largePotValue = map(currentRes, 0, 100000, 0, STEPS);
+  int largePotValue = map(currentRes, 0, LARGE_OHMS, 0, STEPS);
   // we want the large pot res to be less than the offset res so we don't set
   // some silly value for the small pot
   if (largePotValue * LARGE_STEP_SIZE > currentRes ) {
@@ -146,28 +137,48 @@ void updateSection(struct Section s) {
   }
   double largePotRes = largePotValue * LARGE_STEP_SIZE;
   // Invert value because I connectted to the A pin instead of the B.
-  Serial.print("large pot: ");
-  Serial.println(largePotValue);
   writeValue(LARGE_SS, s.writeCmd, uint8_t(STEPS - largePotValue));
 
   // Get the difference between the resistance we want and what we can set on
   // the large pot
   double deltaRes = currentRes - largePotValue * LARGE_STEP_SIZE;
-  Serial.print("diff: ");
-  Serial.println(deltaRes);
 
   int smallPotValue = map(deltaRes, 0, SMALL_OHMS, 0, STEPS);
   double smallPotRes = largePotValue * SMALL_STEP_SIZE;
   double totalRes = largePotRes + smallPotRes;
   // Invert
-  Serial.print("small pot: ");
-  Serial.println(smallPotValue);
   writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
+
+  Serial.print("temp: ");
+  Serial.println(s.desiredTemp);
+
+  Serial.print("curr res: ");
+  Serial.println(thermistorRes);
+
+  Serial.print("curr temp: ");
+  Serial.println(currentTemp);
+
+  Serial.print("offset temp: ");
+  Serial.println(offsetTemp);
+
+  Serial.print("offset res: ");
+  Serial.println(currentRes);
+
+  Serial.print("large pot: ");
+  Serial.print(largePotValue);
+  Serial.print(" -> ");
+  Serial.println(largePotRes);
+
+  Serial.print("diff: ");
+  Serial.println(deltaRes);
+
+  Serial.print("small pot: ");
+  Serial.print(smallPotValue);
+  Serial.print(" -> ");
+  Serial.println(smallPotRes);
 
   Serial.print("total: ");
   Serial.println(totalRes);
-
-  // TODO output to serial
 }
 
 double getThermistorReading(struct Section s){
