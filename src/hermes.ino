@@ -75,6 +75,9 @@ const double SMALL_OHMS = 5000;
 const double LARGE_STEP_SIZE = 390.625;
 const double SMALL_STEP_SIZE = 19.53125;
 
+double LARGE_RW = 75;
+double SMALL_RW = 75;
+
 struct Section {
   // TODO improve naming
   // number is used to determine which inputs to read
@@ -84,21 +87,25 @@ struct Section {
   uint8_t writeCmd;
   int defaultTemp;
   int desiredTemp;
+  int feedbackPin;
+  int inputPin;
 } fridge, freezer;
 
 void setup() {
   
-  fridge.number = 0;
   // See table 7-2 in digital pot datasheet
-  fridge.writeCmd = B00000000;
+  fridge.writeCmd = B00010000;
   fridge.defaultTemp = 3;
   fridge.desiredTemp = 20;
+  fridge.feedbackPin = 5;
+  fridge.inputPin = 3;
 
-  freezer.number = 1;
   // See table 7-2 in digital pot datasheet
-  freezer.writeCmd = B00010000;
+  freezer.writeCmd = B00000000;
   freezer.defaultTemp = -18;
   freezer.desiredTemp = 7;
+  freezer.feedbackPin = 0;
+  freezer.inputPin = 2;
 
   Serial.begin(9600);
 
@@ -124,7 +131,7 @@ void loop() {
 
 void updateSection(struct Section s) {
 
-  double thermistorRes = getThermistorReading(s);
+  double thermistorRes = getInputResistance(s.inputPin);
   double currentTemp = resistanceToTemperature(thermistorRes);
   double offsetTemp = offsetTemperature(currentTemp, s.desiredTemp, s.defaultTemp);
   double offsetRes = temperatureToResistance(offsetTemp);
@@ -149,6 +156,8 @@ void updateSection(struct Section s) {
   // Invert
   writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
 
+  double actualRes = getInputResistance(s.feedbackPin);
+
   Serial.print("temp: ");
   Serial.println(s.desiredTemp);
 
@@ -163,6 +172,9 @@ void updateSection(struct Section s) {
 
   Serial.print("offset res: ");
   Serial.println(offsetRes);
+
+  Serial.print("actual res: ");
+  Serial.println(actualRes);
 
   Serial.print("large pot: ");
   Serial.print(largePotValue);
@@ -184,34 +196,15 @@ void updateSection(struct Section s) {
   Serial.println(offsetRes - totalRes);
 }
 
-double getThermistorReading(struct Section s){
-  // themistors may not be plugged in so we need to keep track of how many
-  // readings we get.
-  int n = 0;
-  double sum = 0;
-  // input values will be 0, 1, 2 for side 0 and 3, 4, 5 for side 1
-  int i;
-  for(i = 0; i < 3; i++){
-    int input = i + s.number * 3;
-    double analog = readInput(input);
-    if (analog > 1.0 ){
-      // if not then the thermistor is (probably) not plugged in.
-      double inputVoltage  = analogToVoltage(analog);
-      double inputResistance = voltageToResistance(inputVoltage);
-      n += 1;
-      sum += inputResistance;
-    }
-  }
-  return  sum / (double)n;
-}
-
-double readInput(int pin){
+double getInputResistance(int pin){
   double sum = 0;
   int i;
   for (i = 0; i < 100; i++){
     sum += (double) analogRead(pin);
   }
-  return sum / 100.0;
+  double analog =  sum / 100.0;
+  double inputVoltage  = analogToVoltage(analog);
+  return voltageToResistance(inputVoltage);
 }
 
 double analogToVoltage(double analog){
