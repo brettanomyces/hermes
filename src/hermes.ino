@@ -94,17 +94,17 @@ struct Section {
 void setup() {
   
   // See table 7-2 in digital pot datasheet
+  fridge.number = 1;
   fridge.writeCmd = B00010000;
   fridge.defaultTemp = 3;
   fridge.desiredTemp = 20;
-  fridge.feedbackPin = 5;
   fridge.inputPin = 3;
 
   // See table 7-2 in digital pot datasheet
+  freezer.number = 0;
   freezer.writeCmd = B00000000;
   freezer.defaultTemp = -18;
   freezer.desiredTemp = 7;
-  freezer.feedbackPin = 0;
   freezer.inputPin = 2;
 
   Serial.begin(9600);
@@ -121,9 +121,7 @@ void setup() {
 void loop() {
   
   // update temperature settings
-  Serial.println("**** fridge ****");
   updateSection(fridge);
-  Serial.println("**** freezer ****");
   updateSection(freezer);
   delay(10000);
 
@@ -131,8 +129,8 @@ void loop() {
 
 void updateSection(struct Section s) {
 
-  double thermistorRes = getInputResistance(s.inputPin);
-  double currentTemp = resistanceToTemperature(thermistorRes);
+  double currentRes = getInputResistance(s.inputPin);
+  double currentTemp = resistanceToTemperature(currentRes);
   double offsetTemp = offsetTemperature(currentTemp, s.desiredTemp, s.defaultTemp);
   double offsetRes = temperatureToResistance(offsetTemp);
   
@@ -152,48 +150,61 @@ void updateSection(struct Section s) {
 
   int smallPotValue = map(deltaRes, 0, SMALL_OHMS, 0, STEPS);
   double smallPotRes = smallPotValue * SMALL_STEP_SIZE;
-  double totalRes = largePotRes + smallPotRes;
   // Invert
   writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
 
-  double actualRes = getInputResistance(s.feedbackPin);
-
-  Serial.print("temp: ");
-  Serial.println(s.desiredTemp);
-
-  Serial.print("curr res: ");
-  Serial.println(thermistorRes);
-
-  Serial.print("curr temp: ");
-  Serial.println(currentTemp);
-
+  Serial.print("num: ");
+  Serial.print(s.number);
+  Serial.print(",");
+  Serial.println();
+  // temp: 
+  Serial.print("temp setting: ");
+  Serial.print(s.desiredTemp);
+  Serial.print(",");
+  Serial.println();
+  // curr res: 
+  Serial.print("res reading: ");
+  Serial.print(currentRes);
+  Serial.print(",");
+  Serial.println();
+  // curr temp: 
+  Serial.print("temp reading: ");
+  Serial.print(currentTemp);
+  Serial.print(",");
+  Serial.println();
+  // offset temp: 
   Serial.print("offset temp: ");
-  Serial.println(offsetTemp);
-
+  Serial.print(offsetTemp);
+  Serial.print(",");
+  Serial.println();
+  // offset res: 
   Serial.print("offset res: ");
-  Serial.println(offsetRes);
-
-  Serial.print("actual res: ");
-  Serial.println(actualRes);
-
-  Serial.print("large pot: ");
+  Serial.print(offsetRes);
+  Serial.print(",");
+  Serial.println();
+  // large pot: 
+  Serial.print("large pot value: ");
   Serial.print(largePotValue);
-  Serial.print(" -> ");
-  Serial.println(largePotRes);
-
-  Serial.print("diff: ");
-  Serial.println(deltaRes);
-
-  Serial.print("small pot: ");
+  Serial.print(",");
+  Serial.println();
+  Serial.print("large pot res: ");
+  Serial.print(largePotRes);
+  Serial.print(",");
+  Serial.println();
+  // diff: 
+  Serial.print("delta res: ");
+  Serial.print(deltaRes);
+  Serial.print(",");
+  Serial.println();
+  // small pot: 
+  Serial.print("small pot value: ");
   Serial.print(smallPotValue);
-  Serial.print(" -> ");
-  Serial.println(smallPotRes);
-
-  Serial.print("total: ");
-  Serial.println(totalRes);
-
-  Serial.print("res err: ");
-  Serial.println(offsetRes - totalRes);
+  Serial.print(",");
+  Serial.println();
+  Serial.print("small pot res: ");
+  Serial.print(smallPotRes);
+  
+  Serial.println();
 }
 
 double getInputResistance(int pin){
