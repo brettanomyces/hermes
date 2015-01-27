@@ -10,14 +10,17 @@ void setup() {
 
 void loop() {
   
-  double fridgeTemp readTemperature(fridgeTempPin);
-  double freezerTemp readTemperature(freezerTempPin);
+  double fridgeTemp = readTemperature(fridgeTempPin);
+  double freezerTemp = readTemperature(freezerTempPin);
 
-  // update temperature settings
-  updateSection(fridge);
-  updateSection(freezer);
-  Serial.println("Fridge: " + fridgeTemp);
-  Serial.println("Freezer: " + freezerTemp);
+  Serial.print("Fridge: ");
+  Serial.print(fridgeTemp);
+  Serial.println();
+
+  Serial.print("Freezer: "); 
+  Serial.print(freezerTemp);
+  Serial.println();
+
   delay(1000);
 
 }
