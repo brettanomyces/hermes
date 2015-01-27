@@ -48,8 +48,9 @@ double analogToVoltage(double analog){
   return (analog / 1024.0) * 5.0;
 }
 
-/* Calculate the resistance (r1) of the thermistor in the resistive divider
- * circuit 
+/* Calculate the resistance of the thermistor in the resistive divider
+ * circuit. Note the calculation is different depending on whether the 
+ * thermistor is in posiotion r1 or r2.
  */
 double voltageToResistance(double vOut){
   if thermistorPos == 1 {
