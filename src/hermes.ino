@@ -2,6 +2,8 @@
 
 int fridgeTempPin = 2;
 int freezerTempPin = 3;
+// is the thermistor r1 or r2?
+int thermistorPos = 2;
 int dividerRes = 10000; // Ohm
 
 void setup() {
@@ -26,20 +28,20 @@ void loop() {
 }
 
 double readTemperature(int pin) {
-  double res = getInputResistance(pin);
+  double res = getThermistorResistance(pin);
   double temp = resistanceToTemperature(res);
   return temp;
 }
 
-double getInputResistance(int pin){
+double getThermistorResistance(int pin){
   double sum = 0;
   int i;
   for (i = 0; i < 100; i++){
     sum += (double) analogRead(pin);
   }
   double analog =  sum / 100.0;
-  double inputVoltage  = analogToVoltage(analog);
-  return voltageToResistance(inputVoltage);
+  double pinVoltage  = analogToVoltage(analog);
+  return voltageToResistance(pinVoltage);
 }
 
 double analogToVoltage(double analog){
@@ -50,12 +52,27 @@ double analogToVoltage(double analog){
  * circuit 
  */
 double voltageToResistance(double vOut){
+  if thermistorPos == 1 {
+    return calculateR1(vOut);
+  } else {
+    return calculateR2(vOut);
+  }
+}
   
+double calculateR1(double vOut){
   double vIn = 5; // Volts
   double r2 = dividerRes; // Ohms
   double r1 = ((r2 * vIn) / vOut) - r2;
 
   return r1;
+}
+
+double calculateR2(double vOut){
+  double vIn = 5; // Volts
+  double r1 = dividerRes; // Ohms
+  double r2 = r1 * (1 / ((vIn / vOut) - 1));
+
+  return r2;
 }
 
 double temperatureToResistance(double t) {
