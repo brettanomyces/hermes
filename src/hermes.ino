@@ -1,210 +1,31 @@
-/*
-Hermes
-
-I recently acquired a side by side fridge freezer. I plan to use the freezer
-section of the FF as a keezer (keg fridge) and the fridge section as a
-fermentation chamger. Unfortunately the temperature ranges allowed by the FF's
-inbuilt digital temperature controller do not match up with the ranges I require
-for my purpose.
-
-The FF has a digital temperature controller (TC) which also controls the door
-switches, lights and baffels.  Not wanting to rip out the exisiting TC I decided
-to trick it into thinking the temperature is different to what it actually is.
-
-The TC uses thermistors, resistors whose resistance changes with temperature, to
-read the temperature. My unit (Hermes) basically sits inbetween the TC and the
-thermistor, reading the resistance of the thermistor and offsetting it by some
-about. The TC then reads this offset resistance. 
-
-Hermes can take readings from up to 6 thermistors, however I will explain its
-operation for only one thermistor per side of the FF.
-
-#1 Read get the resistance of the thermistor. To do this the thermistor is
-placed in a resistive divider, allowing the Arduino to read the voltage out and
-calculate the resistance from that. 
-
-#2 Convert the resistance to a temperature. This is done using the calculation
-provided in the datasheet for the thermistors. 
-
-#3 Offset this temperature. To do this I subtract the desired temperature (which
-I have set) from the current temperature which I have measured. I then add the
-current temperature setting from the TC. 
-
-For example. I want the fridge at 20C, the current temperature is 18C and the TC
-is set to 3C. I then set Hermes to (18 - 20) + 3 = 1C. The TC will try raise its
-temperature by 2C, raising the actual temperature from 18C to 20C, my desired
-temp.
-
-#4 Set the resistance that the TC will read. To achieve I use two digital
-potentiometers (pots), one 100kOhm and the other 5kOhm. Two pot are required
-because the 100kOhm pot can only increment the resistance in 390 Ohm steps.
-This is a problem becuase at high temperates the difference in resistance of a
-thermistor between X degrees and X + 1 degrees is less than 390 Ohms. The 5kOhm
-pot has a small enough step size to handle this but at low temperatures the
-resistance of the thermistor will exceed 5kOhms. Course/fine grain adjustments,
-scales. 
-
-
-Pin Connections:
-
-A0-A5 are each attached to the voltage out of a resistive divder. There can be
-up to 6 thermistos, 3 for each side.
-
-D13 is shared by both digital pots, connecting to their clock (CLK) pin via the
-orange wire.
-
-D11 is shared by both digital pots, connecting to their serial data in (SDI) pin
-via the green wire.
-
-D10 is connection to the 100kOhm pot's slave select (SS) pin via it's yellow wire.
-
-D9 is connection to the 5kOhm pot's slave select (SS) pin via it's yellow wire.
-*/
-
-#include <SPI.h>
 #include <math.h> 
 
-// Each pot has 256 resistors -> 257 steps
-const int STEPS = 257;
-const int LARGE_SS = 9;
-const int SMALL_SS = 10;
-const double LARGE_OHMS = 100000;
-const double SMALL_OHMS = 5000;
-
-// OHMS / 256
-const double LARGE_STEP_SIZE = 390.625;
-const double SMALL_STEP_SIZE = 19.53125;
-
-double LARGE_RW = 75;
-double SMALL_RW = 75;
-
-struct Section {
-  // TODO improve naming
-  // number is used to determine which inputs to read
-  int number;
-  // TODO improve naming
-  // writeCmd determines which side of the pot to write to
-  uint8_t writeCmd;
-  int defaultTemp;
-  int desiredTemp;
-  int feedbackPin;
-  int inputPin;
-} fridge, freezer;
+int fridgeTempPin = 2;
+int freezerTempPin = 3;
+int dividerRes = 10000; // Ohm
 
 void setup() {
-  
-  // See table 7-2 in digital pot datasheet
-  fridge.number = 1;
-  fridge.writeCmd = B00010000;
-  fridge.defaultTemp = 3;
-  fridge.desiredTemp = 20;
-  fridge.inputPin = 3;
-
-  // See table 7-2 in digital pot datasheet
-  freezer.number = 0;
-  freezer.writeCmd = B00000000;
-  freezer.defaultTemp = -18;
-  freezer.desiredTemp = 7;
-  freezer.inputPin = 2;
-
   Serial.begin(9600);
-
-  // set the slaveSelectPin as an output
-  pinMode(LARGE_SS, OUTPUT);
-  pinMode(SMALL_SS, OUTPUT);
-
-  // initialize SPI
-  SPI.begin();
-
-} // Void Setup Close
+} 
 
 void loop() {
   
+  double fridgeTemp readTemperature(fridgeTempPin);
+  double freezerTemp readTemperature(freezerTempPin);
+
   // update temperature settings
   updateSection(fridge);
   updateSection(freezer);
-  delay(10000);
+  Serial.println("Fridge: " + fridgeTemp);
+  Serial.println("Freezer: " + freezerTemp);
+  delay(1000);
 
 }
 
-void updateSection(struct Section s) {
-
-  double currentRes = getInputResistance(s.inputPin);
-  double currentTemp = resistanceToTemperature(currentRes);
-  double offsetTemp = offsetTemperature(currentTemp, s.desiredTemp, s.defaultTemp);
-  double offsetRes = temperatureToResistance(offsetTemp);
-  
-  int largePotValue = map(offsetRes, 0, LARGE_OHMS, 0, STEPS);
-  // we want the large pot res to be less than the offset res so we don't set
-  // some silly value for the small pot
-  if (largePotValue * LARGE_STEP_SIZE > offsetRes ) {
-    largePotValue--;
-  }
-  double largePotRes = largePotValue * LARGE_STEP_SIZE;
-  // Invert value because I connectted to the A pin instead of the B.
-  writeValue(LARGE_SS, s.writeCmd, uint8_t(STEPS - largePotValue));
-
-  // Get the difference between the resistance we want and what we can set on
-  // the large pot
-  double deltaRes = offsetRes - largePotValue * LARGE_STEP_SIZE;
-
-  int smallPotValue = map(deltaRes, 0, SMALL_OHMS, 0, STEPS);
-  double smallPotRes = smallPotValue * SMALL_STEP_SIZE;
-  // Invert
-  writeValue(SMALL_SS, s.writeCmd, uint8_t(STEPS - smallPotValue));
-
-  Serial.print("num: ");
-  Serial.print(s.number);
-  Serial.print(",");
-  Serial.println();
-  // temp: 
-  Serial.print("temp setting: ");
-  Serial.print(s.desiredTemp);
-  Serial.print(",");
-  Serial.println();
-  // curr res: 
-  Serial.print("res reading: ");
-  Serial.print(currentRes);
-  Serial.print(",");
-  Serial.println();
-  // curr temp: 
-  Serial.print("temp reading: ");
-  Serial.print(currentTemp);
-  Serial.print(",");
-  Serial.println();
-  // offset temp: 
-  Serial.print("offset temp: ");
-  Serial.print(offsetTemp);
-  Serial.print(",");
-  Serial.println();
-  // offset res: 
-  Serial.print("offset res: ");
-  Serial.print(offsetRes);
-  Serial.print(",");
-  Serial.println();
-  // large pot: 
-  Serial.print("large pot value: ");
-  Serial.print(largePotValue);
-  Serial.print(",");
-  Serial.println();
-  Serial.print("large pot res: ");
-  Serial.print(largePotRes);
-  Serial.print(",");
-  Serial.println();
-  // diff: 
-  Serial.print("delta res: ");
-  Serial.print(deltaRes);
-  Serial.print(",");
-  Serial.println();
-  // small pot: 
-  Serial.print("small pot value: ");
-  Serial.print(smallPotValue);
-  Serial.print(",");
-  Serial.println();
-  Serial.print("small pot res: ");
-  Serial.print(smallPotRes);
-  
-  Serial.println();
+double readTemperature(int pin) {
+  double res = getInputResistance(pin);
+  double temp = resistanceToTemperature(res);
+  return temp;
 }
 
 double getInputResistance(int pin){
@@ -228,7 +49,7 @@ double analogToVoltage(double analog){
 double voltageToResistance(double vOut){
   
   double vIn = 5; // Volts
-  double r2 = 100000; // Ohms
+  double r2 = dividerRes; // Ohms
   double r1 = ((r2 * vIn) / vOut) - r2;
 
   return r1;
@@ -321,23 +142,3 @@ double resistanceToTemperature(double Rt){
   return tCelcius;
 
 }
-
-/* Returns the temperature that we want the device to think it is */
-double offsetTemperature(double currentTemp, double desiredTemp, double defaultTemp){
-  return defaultTemp + (currentTemp - desiredTemp);
-}
-
-/**
- * potSS is the microchip to write to, either the 100kOhm or the 5kOhm.
- * address is the digital pot within the microchip to write to.
- * value is the value to set for that micochip and pot.
- **/
-void writeValue(int ss, uint8_t c, uint8_t v) {
-  // take the SS pin low to select the chip
-  digitalWrite(ss, LOW);
-  SPI.transfer(c);
-  SPI.transfer(v);
-  // take the SS pin high to de-select the chip
-  digitalWrite(ss, HIGH);
-}
-
