@@ -1,39 +1,18 @@
-#include <math.h> 
+#include <Arduino.h>
+#include <math.h>
+#include "TemperatureSensor.h"
 
-int fridgeTempPin = 2;
-int freezerTempPin = 3;
-// is the thermistor r1 or r2?
-int thermistorPos = 2;
-int dividerRes = 10000; // Ohm
-
-void setup() {
-  Serial.begin(9600);
-} 
-
-void loop() {
-  
-  double fridgeTemp = readTemperature(fridgeTempPin);
-  double freezerTemp = readTemperature(freezerTempPin);
-
-  Serial.print("Fridge: ");
-  Serial.print(fridgeTemp);
-  Serial.println();
-
-  Serial.print("Freezer: "); 
-  Serial.print(freezerTemp);
-  Serial.println();
-
-  delay(1000);
-
+TemperatureSensor::TemperatureSensor() {
+	// init variables
 }
 
-double readTemperature(int pin) {
-  double res = getThermistorResistance(pin);
-  double temp = resistanceToTemperature(res);
-  return temp;
+double TemperatureSensor::readTemperature(int pin){
+	double resistance = calculateThermistorResistance(pin);
+	double temperature = resistanceToTemperature(resistance);
+	return temperature;
 }
 
-double getThermistorResistance(int pin){
+double TemperatureSensor::calculateThermistorResistance(int pin){
   double sum = 0;
   int i;
   for (i = 0; i < 100; i++){
@@ -44,7 +23,7 @@ double getThermistorResistance(int pin){
   return voltageToResistance(pinVoltage);
 }
 
-double analogToVoltage(double analog){
+double TemperatureSensor::analogToVoltage(double analog){
   return (analog / 1024.0) * 5.0;
 }
 
@@ -52,15 +31,15 @@ double analogToVoltage(double analog){
  * circuit. Note the calculation is different depending on whether the 
  * thermistor is in posiotion r1 or r2.
  */
-double voltageToResistance(double vOut){
-  if thermistorPos == 1 {
+double TemperatureSensor::voltageToResistance(double vOut){
+  if (thermistorPos == 1) {
     return calculateR1(vOut);
   } else {
     return calculateR2(vOut);
   }
 }
   
-double calculateR1(double vOut){
+double TemperatureSensor::calculateR1(double vOut){
   double vIn = 5; // Volts
   double r2 = dividerRes; // Ohms
   double r1 = ((r2 * vIn) / vOut) - r2;
@@ -68,7 +47,7 @@ double calculateR1(double vOut){
   return r1;
 }
 
-double calculateR2(double vOut){
+double TemperatureSensor::calculateR2(double vOut){
   double vIn = 5; // Volts
   double r1 = dividerRes; // Ohms
   double r2 = r1 * (1 / ((vIn / vOut) - 1));
@@ -76,7 +55,7 @@ double calculateR2(double vOut){
   return r2;
 }
 
-double temperatureToResistance(double t) {
+double TemperatureSensor::temperatureToResistance(double t) {
 
   // Resistance of thermistor at 25 degrees celcius
   int R25 = 5000;
@@ -117,7 +96,7 @@ double temperatureToResistance(double t) {
   return R25 * exp( A + B / tKelvin + C / pow(tKelvin, 2) + D / pow(tKelvin, 3));
 }
 
-double resistanceToTemperature(double Rt){
+double TemperatureSensor::resistanceToTemperature(double Rt){
 
   // Resistance of thermistor at 25 degrees celcius
   double R25 = 5000;
