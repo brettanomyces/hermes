@@ -8,13 +8,14 @@
 class Baffel {
 	public:
 		Baffel(int ena, int in1, int in2, int in3, int in4, int enb);
-		
 		void open();
 		void close();
+		bool isOpen();
 
 	private:
 		int m_ena;
 		int m_enb;
+		bool m_open;
 		Stepper m_stepper;
 
 		static const int STEPS = 300;

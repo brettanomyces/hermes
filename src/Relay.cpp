@@ -9,11 +9,16 @@ Relay::Relay(int pin){
 
 void Relay::on(){
 	digitalWrite(m_pin, HIGH);
+	m_on = true;
 }
 
 void Relay::off(){
 	digitalWrite(m_pin, LOW);
+	m_on = false;
 }
 
+bool Relay::isOn(){
+	return m_on;
+}
 
 

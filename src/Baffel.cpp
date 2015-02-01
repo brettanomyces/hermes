@@ -6,18 +6,21 @@ Baffel::Baffel(int ena, int in1, int in2, int in3, int in4, int enb)
 	m_ena = ena;
 	m_enb = enb;
 	m_stepper.setSpeed(SPEED);
+	close();
 }
 
 void Baffel::open(){
 	enable();
 	m_stepper.step(6 * STEPS);
 	disable();
+	m_open = true;
 }
 
 void Baffel::close(){
 	enable();
 	m_stepper.step(-6 * STEPS);
 	disable();
+	m_open = false;
 }
 
 void Baffel::enable(){
@@ -28,4 +31,8 @@ void Baffel::enable(){
 void Baffel::disable(){
 	digitalWrite(m_ena, LOW);
 	digitalWrite(m_enb, LOW);
+}
+
+bool Baffel::isOpen(){
+	return m_open;
 }

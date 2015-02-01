@@ -9,8 +9,10 @@ class Relay {
 
 		void on();
 		void off();
+		bool isOn();
 
 	private:
 		int m_pin;
+		bool m_on;
 };
 #endif

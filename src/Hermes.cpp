@@ -2,6 +2,7 @@
 #include "Baffel.h"
 #include "Relay.h"
 #include "TemperatureSensor.h"
+#include "TemperatureController.h"
 
 
 TemperatureSensor fridgeSensor(2, 2, 10000);
@@ -10,6 +11,14 @@ Baffel baffel(13, 12, 11, 10, 9, 8);
 Relay fan(4);
 Relay compressor(5);
 Relay heater(6);
+TemperatureController controller(
+    baffel, 
+    compressor, 
+    fan, 
+    heater,
+    freezerSensor, 
+    fridgeSensor
+    );
 
 void setup() {
   baffel.close();
