@@ -2,25 +2,29 @@
 #include <math.h>
 #include "TemperatureSensor.h"
 
-TemperatureSensor::TemperatureSensor() {
-	// init variables
+TemperatureSensor::TemperatureSensor(int pin, int thermistorPosition, int resistorValue) {
+	// init member variables
+	m_pin = pin;
+	m_thermistorPosition = thermistorPosition;
+	m_resistorValue = resistorValue;
 }
 
-double TemperatureSensor::readTemperature(int pin){
-	double resistance = calculateThermistorResistance(pin);
-	double temperature = resistanceToTemperature(resistance);
-	return temperature;
+double TemperatureSensor::readTemperature(){
+	double vOut = measureVoltage(m_pin);
+	double res = voltageToResistance(vOut);
+	double temp = resistanceToTemperature(res);
+	return temp;
 }
 
-double TemperatureSensor::calculateThermistorResistance(int pin){
+double TemperatureSensor::measureVoltage(int pin){
   double sum = 0;
   int i;
   for (i = 0; i < 100; i++){
     sum += (double) analogRead(pin);
   }
   double analog =  sum / 100.0;
-  double pinVoltage  = analogToVoltage(analog);
-  return voltageToResistance(pinVoltage);
+  double vOut  = analogToVoltage(analog);
+  return vOut;
 }
 
 double TemperatureSensor::analogToVoltage(double analog){
@@ -32,7 +36,7 @@ double TemperatureSensor::analogToVoltage(double analog){
  * thermistor is in posiotion r1 or r2.
  */
 double TemperatureSensor::voltageToResistance(double vOut){
-  if (thermistorPos == 1) {
+  if (m_thermistorPosition == 1) {
     return calculateR1(vOut);
   } else {
     return calculateR2(vOut);
@@ -40,17 +44,15 @@ double TemperatureSensor::voltageToResistance(double vOut){
 }
   
 double TemperatureSensor::calculateR1(double vOut){
-  double vIn = 5; // Volts
-  double r2 = dividerRes; // Ohms
-  double r1 = ((r2 * vIn) / vOut) - r2;
+  double r2 = m_resistorValue; 
+  double r1 = ((r2 * V_IN) / vOut) - r2;
 
   return r1;
 }
 
 double TemperatureSensor::calculateR2(double vOut){
-  double vIn = 5; // Volts
-  double r1 = dividerRes; // Ohms
-  double r2 = r1 * (1 / ((vIn / vOut) - 1));
+  double r1 = m_resistorValue;
+  double r2 = r1 * (1 / ((V_IN / vOut) - 1));
 
   return r2;
 }

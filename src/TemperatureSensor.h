@@ -1,25 +1,26 @@
-#ifndef _HERMES_TEMP_SENSOR_LIB_
-#define _HERMES_TEMP_SENSOR_LIB_
+#ifndef _HERMES_TEMP_SENSOR_
+#define _HERMES_TEMP_SENSOR_
 
 #include <Arduino.h>
 
 class TemperatureSensor {
 
 	public:
+		// Constructor
+		TemperatureSensor(int pin, int thermistorPosition, int resistorValue);
 
-		TemperatureSensor();
-
-		double readTemperature(int pin);
+		double readTemperature();
 
 	private:
-
 		// Variables
+		int m_pin;
+		int m_thermistorPosition;
+		int m_resistorValue;
 
 		// Constants
-		int thermistorPos = 2;
-		int dividerRes = 10000;
+		const double V_IN = 5.0;
 		
-		double calculateThermistorResistance(int pin);
+		double measureVoltage(int pin);
 		double analogToVoltage(double analog);
 		double voltageToResistance(double vOut);
 		double calculateR1(double vOut);

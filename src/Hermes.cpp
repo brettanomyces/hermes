@@ -1,21 +1,21 @@
 #include <Arduino.h>
 #include "TemperatureSensor.h"
+#include "Baffel.h"
 
-int fridgeTempPin = 2;
-int freezerTempPin = 3;
-
-TemperatureSensor ts;
+TemperatureSensor fridgeSensor(2, 2, 10000);
+TemperatureSensor freezerSensor(3, 2, 10000);
+Baffel baffel(13, 12, 11, 10, 9, 8);
 
 void setup() {
+  baffel.close();
   Serial.begin(9600);
   delay(1000);
 } 
 
 void loop() {
   
-  
-  double fridgeTemp = ts.readTemperature(fridgeTempPin);
-  double freezerTemp = ts.readTemperature(freezerTempPin);
+  double fridgeTemp = fridgeSensor.readTemperature();
+  double freezerTemp = freezerSensor.readTemperature();
 
   Serial.print("Fridge: ");
   Serial.print(fridgeTemp);
