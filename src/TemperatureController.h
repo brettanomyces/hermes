@@ -5,11 +5,6 @@
 #include "Relay.h"
 #include "TemperatureSensor.h"
 
-// Forward Declaration
-class Baffel;
-class Relay;
-class TemperatureSensor;
-
 class TemperatureController {
 	public:
 		TemperatureController(
@@ -17,13 +12,13 @@ class TemperatureController {
 			Relay& compressorRelay,
 			Relay& fanRelay,
 			Relay& heaterRelay,
-			TemperatureSensor& freezerTempSenor,
-			TemperatureSensor& fridgeTempSensor
+			TemperatureSensor& freezerSensor,
+			TemperatureSensor& fridgeSensor
 		);
 
 		void maintainTemperature();
-		void setCompressorDelayTime(unsigned long seconds);
-		void setDifference(double temperature);
+		void setCompressorDelayTime(unsigned long millis);
+		void setDifference(double degrees);
 		void setFreezerTemperature(double temperature);
 		void setFridgeTemperature(double temperature);
 

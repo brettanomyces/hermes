@@ -1,25 +1,20 @@
 #include <Arduino.h>
 #include "TemperatureController.h"
 
-// Forward Declaration
-class Baffel;
-class Relay;
-class TemperatureSensor;
-
-class TemperatureController::TemperatureController(
+TemperatureController::TemperatureController(
 		Baffel& baffel,
 		Relay& compressorRelay,
 		Relay& fanRelay,
 		Relay& heaterRelay,
-		TemperatureSensor& freezerTempSenor,
-		TemperatureSensor& fridgeTempSensor
+		TemperatureSensor& freezerSensor,
+		TemperatureSensor& fridgeSensor
 		):
 		m_baffel(baffel),
 		m_compressorRelay(compressorRelay),
 		m_fanRelay(fanRelay),
 		m_heaterRelay(heaterRelay),
-		m_freezerSensor(freezerTempSenor),
-		m_fridgeSensor(fridgeTempSensor)
+		m_freezerSensor(freezerSensor),
+		m_fridgeSensor(fridgeSensor)
 		{
 	m_fridgeSetValue = 20.0;
 	m_freezerSetValue = 10.0;
