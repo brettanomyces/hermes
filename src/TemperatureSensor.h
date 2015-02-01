@@ -18,7 +18,7 @@ class TemperatureSensor {
 		int m_resistorValue;
 
 		// Constants
-		const double V_IN = 5.0;
+		static const double V_IN = 5.0;
 		
 		double measureVoltage(int pin);
 		double analogToVoltage(double analog);

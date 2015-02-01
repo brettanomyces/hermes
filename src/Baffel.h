@@ -17,8 +17,8 @@ class Baffel {
 		int m_enb;
 		Stepper m_stepper;
 
-		const int STEPS = 300;
-		const int SPEED = 100;
+		static const int STEPS = 300;
+		static const int SPEED = 100;
 
 		void enable();
 		void disable();
