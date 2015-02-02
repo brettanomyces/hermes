@@ -16,10 +16,11 @@ TemperatureController::TemperatureController(
 		m_freezerSensor(freezerSensor),
 		m_fridgeSensor(fridgeSensor)
 		{
+	// default values
 	m_fridgeSetValue = 20.0;
 	m_freezerSetValue = 10.0;
 	m_differenceSetValue = 0.5;
-	m_compressorDelayTime = 18000; //millis
+	m_compressorDelayTime = 18000; // millis
 };
 
 void TemperatureController::setFridgeTemperature(double temperature){
@@ -43,19 +44,19 @@ void TemperatureController::maintainTemperature(){
 	double currentFreezerTemperature = m_freezerSensor.readTemperature();
 
 	if (currentFridgeTemperature > m_fridgeSetValue + m_differenceSetValue) {
-		// to hot
+		// fridge to hot
 		m_heaterRelay.off();
 		m_baffel.open();
 		m_fanRelay.on();
 	} else if (currentFridgeTemperature < m_fridgeSetValue - m_differenceSetValue){
-		// to cold
+		// fridge to cold
 		m_heaterRelay.on();
 		m_baffel.close();
 		if (!m_compressorRelay.isOn()){
 			m_fanRelay.off();
 		}
 	} else {
-		// temp in ok range
+		// fridge temp in ok range
 		m_heaterRelay.off();
 		m_baffel.close();
 		if (!m_compressorRelay.isOn()){
@@ -64,7 +65,7 @@ void TemperatureController::maintainTemperature(){
 	}
 
 	if (currentFreezerTemperature > m_freezerSetValue + m_differenceSetValue){
-		// to hot
+		// freezer to hot
 		// wait m_differenceSetValue after turning off compressor to turn it back on
 		unsigned long currentMillis = millis();
 		if ((unsigned long)(currentMillis - m_compressorTurnedOff) >= m_compressorDelayTime) {
@@ -72,7 +73,7 @@ void TemperatureController::maintainTemperature(){
 			m_fanRelay.on();
 		}
 	} else if (currentFreezerTemperature < m_freezerSetValue - m_differenceSetValue){
-		// to cold
+		// freezer to cold
 		if(m_compressorRelay.isOn()){
 			unsigned long m_compressorTurnedOff = millis();
 			m_compressorRelay.off();
@@ -83,7 +84,7 @@ void TemperatureController::maintainTemperature(){
 		// We don't worry about heating the freezer section as it doesn't really
 		// matter if its a bit too cold and we save power.
 	} else {
-		// temp in ok range
+		// freezer temp in ok range
 		if(m_compressorRelay.isOn()){
 			unsigned long m_compressorTurnedOff = millis();
 			m_compressorRelay.off();
