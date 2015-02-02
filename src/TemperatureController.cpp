@@ -20,7 +20,8 @@ TemperatureController::TemperatureController(
 	m_fridgeSetValue = 20.0;
 	m_freezerSetValue = 10.0;
 	m_differenceSetValue = 0.5;
-	m_compressorDelayTime = 18000; // millis
+	m_compressorDelayTime = 180000; // millis
+	m_compressorTurnedOff = millis();
 };
 
 void TemperatureController::setFridgeTemperature(double temperature){
@@ -46,19 +47,25 @@ void TemperatureController::maintainTemperature(){
 	if (currentFridgeTemperature > m_fridgeSetValue + m_differenceSetValue) {
 		// fridge to hot
 		m_heaterRelay.off();
-		m_baffel.open();
+			if(!m_baffel.isOpen()){
+			m_baffel.open();
+		}
 		m_fanRelay.on();
 	} else if (currentFridgeTemperature < m_fridgeSetValue - m_differenceSetValue){
 		// fridge to cold
 		m_heaterRelay.on();
-		m_baffel.close();
+		if(m_baffel.isOpen()){
+			m_baffel.close();
+		}
 		if (!m_compressorRelay.isOn()){
 			m_fanRelay.off();
 		}
 	} else {
 		// fridge temp in ok range
 		m_heaterRelay.off();
-		m_baffel.close();
+		if(m_baffel.isOpen()){
+			m_baffel.close();
+		}
 		if (!m_compressorRelay.isOn()){
 			m_fanRelay.off();
 		}
