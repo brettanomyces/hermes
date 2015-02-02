@@ -6,38 +6,38 @@ TemperatureController::TemperatureController(
 		Relay& compressorRelay,
 		Relay& fanRelay,
 		Relay& heaterRelay,
-		TemperatureSensor& freezerSensor,
-		TemperatureSensor& fridgeSensor
+		TemperatureSensor& fzSensor,
+		TemperatureSensor& frSensor
 		):
 		m_baffel(baffel),
 		m_compressorRelay(compressorRelay),
 		m_fanRelay(fanRelay),
 		m_heaterRelay(heaterRelay),
-		m_freezerSensor(freezerSensor),
-		m_fridgeSensor(fridgeSensor)
+		m_fzSensor(fzSensor),
+		m_frSensor(frSensor)
 		{
 	// default values
-	m_fridgeSetValue = 20.0;
-	m_freezerSetValue = 10.0;
-	m_differenceSetValue = 0.5;
+	m_frSetTemp = 20.0;
+	m_fzSetTemp = 10.0;
+	m_diff = 0.5;
 	m_compressorDelayTime = 180000; // millis
 	m_compressorTurnedOff = millis();
 };
 
-void TemperatureController::setFridgeTemperature(double temperature){
-	m_fridgeSetValue = temperature;
+void TemperatureController::setFrSetTemp(double temp){
+	m_frSetTemp = temp;
 }
 
 double TemperatureController::getFrSetTemp(){
-	return m_fridgeSetValue;
+	return m_frSetTemp;
 }
 
-void TemperatureController::setFreezerTemperature(double temperature){
-	m_freezerSetValue = temperature;
+void TemperatureController::setFzSetTemp(double temp){
+	m_fzSetTemp = temp;
 }
 
 double TemperatureController::getFzSetTemp(){
-	return m_freezerSetValue;
+	return m_fzSetTemp;
 }
 
 void TemperatureController::setCompressorDelayTime(unsigned long millis){
@@ -45,21 +45,21 @@ void TemperatureController::setCompressorDelayTime(unsigned long millis){
 }
 
 void TemperatureController::setDifference(double degrees){
-	m_differenceSetValue = degrees;
+	m_diff = degrees;
 }
 
 void TemperatureController::maintainTemperature(){
-	double currentFridgeTemperature = m_fridgeSensor.readTemperature();
-	double currentFreezerTemperature = m_freezerSensor.readTemperature();
+	double currentFrTemp = m_frSensor.readTemperature();
+	double currentFzTemp = m_fzSensor.readTemperature();
 
-	if (currentFridgeTemperature > m_fridgeSetValue + m_differenceSetValue) {
+	if (currentFrTemp > m_frSetTemp + m_diff) {
 		// fridge to hot
 		m_heaterRelay.off();
 			if(!m_baffel.isOpen()){
 			m_baffel.open();
 		}
 		m_fanRelay.on();
-	} else if (currentFridgeTemperature < m_fridgeSetValue - m_differenceSetValue){
+	} else if (currentFrTemp < m_frSetTemp - m_diff){
 		// fridge to cold
 		m_heaterRelay.on();
 		if(m_baffel.isOpen()){
@@ -79,15 +79,15 @@ void TemperatureController::maintainTemperature(){
 		}
 	}
 
-	if (currentFreezerTemperature > m_freezerSetValue + m_differenceSetValue){
+	if (currentFzTemp > m_fzSetTemp + m_diff){
 		// freezer to hot
-		// wait m_differenceSetValue after turning off compressor to turn it back on
+		// wait m_diff after turning off compressor to turn it back on
 		unsigned long currentMillis = millis();
 		if ((unsigned long)(currentMillis - m_compressorTurnedOff) >= m_compressorDelayTime) {
 			m_compressorRelay.on();
 			m_fanRelay.on();
 		}
-	} else if (currentFreezerTemperature < m_freezerSetValue - m_differenceSetValue){
+	} else if (currentFzTemp < m_fzSetTemp - m_diff){
 		// freezer to cold
 		if(m_compressorRelay.isOn()){
 			unsigned long m_compressorTurnedOff = millis();

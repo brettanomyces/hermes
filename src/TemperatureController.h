@@ -12,22 +12,22 @@ class TemperatureController {
 			Relay& compressorRelay,
 			Relay& fanRelay,
 			Relay& heaterRelay,
-			TemperatureSensor& freezerSensor,
-			TemperatureSensor& fridgeSensor
+			TemperatureSensor& fzSensor,
+			TemperatureSensor& frSensor
 		);
 
 		void maintainTemperature();
 		void setCompressorDelayTime(unsigned long millis);
 		void setDifference(double degrees);
-		void setFreezerTemperature(double temperature);
+		void setFzSetTemp(double temp);
 		double getFzSetTemp();
-		void setFridgeTemperature(double temperature);
+		void setFrSetTemp(double temp);
 		double getFrSetTemp();
 
 	private:
-		double m_fridgeSetValue;
-		double m_freezerSetValue;
-		double m_differenceSetValue;
+		double m_frSetTemp;
+		double m_fzSetTemp;
+		double m_diff;
 		unsigned long m_compressorDelayTime; // millis
 		unsigned long m_compressorTurnedOff;
 
@@ -35,8 +35,8 @@ class TemperatureController {
 		Relay& m_compressorRelay;
 		Relay& m_fanRelay;
 		Relay& m_heaterRelay;
-		TemperatureSensor& m_freezerSensor;
-		TemperatureSensor& m_fridgeSensor;
+		TemperatureSensor& m_fzSensor;
+		TemperatureSensor& m_frSensor;
 };
 
 #endif
