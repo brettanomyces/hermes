@@ -18,6 +18,7 @@ class Baffel {
 		bool m_open;
 		Stepper m_stepper;
 
+		static const int TRAVEL_TIME = 4000;
 		static const int STEPS = 300;
 		static const int SPEED = 100;
 

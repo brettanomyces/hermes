@@ -8,8 +8,8 @@ TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8);
 Relay compressor(5);
-Relay fan(4);
-Relay heater(6);
+Relay fan(6);
+Relay heater(7);
 TemperatureController controller(
 		baffel, 
 		compressor, 
@@ -21,16 +21,13 @@ TemperatureController controller(
 
 void setup() {
 	Serial.begin(9600);
+	delay(5000);
 	baffel.close();
-	compressor.off();
-	fan.off();
-	heater.off();
-	delay(1000);
 } 
 
 void loop() {
 	controller.maintainTemperature();
-
+	
 	double fr = fridgeSensor.readTemperature();
 	Serial.print("fr: ");
 	Serial.print(fr);
@@ -57,6 +54,6 @@ void loop() {
 	Serial.print(heater.isOn());
 	Serial.println();
 
-	delay(1000);
+	delay(5000);
 
 }
