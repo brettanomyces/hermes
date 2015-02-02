@@ -21,16 +21,13 @@ TemperatureController controller(
 
 void setup() {
 	Serial.begin(9600);
+	delay(5000);
 	baffel.close();
-	compressor.off();
-	fan.off();
-	heater.off();
-	delay(1000);
 } 
 
 void loop() {
 	controller.maintainTemperature();
-
+	
 	double fr = fridgeSensor.readTemperature();
 	Serial.print("fr: ");
 	Serial.print(fr);
@@ -57,6 +54,6 @@ void loop() {
 	Serial.print(heater.isOn());
 	Serial.println();
 
-	delay(1000);
+	delay(5000);
 
 }

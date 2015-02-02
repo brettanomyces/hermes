@@ -27,6 +27,7 @@ class Baffel {
 		Stepper m_stepper;
 		Relay m_transformer;
 
+		static const int TRAVEL_TIME = 4000;
 		static const int STEPS = 300;
 		static const int SPEED = 100;
 
