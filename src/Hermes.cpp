@@ -6,10 +6,10 @@
 
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
-Baffel baffel(13, 12, 11, 10, 9, 8);
+Baffel baffel(13, 12, 11, 10, 9, 8, 4);
 Relay compressor(5);
-Relay fan(4);
-Relay heater(6);
+Relay fan(6);
+Relay heater(7);
 TemperatureController controller(
 		baffel, 
 		compressor, 

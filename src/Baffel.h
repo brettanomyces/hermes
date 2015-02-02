@@ -4,10 +4,18 @@
 
 #include <Arduino.h>
 #include <Stepper.h>
+#include "Relay.h"
 
 class Baffel {
 	public:
-		Baffel(int ena, int in1, int in2, int in3, int in4, int enb);
+		Baffel( int ena,
+			int in1,
+			int in2,
+			int in3,
+			int in4,
+			int enb,
+			int transformerPin);
+
 		void open();
 		void close();
 		bool isOpen();
@@ -17,6 +25,7 @@ class Baffel {
 		int m_enb;
 		bool m_open;
 		Stepper m_stepper;
+		Relay m_transformer;
 
 		static const int STEPS = 300;
 		static const int SPEED = 100;
