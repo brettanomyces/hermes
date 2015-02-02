@@ -6,7 +6,6 @@ Baffel::Baffel(int ena, int in1, int in2, int in3, int in4, int enb)
 	m_ena = ena;
 	m_enb = enb;
 	m_stepper.setSpeed(SPEED);
-	close();
 }
 
 void Baffel::open(){
