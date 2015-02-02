@@ -8,12 +8,12 @@ Relay::Relay(int pin){
 }
 
 void Relay::on(){
-	digitalWrite(m_pin, HIGH);
+	digitalWrite(m_pin, LOW);
 	m_on = true;
 }
 
 void Relay::off(){
-	digitalWrite(m_pin, LOW);
+	digitalWrite(m_pin, HIGH);
 	m_on = false;
 }
 
