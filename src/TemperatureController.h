@@ -20,7 +20,9 @@ class TemperatureController {
 		void setCompressorDelayTime(unsigned long millis);
 		void setDifference(double degrees);
 		void setFreezerTemperature(double temperature);
+		double getFzSetTemp();
 		void setFridgeTemperature(double temperature);
+		double getFrSetTemp();
 
 	private:
 		double m_fridgeSetValue;

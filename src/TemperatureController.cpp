@@ -28,8 +28,16 @@ void TemperatureController::setFridgeTemperature(double temperature){
 	m_fridgeSetValue = temperature;
 }
 
+double TemperatureController::getFrSetTemp(){
+	return m_fridgeSetValue;
+}
+
 void TemperatureController::setFreezerTemperature(double temperature){
 	m_freezerSetValue = temperature;
+}
+
+double TemperatureController::getFzSetTemp(){
+	return m_freezerSetValue;
 }
 
 void TemperatureController::setCompressorDelayTime(unsigned long millis){
