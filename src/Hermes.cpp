@@ -4,45 +4,59 @@
 #include "TemperatureSensor.h"
 #include "TemperatureController.h"
 
-
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8);
-Relay fan(4);
 Relay compressor(5);
+Relay fan(4);
 Relay heater(6);
 TemperatureController controller(
-    baffel, 
-    compressor, 
-    fan, 
-    heater,
-    freezerSensor, 
-    fridgeSensor
-    );
+		baffel, 
+		compressor, 
+		fan, 
+		heater,
+		freezerSensor, 
+		fridgeSensor
+		);
 
 void setup() {
-  baffel.close();
-  fan.off();
-  compressor.off();
-  heater.off();
-
-  Serial.begin(9600);
-  delay(1000);
+	Serial.begin(9600);
+	baffel.close();
+	compressor.off();
+	fan.off();
+	heater.off();
+	delay(1000);
 } 
 
 void loop() {
-  
-  double fridgeTemp = fridgeSensor.readTemperature();
-  double freezerTemp = freezerSensor.readTemperature();
+	controller.maintainTemperature();
 
-  Serial.print("Fridge: ");
-  Serial.print(fridgeTemp);
-  Serial.println();
+	double fr = fridgeSensor.readTemperature();
+	Serial.print("fr: ");
+	Serial.print(fr);
+	Serial.print(", ");
 
-  Serial.print("Freezer: "); 
-  Serial.print(freezerTemp);
-  Serial.println();
+	double fz = freezerSensor.readTemperature();
+	Serial.print("fz: "); 
+	Serial.print(fz);
+	Serial.print(", ");
 
-  delay(1000);
+	Serial.print("b: "); 
+	Serial.print(baffel.isOpen());
+	Serial.print(", ");
+
+	Serial.print("c: "); 
+	Serial.print(compressor.isOn());
+	Serial.print(", ");
+
+	Serial.print("f: "); 
+	Serial.print(fan.isOn());
+	Serial.print(", ");
+
+	Serial.print("h: "); 
+	Serial.print(heater.isOn());
+	Serial.println();
+
+	delay(1000);
 
 }
