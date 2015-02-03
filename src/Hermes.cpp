@@ -27,15 +27,21 @@ void setup() {
 
 void loop() {
 	controller.maintainTemperature();
-	
-	double fr = fridgeSensor.readTemperature();
-	Serial.print("fr: ");
-	Serial.print(fr);
+
+	Serial.print("frs: ");
+	Serial.print(controller.getFrSetTemp());
 	Serial.print(", ");
 
-	double fz = freezerSensor.readTemperature();
+	Serial.print("fr: ");
+	Serial.print(fridgeSensor.readTemperature());
+	Serial.print(", ");
+
+	Serial.print("fzs: "); 
+	Serial.print(controller.getFzSetTemp());
+	Serial.print(", ");
+
 	Serial.print("fz: "); 
-	Serial.print(fz);
+	Serial.print(freezerSensor.readTemperature());
 	Serial.print(", ");
 
 	Serial.print("b: "); 
