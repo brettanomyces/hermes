@@ -18,19 +18,24 @@ Baffel::Baffel(	int ena, int in1, int in2, int in3, int in4, int enb, int transf
 }
 
 void Baffel::open(){
-	enable();
-	m_stepper.step(6 * STEPS);
-	delay(TRAVEL_TIME);
-	disable();
-	m_open = true;
+	// Check that the baffel is not already open
+	if(!isOpen()){
+		enable();
+		m_stepper.step(6 * STEPS);
+		delay(TRAVEL_TIME);
+		disable();
+		m_open = true;
+	}
 }
 
 void Baffel::close(){
-	enable();
-	m_stepper.step(-6 * STEPS);
-	delay(TRAVEL_TIME);
-	disable();
-	m_open = false;
+	if(isOpen()){
+		enable();
+		m_stepper.step(-6 * STEPS);
+		delay(TRAVEL_TIME);
+		disable();
+		m_open = false;
+	}
 }
 
 void Baffel::enable(){

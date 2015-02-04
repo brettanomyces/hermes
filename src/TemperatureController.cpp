@@ -55,25 +55,17 @@ void TemperatureController::maintainTemperature(){
 	if (currentFrTemp > m_frSetTemp + m_diff) {
 		// fridge to hot
 		m_heaterRelay.off();
-			if(!m_baffel.isOpen()){
-			m_baffel.open();
-		}
+		m_baffel.open();
 		m_fanRelay.on();
 	} else if (currentFrTemp < m_frSetTemp - m_diff){
 		// fridge to cold
 		m_heaterRelay.on();
-		if(m_baffel.isOpen()){
-			m_baffel.close();
-		}
-		if (!m_compressorRelay.isOn()){
-			m_fanRelay.off();
-		}
+		m_baffel.close();
+		m_fanRelay.off();
 	} else {
 		// fridge temp in ok range
 		m_heaterRelay.off();
-		if(m_baffel.isOpen()){
-			m_baffel.close();
-		}
+		m_baffel.close();
 		if (!m_compressorRelay.isOn()){
 			m_fanRelay.off();
 		}
@@ -89,10 +81,8 @@ void TemperatureController::maintainTemperature(){
 		}
 	} else if (currentFzTemp < m_fzSetTemp - m_diff){
 		// freezer to cold
-		if(m_compressorRelay.isOn()){
-			unsigned long m_compressorTurnedOff = millis();
-			m_compressorRelay.off();
-		}
+		unsigned long m_compressorTurnedOff = millis();
+		m_compressorRelay.off();
 		if(!m_baffel.isOpen()){
 			m_fanRelay.off();
 		}
@@ -100,10 +90,8 @@ void TemperatureController::maintainTemperature(){
 		// matter if its a bit too cold and we save power.
 	} else {
 		// freezer temp in ok range
-		if(m_compressorRelay.isOn()){
-			unsigned long m_compressorTurnedOff = millis();
-			m_compressorRelay.off();
-		}
+		unsigned long m_compressorTurnedOff = millis();
+		m_compressorRelay.off();
 		if(!m_baffel.isOpen()){
 			m_fanRelay.off();
 		}
