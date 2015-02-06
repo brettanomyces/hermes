@@ -1,9 +1,11 @@
 #include <Arduino.h>
+#include <CmdMessenger.h>
 #include "Baffel.h"
 #include "Relay.h"
 #include "TemperatureSensor.h"
 #include "TemperatureController.h"
 
+CmdMessenger cmdMessenger = CmdMessenger(Serial);
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
@@ -19,13 +21,53 @@ TemperatureController controller(
 		fridgeSensor
 		);
 
+enum {
+	kAcknowledge,
+	kError,
+	kSetFrSetTemp,
+	kSetFzSetTemp,
+	kLogFrTemp,
+	kLogFzTemp,
+	kLogBaffelState,
+	kLogCompressorState,
+	kLogFanState,
+	kLogHeaterState,
+};
+
+void attachCommandCallbacks() {
+	cmdMessenger.attach(OnUnknownCommand);
+	cmdMessenger.attach(kSetFrSetTemp, SetFrSetTemp);
+	cmdMessenger.attach(kSetFzSetTemp, SetFzSetTemp);
+}
+
+void OnUnknownCommand(){
+	cmdMessenger.sendCmd(kError);
+}
+
+void OnArduinoReady(){
+	cmdMessenger.sendCmd(kAcknowledge, "Arduino ready");
+}
+
+void SetFrSetTemp(){
+	float temp = cmdMessenger.readFloatArg();
+	controller.setFzSetTemp(temp);
+}
+
+void SetFzSetTemp(){
+	float temp = cmdMessenger.readFloatArg();
+	controller.setFzSetTemp(temp);
+}
+
 void setup() {
-	Serial.begin(9600);
-	delay(5000);
-	baffel.close();
+	Serial.begin(115200);
+	cmdMessenger.printLfCr();
+	attachCommandCallbacks();
+	cmdMessenger.sendCmd(kAcknowledge, "Arduino has started");
 } 
 
 void loop() {
+	cmdMessenger.feedinSerialData();
+
 	controller.maintainTemperature();
 
 	Serial.print("frs: ");
