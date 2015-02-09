@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <CmdMessenger.h>
+#include "Hermes.h"
 #include "Baffel.h"
 #include "Relay.h"
 #include "TemperatureSensor.h"
@@ -21,39 +22,26 @@ TemperatureController controller(
 		fridgeSensor
 		);
 
-enum {
-	kAcknowledge,
-	kError,
-	kSetFrSetTemp,
-	kSetFzSetTemp,
-	kLogFrTemp,
-	kLogFzTemp,
-	kLogBaffelState,
-	kLogCompressorState,
-	kLogFanState,
-	kLogHeaterState,
-};
-
 void attachCommandCallbacks() {
-	cmdMessenger.attach(OnUnknownCommand);
-	cmdMessenger.attach(kSetFrSetTemp, SetFrSetTemp);
-	cmdMessenger.attach(kSetFzSetTemp, SetFzSetTemp);
+	cmdMessenger.attach(onUnknownCommand);
+	cmdMessenger.attach(kSetFrSetTemp, setFrSetTemp);
+	cmdMessenger.attach(kSetFzSetTemp, setFzSetTemp);
 }
 
-void OnUnknownCommand(){
+void onUnknownCommand(){
 	cmdMessenger.sendCmd(kError);
 }
 
-void OnArduinoReady(){
+void onArduinoReady(){
 	cmdMessenger.sendCmd(kAcknowledge, "Arduino ready");
 }
 
-void SetFrSetTemp(){
+void setFrSetTemp(){
 	float temp = cmdMessenger.readFloatArg();
 	controller.setFzSetTemp(temp);
 }
 
-void SetFzSetTemp(){
+void setFzSetTemp(){
 	float temp = cmdMessenger.readFloatArg();
 	controller.setFzSetTemp(temp);
 }
