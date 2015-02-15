@@ -53,7 +53,12 @@ void setFzSetTemp(){
 
 void setup() {
 	// Listen on serial connection for messages from the pc
-	Serial.begin(115200);
+	Serial.begin(9600);
+
+	baffel.close();
+	compressor.off();
+	fan.off();
+	heater.off();
 
 	// init timers
 	updateTimer.reset();

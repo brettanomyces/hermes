@@ -1,29 +1,38 @@
-#include <Arduino.h>
 #include "Relay.h"
 
 Relay::Relay(int pin){
 	m_pin = pin;
 	pinMode(m_pin, OUTPUT);
-	off();
+	// start in off state
+	digitalWrite(m_pin, HIGH);
+	m_on = false;
 }
 
 void Relay::on(){
-	// Check that relay is not already on
+	// check that relay is not already on
 	if(!isOn()){
 		digitalWrite(m_pin, LOW);
-		m_on = true;
+		Serial.print(m_pin);
+		Serial.println(" turned on");
+	} else {
+		Serial.print(m_pin);
+		Serial.println(" already on");
 	}
+	m_on = true;
 }
 
 void Relay::off(){
 	if(isOn()){
 		digitalWrite(m_pin, HIGH);
-		m_on = false;
+		Serial.print(m_pin);
+		Serial.println(" turned off");
+	} else {
+		Serial.print(m_pin);
+		Serial.println(" already off");
 	}
+	m_on = false;
 }
 
 bool Relay::isOn(){
 	return m_on;
 }
-
-
