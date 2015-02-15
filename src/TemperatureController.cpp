@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "TemperatureController.h"
 
 TemperatureController::TemperatureController(
@@ -14,14 +13,13 @@ TemperatureController::TemperatureController(
 		m_fanRelay(fanRelay),
 		m_heaterRelay(heaterRelay),
 		m_fzSensor(fzSensor),
-		m_frSensor(frSensor)
+		m_frSensor(frSensor),
+		m_delay(180000)
 		{
 	// default values
 	m_frSetTemp = 20.0;
 	m_fzSetTemp = 10.0;
 	m_diff = 0.5;
-	m_compressorDelayTime = 180000; // millis
-	m_compressorTurnedOff = millis();
 };
 
 void TemperatureController::setFrSetTemp(double temp){
@@ -38,10 +36,6 @@ void TemperatureController::setFzSetTemp(double temp){
 
 double TemperatureController::getFzSetTemp(){
 	return m_fzSetTemp;
-}
-
-void TemperatureController::setCompressorDelayTime(unsigned long millis){
-	m_compressorDelayTime = millis;
 }
 
 void TemperatureController::setDifference(double degrees){
@@ -66,6 +60,7 @@ void TemperatureController::maintainTemperature(){
 		// fridge temp in ok range
 		m_heaterRelay.off();
 		m_baffel.close();
+		// if the compressor is no on then we can turn off the fan
 		if (!m_compressorRelay.isOn()){
 			m_fanRelay.off();
 		}
@@ -73,16 +68,18 @@ void TemperatureController::maintainTemperature(){
 
 	if (currentFzTemp > m_fzSetTemp + m_diff){
 		// freezer to hot
-		// wait m_diff after turning off compressor to turn it back on
-		unsigned long currentMillis = millis();
-		if ((unsigned long)(currentMillis - m_compressorTurnedOff) >= m_compressorDelayTime) {
+		if (m_delay.check()) {
 			m_compressorRelay.on();
+			// fan should always be on when compressor is on
 			m_fanRelay.on();
 		}
 	} else if (currentFzTemp < m_fzSetTemp - m_diff){
 		// freezer to cold
-		unsigned long m_compressorTurnedOff = millis();
-		m_compressorRelay.off();
+		if(m_delay.check()){
+			m_compressorRelay.off();
+		}
+		// if the baffel is open it means the fridge is still to warm so
+		// keep the fan on
 		if(!m_baffel.isOpen()){
 			m_fanRelay.off();
 		}
@@ -90,8 +87,9 @@ void TemperatureController::maintainTemperature(){
 		// matter if its a bit too cold and we save power.
 	} else {
 		// freezer temp in ok range
-		unsigned long m_compressorTurnedOff = millis();
-		m_compressorRelay.off();
+		if(m_delay.check()){
+			m_compressorRelay.off();
+		}
 		if(!m_baffel.isOpen()){
 			m_fanRelay.off();
 		}

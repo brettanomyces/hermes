@@ -1,12 +1,17 @@
 #include <Arduino.h>
 #include <CmdMessenger.h>
+#include <DoEvery.h>
 #include "Hermes.h"
 #include "Baffel.h"
 #include "Relay.h"
 #include "TemperatureSensor.h"
 #include "TemperatureController.h"
 
+// Attach a new CmdMessen object ot the default Serial port
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
+
+DoEvery updateTimer(updateInterval);
+
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
@@ -47,49 +52,57 @@ void setFzSetTemp(){
 }
 
 void setup() {
+	// Listen on serial connection for messages from the pc
 	Serial.begin(115200);
+
+	// init timers
+	updateTimer.reset();
+
+	// Print newline at the end of every command
 	cmdMessenger.printLfCr();
+
 	attachCommandCallbacks();
+
+	// send the status to the pc that says the Arduino has booted
 	cmdMessenger.sendCmd(kAcknowledge, "Arduino has started");
 } 
 
 void loop() {
 	cmdMessenger.feedinSerialData();
 
-	controller.maintainTemperature();
-
-	Serial.print("frs: ");
-	Serial.print(controller.getFrSetTemp());
-	Serial.print(", ");
-
-	Serial.print("fr: ");
-	Serial.print(fridgeSensor.readTemperature());
-	Serial.print(", ");
-
-	Serial.print("fzs: "); 
-	Serial.print(controller.getFzSetTemp());
-	Serial.print(", ");
-
-	Serial.print("fz: "); 
-	Serial.print(freezerSensor.readTemperature());
-	Serial.print(", ");
-
-	Serial.print("b: "); 
-	Serial.print(baffel.isOpen());
-	Serial.print(", ");
-
-	Serial.print("c: "); 
-	Serial.print(compressor.isOn());
-	Serial.print(", ");
-
-	Serial.print("f: "); 
-	Serial.print(fan.isOn());
-	Serial.print(", ");
-
-	Serial.print("h: "); 
-	Serial.print(heater.isOn());
-	Serial.println();
-
-	delay(5000);
-
+	if(updateTimer.check()) {
+		controller.maintainTemperature(); 
+		//cmdMessenger.sendCmdStart(kPlotDataPoint);
+		//cmdMessenger.sendCmdArg(fridgeSensor.readTemperature());
+		//cmdMessenger.sendCmdArg(freezerSensor.readTemperature());
+		//cmdMessenger.sendCmdArg(baffel.isOpen());
+		//cmdMessenger.sendCmdArg(compressor.isOn());
+		//cmdMessenger.sendCmdArg(fan.isOn());
+		//cmdMessenger.sendCmdArg(heater.isOn());
+		//cmdMessenger.sendCmdEnd();
+		Serial.print("frs: ");
+		Serial.print(controller.getFrSetTemp());
+		Serial.print(", ");
+		Serial.print("fr: ");
+		Serial.print(fridgeSensor.readTemperature());
+		Serial.print(", ");
+		Serial.print("fzs: ");
+		Serial.print(controller.getFzSetTemp());
+		Serial.print(", ");
+		Serial.print("fz: ");
+		Serial.print(freezerSensor.readTemperature());
+		Serial.print(", ");
+		Serial.print("b: ");
+		Serial.print(baffel.isOpen());
+		Serial.print(", ");
+		Serial.print("c: ");
+		Serial.print(compressor.isOn());
+		Serial.print(", ");
+		Serial.print("f: ");
+		Serial.print(fan.isOn());
+		Serial.print(", ");
+		Serial.print("h: ");
+		Serial.print(heater.isOn());
+		Serial.println();
+	}
 }
