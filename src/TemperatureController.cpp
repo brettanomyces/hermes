@@ -13,8 +13,7 @@ TemperatureController::TemperatureController(
 		m_fanRelay(fanRelay),
 		m_heaterRelay(heaterRelay),
 		m_fzSensor(fzSensor),
-		m_frSensor(frSensor),
-		m_delay(180000) // 3 minutes
+		m_frSensor(frSensor)
 		{
 	// default values
 	m_frSetTemp = 20.0;
@@ -67,35 +66,27 @@ void TemperatureController::maintainTemperature(){
 	}
 	if (currentFzTemp > m_fzSetTemp + m_diff){
 		Serial.println("freezer to hot");
-		if (m_delay.check()) {
-			m_compressorRelay.on();
-			// fan should always be on when compressor is on
+		m_compressorRelay.on();
+		// fan should always be on when compressor is on
+		if(m_compressorRelay.isOn()){
+			// compressor may not turn on if waiting for delay
 			m_fanRelay.on();
-		} else {
-			Serial.println("waiting to turn on comp");
 		}
 	} else if (currentFzTemp < m_fzSetTemp - m_diff){
 		Serial.println("freezer to cold");
-		if(m_delay.check()){
-			m_compressorRelay.off();
-		} else {
-			Serial.println("waiting to turn off comp");
-		}
+		m_compressorRelay.off();
+		// compressor may not turn off if waiting for delay
 		// if the baffel is open it means the fridge is still too warm so
 		// keep the fan on
-		if(!m_baffel.isOpen()){
+		if(!m_compressorRelay.isOn() && !m_baffel.isOpen()){
 			m_fanRelay.off();
 		}
 		// don't worry about heating the freezer section as it doesn't really
 		// matter if its a bit too cold and we save power.
 	} else {
 		Serial.println("freezer ok");
-		if(m_delay.check()){
-			m_compressorRelay.off();
-		} else {
-			Serial.println("waiting to turn off comp");
-		}
-		if(!m_baffel.isOpen()){
+		m_compressorRelay.off();
+		if(!m_compressorRelay.isOn() && !m_baffel.isOpen()){
 			m_fanRelay.off();
 		}
 	}

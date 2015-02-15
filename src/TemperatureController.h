@@ -1,7 +1,6 @@
 #ifndef _HERMES_TEMP_CONTROLLER_
 #define _HERMES_TEMP_CONTROLLER_
 
-#include <DoEvery.h>
 #include "Baffel.h"
 #include "Relay.h"
 #include "TemperatureSensor.h"
@@ -28,8 +27,6 @@ class TemperatureController {
 		double m_frSetTemp;
 		double m_fzSetTemp;
 		double m_diff;
-
-		DoEvery m_delay;
 
 		Baffel& m_baffel;
 		Relay& m_compressorRelay;
