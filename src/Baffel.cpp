@@ -13,10 +13,8 @@ Baffel::Baffel(	int ena, int in1, int in2, int in3, int in4, int enb, int transf
 	m_ena = ena;
 	m_enb = enb;
 	m_stepper.setSpeed(SPEED);
-	// start in closed state
-	m_stepper.step(-6 * STEPS);
-	delay(TRAVEL_TIME);
-	m_open = false;
+	// set to true so baffel will be closed on setup
+	m_open = true;
 }
 
 void Baffel::open(){
