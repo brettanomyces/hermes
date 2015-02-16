@@ -1,6 +1,14 @@
 #ifndef _HERMES_
 #define _HERMES_
 
+#include <Arduino.h>
+#include <CmdMessenger.h>
+#include "Baffel.h"
+#include "Delay.h"
+#include "Relay.h"
+#include "TemperatureController.h"
+#include "TemperatureSensor.h"
+
 int updateInterval = 5000;
 
 enum {

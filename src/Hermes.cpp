@@ -1,11 +1,4 @@
-#include <Arduino.h>
-#include <CmdMessenger.h>
-#include <DoEvery.h>
 #include "Hermes.h"
-#include "Baffel.h"
-#include "Relay.h"
-#include "TemperatureSensor.h"
-#include "TemperatureController.h"
 
 // Attach a new CmdMessen object ot the default Serial port
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
@@ -15,9 +8,9 @@ DoEvery updateTimer(updateInterval);
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
-Relay compressor(5);
+Relay compressor(5, 180000); // 3 minute delay
 Relay fan(6);
-Relay heater(7);
+Relay heater(7, 30000); // 30 second delay
 TemperatureController controller(
 		baffel, 
 		compressor, 
