@@ -14,6 +14,7 @@ void Delay::reset() {
 // true if delay has been exceeded
 bool Delay::ok() {
 	if (millis()-lastTime > period) {
+		// note that unlike DoEvery's check() we do not increment lastTime
 		return true;
 	} else {
 		return false;

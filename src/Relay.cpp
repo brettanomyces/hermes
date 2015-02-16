@@ -6,6 +6,8 @@ Relay::Relay(int pin, long delay) : m_delay(delay){
 	// start in off state
 	digitalWrite(m_pin, HIGH);
 	m_on = false;
+	// reset delay
+	m_delay.reset();
 }
 
 Relay::Relay(int pin) : m_delay(0) {
