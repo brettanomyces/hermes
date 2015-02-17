@@ -9,9 +9,9 @@ class TemperatureController {
 	public:
 		TemperatureController(
 			Baffel& baffel,
-			Relay& compressorRelay,
-			Relay& fanRelay,
-			Relay& heaterRelay,
+			Relay& compressor,
+			Relay& fan,
+			Relay& heater,
 			TemperatureSensor& fzSensor,
 			TemperatureSensor& frSensor
 		);
@@ -29,9 +29,9 @@ class TemperatureController {
 		double m_diff;
 
 		Baffel& m_baffel;
-		Relay& m_compressorRelay;
-		Relay& m_fanRelay;
-		Relay& m_heaterRelay;
+		Relay& m_compressor;
+		Relay& m_fan;
+		Relay& m_heater;
 		TemperatureSensor& m_fzSensor;
 		TemperatureSensor& m_frSensor;
 };
