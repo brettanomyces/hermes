@@ -54,3 +54,7 @@ cscope.po.out¬
 
 # Arduino
 .build
+
+# Logs
+log/
+logs/
