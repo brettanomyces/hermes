@@ -1,5 +1,3 @@
-#include <Arduino.h>
-#include <math.h>
 #include "TemperatureSensor.h"
 
 TemperatureSensor::TemperatureSensor(int pin, int thermistorPosition, int resistorValue) {

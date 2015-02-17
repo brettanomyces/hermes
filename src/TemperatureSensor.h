@@ -1,6 +1,9 @@
 #ifndef _HERMES_TEMP_SENSOR_
 #define _HERMES_TEMP_SENSOR_
 
+#include <Arduino.h>
+#include <math.h>
+
 class TemperatureSensor {
 
   public:
