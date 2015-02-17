@@ -20,8 +20,10 @@ Baffel::Baffel(	int ena, int in1, int in2, int in3, int in4, int enb, int transf
 void Baffel::open(){
 	// check that the baffel is not already open
 	if(!isOpen()){
+		enable();
 		m_stepper.step(6 * STEPS);
 		delay(TRAVEL_TIME);
+		disable();
 		m_open = true;
 		Serial.println("baffel opened");
 	} else {
@@ -31,13 +33,25 @@ void Baffel::open(){
 
 void Baffel::close(){
 	if(isOpen()){
+		enable();
 		m_stepper.step(-6 * STEPS);
 		delay(TRAVEL_TIME);
+		disable();
 		m_open = false;
 		Serial.println("baffel closed");
 	} else {
 		//Serial.println("baffel already closed");
 	}
+}
+
+void Baffel::enable(){
+	digitalWrite(m_ena, HIGH);
+	digitalWrite(m_enb, HIGH);
+}
+
+void Baffel::disable(){
+	digitalWrite(m_ena, LOW);
+	digitalWrite(m_enb, LOW);
 }
 
 bool Baffel::isOpen(){

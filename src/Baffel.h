@@ -33,5 +33,6 @@ class Baffel {
 
 		void enable();
 		void disable();
+
 };
 #endif
