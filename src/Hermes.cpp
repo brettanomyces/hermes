@@ -36,7 +36,7 @@ void onArduinoReady(){
 
 void setFrSetTemp(){
 	float temp = cmdMessenger.readFloatArg();
-	controller.setFzSetTemp(temp);
+	controller.setFrSetTemp(temp);
 }
 
 void setFzSetTemp(){
@@ -69,7 +69,7 @@ void loop() {
 	cmdMessenger.feedinSerialData();
 
 	if(updateTimer.check()) {
-		controller.maintainTemperature(); 
+		//controller.maintainTemperature(); 
 		//cmdMessenger.sendCmdStart(kPlotDataPoint);
 		//cmdMessenger.sendCmdArg(fridgeSensor.readTemperature());
 		//cmdMessenger.sendCmdArg(freezerSensor.readTemperature());
@@ -96,11 +96,17 @@ void loop() {
 		Serial.print("c: ");
 		Serial.print(compressor.isOn());
 		Serial.print(", ");
+		Serial.print("cw: ");
+		Serial.print(compressor.waiting());
+		Serial.print(", ");
 		Serial.print("f: ");
 		Serial.print(fan.isOn());
 		Serial.print(", ");
 		Serial.print("h: ");
 		Serial.print(heater.isOn());
+		Serial.print(", ");
+		Serial.print("hw: ");
+		Serial.print(heater.waiting());
 		Serial.println();
 	}
 }
