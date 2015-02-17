@@ -32,8 +32,8 @@ void Relay::on(){
 			Serial.println(" waiting to turn on");
 		}
 	} else {
-		Serial.print(m_pin);
-		Serial.println(" already on");
+		//Serial.print(m_pin);
+		//Serial.println(" already on");
 	}
 }
 
@@ -51,8 +51,8 @@ void Relay::off(){
 			Serial.println(" waiting to turn off");
 		}
 	} else {
-		Serial.print(m_pin);
-		Serial.print(" already off");
+		//Serial.print(m_pin);
+		//Serial.println(" already off");
 	}
 }
 

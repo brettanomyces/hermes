@@ -23,6 +23,9 @@ void Baffel::open(){
 		m_stepper.step(6 * STEPS);
 		delay(TRAVEL_TIME);
 		m_open = true;
+		Serial.println("baffel opened");
+	} else {
+		//Serial.println("baffel already open");
 	}
 }
 
@@ -31,6 +34,9 @@ void Baffel::close(){
 		m_stepper.step(-6 * STEPS);
 		delay(TRAVEL_TIME);
 		m_open = false;
+		Serial.println("baffel closed");
+	} else {
+		//Serial.println("baffel already closed");
 	}
 }
 
