@@ -1,59 +1,59 @@
 #include "Baffel.h"
 
-Baffel::Baffel(	int ena, int in1, int in2, int in3, int in4, int enb, int transformerPin ) : 
-	m_stepper(STEPS, in1, in2, in3, in4), m_transformer(transformerPin) {
+Baffel::Baffel(  int ena, int in1, int in2, int in3, int in4, int enb, int transformerPin ) : 
+  m_stepper(STEPS, in1, in2, in3, in4), m_transformer(transformerPin) {
 
-	pinMode(ena, OUTPUT);
-	pinMode(in1, OUTPUT);
-	pinMode(in2, OUTPUT);
-	pinMode(in3, OUTPUT);
-	pinMode(in4, OUTPUT);
-	pinMode(enb, OUTPUT);
+  pinMode(ena, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(enb, OUTPUT);
 
-	m_ena = ena;
-	m_enb = enb;
-	m_stepper.setSpeed(SPEED);
-	// set to true so baffel will be closed on setup
-	m_open = true;
+  m_ena = ena;
+  m_enb = enb;
+  m_stepper.setSpeed(SPEED);
+  // set to true so baffel will be closed on setup
+  m_open = true;
 }
 
 void Baffel::open(){
-	// check that the baffel is not already open
-	if(!isOpen()){
-		enable();
-		m_stepper.step(6 * STEPS);
-		delay(TRAVEL_TIME);
-		disable();
-		m_open = true;
-		Serial.println("baffel opened");
-	} else {
-		//Serial.println("baffel already open");
-	}
+  // check that the baffel is not already open
+  if(!isOpen()){
+    enable();
+    m_stepper.step(6 * STEPS);
+    delay(TRAVEL_TIME);
+    disable();
+    m_open = true;
+    Serial.println("baffel opened");
+  } else {
+    //Serial.println("baffel already open");
+  }
 }
 
 void Baffel::close(){
-	if(isOpen()){
-		enable();
-		m_stepper.step(-6 * STEPS);
-		delay(TRAVEL_TIME);
-		disable();
-		m_open = false;
-		Serial.println("baffel closed");
-	} else {
-		//Serial.println("baffel already closed");
-	}
+  if(isOpen()){
+    enable();
+    m_stepper.step(-6 * STEPS);
+    delay(TRAVEL_TIME);
+    disable();
+    m_open = false;
+    Serial.println("baffel closed");
+  } else {
+    //Serial.println("baffel already closed");
+  }
 }
 
 void Baffel::enable(){
-	digitalWrite(m_ena, HIGH);
-	digitalWrite(m_enb, HIGH);
+  digitalWrite(m_ena, HIGH);
+  digitalWrite(m_enb, HIGH);
 }
 
 void Baffel::disable(){
-	digitalWrite(m_ena, LOW);
-	digitalWrite(m_enb, LOW);
+  digitalWrite(m_ena, LOW);
+  digitalWrite(m_enb, LOW);
 }
 
 bool Baffel::isOpen(){
-	return m_open;
+  return m_open;
 }

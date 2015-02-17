@@ -6,34 +6,34 @@
 #include "TemperatureSensor.h"
 
 class TemperatureController {
-	public:
-		TemperatureController(
-			Baffel& baffel,
-			Relay& compressor,
-			Relay& fan,
-			Relay& heater,
-			TemperatureSensor& fzSensor,
-			TemperatureSensor& frSensor
-		);
+  public:
+    TemperatureController(
+      Baffel& baffel,
+      Relay& compressor,
+      Relay& fan,
+      Relay& heater,
+      TemperatureSensor& fzSensor,
+      TemperatureSensor& frSensor
+    );
 
-		void maintainTemperature();
-		void setFzSetTemp(double temp);
-		double getFzSetTemp();
-		void setFrSetTemp(double temp);
-		double getFrSetTemp();
-		void setDifference(double degrees);
+    void maintainTemperature();
+    void setFzSetTemp(double temp);
+    double getFzSetTemp();
+    void setFrSetTemp(double temp);
+    double getFrSetTemp();
+    void setDifference(double degrees);
 
-	private:
-		double m_frSetTemp;
-		double m_fzSetTemp;
-		double m_diff;
+  private:
+    double m_frSetTemp;
+    double m_fzSetTemp;
+    double m_diff;
 
-		Baffel& m_baffel;
-		Relay& m_compressor;
-		Relay& m_fan;
-		Relay& m_heater;
-		TemperatureSensor& m_fzSensor;
-		TemperatureSensor& m_frSensor;
+    Baffel& m_baffel;
+    Relay& m_compressor;
+    Relay& m_fan;
+    Relay& m_heater;
+    TemperatureSensor& m_fzSensor;
+    TemperatureSensor& m_frSensor;
 };
 
 #endif

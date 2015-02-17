@@ -3,17 +3,17 @@
 #include "TemperatureSensor.h"
 
 TemperatureSensor::TemperatureSensor(int pin, int thermistorPosition, int resistorValue) {
-	// init member variables
-	m_pin = pin;
-	m_thermistorPosition = thermistorPosition;
-	m_resistorValue = resistorValue;
+  // init member variables
+  m_pin = pin;
+  m_thermistorPosition = thermistorPosition;
+  m_resistorValue = resistorValue;
 }
 
 double TemperatureSensor::readTemperature(){
-	double vOut = measureVoltage(m_pin);
-	double res = voltageToResistance(vOut);
-	double temp = resistanceToTemperature(res);
-	return temp;
+  double vOut = measureVoltage(m_pin);
+  double res = voltageToResistance(vOut);
+  double temp = resistanceToTemperature(res);
+  return temp;
 }
 
 double TemperatureSensor::measureVoltage(int pin){

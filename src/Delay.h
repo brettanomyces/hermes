@@ -6,12 +6,12 @@
 class Delay
 {
 public:
-	Delay(long);
-	void reset();
-	bool ok();
+  Delay(long);
+  void reset();
+  bool ok();
 private:
-	unsigned long period;
-	unsigned long lastTime;
+  unsigned long period;
+  unsigned long lastTime;
 };
 
 #endif

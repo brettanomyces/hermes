@@ -3,28 +3,28 @@
 
 class TemperatureSensor {
 
-	public:
-		// Constructor
-		TemperatureSensor(int pin, int thermistorPosition, int resistorValue);
+  public:
+    // Constructor
+    TemperatureSensor(int pin, int thermistorPosition, int resistorValue);
 
-		double readTemperature();
+    double readTemperature();
 
-	private:
-		// Variables
-		int m_pin;
-		int m_thermistorPosition;
-		int m_resistorValue;
+  private:
+    // Variables
+    int m_pin;
+    int m_thermistorPosition;
+    int m_resistorValue;
 
-		// Constants
-		static const double V_IN = 5.0;
-		
-		double measureVoltage(int pin);
-		double analogToVoltage(double analog);
-		double voltageToResistance(double vOut);
-		double calculateR1(double vOut);
-		double calculateR2(double vOut);
-		double temperatureToResistance(double t);
-		double resistanceToTemperature(double Rt);
+    // Constants
+    static const double V_IN = 5.0;
+    
+    double measureVoltage(int pin);
+    double analogToVoltage(double analog);
+    double voltageToResistance(double vOut);
+    double calculateR1(double vOut);
+    double calculateR2(double vOut);
+    double temperatureToResistance(double t);
+    double resistanceToTemperature(double Rt);
 };
 
 #endif

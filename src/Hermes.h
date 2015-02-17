@@ -13,18 +13,18 @@
 int updateInterval = 10000;
 
 enum {
-	kAcknowledge,
-	kError,
-	kSetFrSetTemp,
-	kSetFzSetTemp,
-	kOpenBaffel,
-	kPlotDataPoint,
-	kLogFrTemp,
-	kLogFzTemp,
-	kLogBaffelState,
-	kLogCompressorState,
-	kLogFanState,
-	kLogHeaterState,
+  kAcknowledge,
+  kError,
+  kSetFrSetTemp,
+  kSetFzSetTemp,
+  kOpenBaffel,
+  kPlotDataPoint,
+  kLogFrTemp,
+  kLogFzTemp,
+  kLogBaffelState,
+  kLogCompressorState,
+  kLogFanState,
+  kLogHeaterState,
 };
 
 void attachCommandCallbacks();
