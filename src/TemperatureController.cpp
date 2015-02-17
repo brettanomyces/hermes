@@ -2,16 +2,16 @@
 
 TemperatureController::TemperatureController(
 		Baffel& baffel,
-		Relay& compressorRelay,
-		Relay& fanRelay,
-		Relay& heaterRelay,
+		Relay& compressor,
+		Relay& fan,
+		Relay& heater,
 		TemperatureSensor& fzSensor,
 		TemperatureSensor& frSensor
 		):
 		m_baffel(baffel),
-		m_compressorRelay(compressorRelay),
-		m_fanRelay(fanRelay),
-		m_heaterRelay(heaterRelay),
+		m_compressor(compressor),
+		m_fan(fan),
+		m_heater(heater),
 		m_fzSensor(fzSensor),
 		m_frSensor(frSensor)
 		{
@@ -45,49 +45,38 @@ void TemperatureController::maintainTemperature(){
 	double currentFrTemp = m_frSensor.readTemperature();
 	double currentFzTemp = m_fzSensor.readTemperature();
 
-	if (currentFrTemp > m_frSetTemp + m_diff) {
-		Serial.println("fridge to hot");
-		m_heaterRelay.off();
+	// baffel
+	if ( currentFrTemp > m_frSetTemp + m_diff) {
+		// fridge too hot, open baffel to allow in cool air from freezer
 		m_baffel.open();
-		m_fanRelay.on();
-	} else if (currentFrTemp < m_frSetTemp - m_diff){
-		Serial.println("fridge to cold");
-		m_heaterRelay.on();
+	} else if (currentFrTemp < m_frSetTemp) {
+		// stop cooling once fridge reaches the set temp
 		m_baffel.close();
-		m_fanRelay.off();
-	} else {
-		Serial.println("fridge ok");
-		m_heaterRelay.off();
-		m_baffel.close();
-		// if the compressor is not on then we can turn off the fan as well
-		if (!m_compressorRelay.isOn()){
-			m_fanRelay.off();
-		}
 	}
-	if (currentFzTemp > m_fzSetTemp + m_diff){
-		Serial.println("freezer to hot");
-		m_compressorRelay.on();
-		// fan should always be on when compressor is on
-		if(m_compressorRelay.isOn()){
-			// compressor may not turn on if waiting for delay
-			m_fanRelay.on();
-		}
-	} else if (currentFzTemp < m_fzSetTemp - m_diff){
-		Serial.println("freezer to cold");
-		m_compressorRelay.off();
-		// compressor may not turn off if waiting for delay
-		// if the baffel is open it means the fridge is still too warm so
-		// keep the fan on
-		if(!m_compressorRelay.isOn() && !m_baffel.isOpen()){
-			m_fanRelay.off();
-		}
-		// don't worry about heating the freezer section as it doesn't really
-		// matter if its a bit too cold and we save power.
-	} else {
-		Serial.println("freezer ok");
-		m_compressorRelay.off();
-		if(!m_compressorRelay.isOn() && !m_baffel.isOpen()){
-			m_fanRelay.off();
-		}
+
+	// heater
+	if (currentFrTemp < m_frSetTemp - m_diff) {
+		// fridge too cold, turn on heater to raise temp
+		m_heater.on();
+	} else if (currentFrTemp > m_frSetTemp) {
+		// stop heating once fridge reaches the set temp
+		m_heater.off();
 	}
+
+	// compressor
+	if (currentFzTemp > m_fzSetTemp + m_diff) {
+		// freezer too hot, turn on compressor to lower temp
+		m_compressor.on();
+	} else if (currentFzTemp < m_fzSetTemp) {
+		// stop cooling once freezer reaches set temp
+		m_compressor.off();
+	}
+
+	// fan
+	if (m_baffel.isOpen() || m_compressor.isOn()){
+		m_fan.on();
+	} else { 
+		m_fan.off();
+	}
+
 }
