@@ -10,13 +10,14 @@
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
 
-int updateInterval = 5000;
+int updateInterval = 10000;
 
 enum {
 	kAcknowledge,
 	kError,
 	kSetFrSetTemp,
 	kSetFzSetTemp,
+	kOpenBaffel,
 	kPlotDataPoint,
 	kLogFrTemp,
 	kLogFzTemp,
@@ -29,6 +30,7 @@ enum {
 void attachCommandCallbacks();
 void onUnknownCommand();
 void onArduinoReady();
+void openBaffel();
 void setFzSetTemp();
 void setFrSetTemp();
 

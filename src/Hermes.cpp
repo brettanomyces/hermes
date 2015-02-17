@@ -24,6 +24,7 @@ void attachCommandCallbacks() {
 	cmdMessenger.attach(onUnknownCommand);
 	cmdMessenger.attach(kSetFrSetTemp, setFrSetTemp);
 	cmdMessenger.attach(kSetFzSetTemp, setFzSetTemp);
+	cmdMessenger.attach(kOpenBaffel, openBaffel);
 }
 
 void onUnknownCommand(){
@@ -42,6 +43,15 @@ void setFrSetTemp(){
 void setFzSetTemp(){
 	float temp = cmdMessenger.readFloatArg();
 	controller.setFzSetTemp(temp);
+}
+
+void openBaffel(){
+	bool open =  cmdMessenger.readBoolArg();
+	if (open) {
+		baffel.open();
+	} else {
+		baffel.close();
+	}
 }
 
 void setup() {
@@ -69,7 +79,7 @@ void loop() {
 	cmdMessenger.feedinSerialData();
 
 	if(updateTimer.check()) {
-		//controller.maintainTemperature(); 
+		controller.maintainTemperature(); 
 		//cmdMessenger.sendCmdStart(kPlotDataPoint);
 		//cmdMessenger.sendCmdArg(fridgeSensor.readTemperature());
 		//cmdMessenger.sendCmdArg(freezerSensor.readTemperature());
