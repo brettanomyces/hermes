@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <CmdMessenger.h>
+#include <DoEvery.h>
 #include "Baffel.h"
 #include "Delay.h"
 #include "Relay.h"
