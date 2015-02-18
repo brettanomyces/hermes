@@ -3,15 +3,16 @@
 
 #include <Arduino.h> 
 
-class Delay
-{
-public:
-  Delay(long);
-  void reset();
-  bool ok();
-private:
-  unsigned long period;
-  unsigned long lastTime;
+class Delay {
+
+  public:
+    Delay(long);
+    void reset();
+    bool ok();
+
+  private:
+    unsigned long period;
+    unsigned long lastTime;
 };
 
-#endif
+#endif // _HERMES_DELAY_

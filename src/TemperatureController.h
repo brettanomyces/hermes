@@ -36,4 +36,4 @@ class TemperatureController {
     TemperatureSensor& m_frSensor;
 };
 
-#endif
+#endif // _HERMES_TEMP_CONTROLLER_

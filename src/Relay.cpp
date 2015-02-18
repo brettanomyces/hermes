@@ -10,6 +10,7 @@ Relay::Relay(int pin, long delay) : m_delay(delay){
   m_delay.reset();
 }
 
+// set delay to 0 if none is given
 Relay::Relay(int pin) : m_delay(0) {
   m_pin = pin;
   pinMode(m_pin, OUTPUT);
@@ -22,7 +23,6 @@ void Relay::on(){
   if(!m_on){
     if(m_delay.ok()){
       digitalWrite(m_pin, LOW);
-      Serial.print(m_pin);
       m_on = true;
       m_delay.reset();
       Serial.print(m_pin);
@@ -41,7 +41,6 @@ void Relay::off(){
   if(m_on){
     if(m_delay.ok()){
       digitalWrite(m_pin, HIGH);
-      Serial.print(m_pin);
       m_on = false;
       m_delay.reset();
       Serial.print(m_pin);

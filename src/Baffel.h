@@ -1,4 +1,3 @@
-
 #ifndef _HERMES_BAFFEL_
 #define _HERMES_BAFFEL_
 
@@ -8,13 +7,7 @@
 
 class Baffel {
   public:
-    Baffel( int ena,
-      int in1,
-      int in2,
-      int in3,
-      int in4,
-      int enb,
-      int transformerPin);
+    Baffel(int ena, int in1, int in2, int in3, int in4, int enb, int transformerPin);
 
     void open();
     void close();
@@ -35,4 +28,4 @@ class Baffel {
     void disable();
 
 };
-#endif
+#endif // _HERMES_BAFFEL_

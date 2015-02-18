@@ -58,6 +58,7 @@ void setup() {
   // Listen on serial connection for messages from the pc
   Serial.begin(9600);
 
+  // set state of components
   baffel.close();
   compressor.off();
   fan.off();

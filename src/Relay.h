@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include "Delay.h"
 
-
 class Relay {
   public:
     Relay(int pin, long delay);
@@ -20,4 +19,5 @@ class Relay {
     bool m_on;
     Delay m_delay;
 };
-#endif
+
+#endif // _HERMES_RELAY_

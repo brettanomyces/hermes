@@ -15,11 +15,13 @@ class TemperatureSensor {
   private:
     // Variables
     int m_pin;
-    int m_thermistorPosition;
-    int m_resistorValue;
+    int m_thermistorPosition; // position of thermistor within the resistive divider, i.e. R1 or R2
+    int m_resistorValue; // resistance of the resistor (not the thermistor) in ohms
 
     // Constants
-    static const double V_IN = 5.0;
+    static const double V_IN = 5.0; // voltage in
+    static const double ANALOG_STEPS = 1024; // arduino has a 10bit analog to digital converter
+    static const int NUM_REPITIONS = 100; // number of time to read temp before getting an average
     
     double measureVoltage(int pin);
     double analogToVoltage(double analog);
@@ -30,4 +32,4 @@ class TemperatureSensor {
     double resistanceToTemperature(double Rt);
 };
 
-#endif
+#endif // _HERMES_TEMP_SENSOR_

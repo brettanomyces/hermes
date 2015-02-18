@@ -17,16 +17,16 @@ double TemperatureSensor::readTemperature(){
 double TemperatureSensor::measureVoltage(int pin){
   double sum = 0;
   int i;
-  for (i = 0; i < 100; i++){
+  for (i = 0; i < NUM_REPITIONS; i++){
     sum += (double) analogRead(pin);
   }
-  double analog =  sum / 100.0;
+  double analog =  sum / (double)NUM_REPITIONS;
   double vOut  = analogToVoltage(analog);
   return vOut;
 }
 
 double TemperatureSensor::analogToVoltage(double analog){
-  return (analog / 1024.0) * 5.0;
+  return (analog / (double)ANALOG_STEPS) * V_IN;
 }
 
 /* Calculate the resistance of the thermistor in the resistive divider

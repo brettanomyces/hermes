@@ -34,4 +34,4 @@ void openBaffel();
 void setFzSetTemp();
 void setFrSetTemp();
 
-#endif /* _HERMES_ */
+#endif // _HERMES_
