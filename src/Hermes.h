@@ -17,14 +17,6 @@ enum {
   kError,
   kSetFrSetTemp,
   kSetFzSetTemp,
-  kOpenBaffel,
-  kPlotDataPoint,
-  kLogFrTemp,
-  kLogFzTemp,
-  kLogBaffelState,
-  kLogCompressorState,
-  kLogFanState,
-  kLogHeaterState,
 };
 
 void attachCommandCallbacks();
@@ -33,5 +25,6 @@ void onArduinoReady();
 void openBaffel();
 void setFzSetTemp();
 void setFrSetTemp();
+void acknowledge();
 
 #endif // _HERMES_

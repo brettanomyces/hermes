@@ -22,17 +22,17 @@ TemperatureController controller(
 
 void attachCommandCallbacks() {
   cmdMessenger.attach(onUnknownCommand);
+  cmdMessenger.attach(kAcknowledge, acknowledge);
   cmdMessenger.attach(kSetFrSetTemp, setFrSetTemp);
   cmdMessenger.attach(kSetFzSetTemp, setFzSetTemp);
-  cmdMessenger.attach(kOpenBaffel, openBaffel);
 }
 
 void onUnknownCommand(){
   cmdMessenger.sendCmd(kError);
 }
 
-void onArduinoReady(){
-  cmdMessenger.sendCmd(kAcknowledge, "Arduino ready");
+void acknowledge(){
+  cmdMessenger.sendCmd(kAcknowledge);
 }
 
 void setFrSetTemp(){
@@ -43,15 +43,6 @@ void setFrSetTemp(){
 void setFzSetTemp(){
   float temp = cmdMessenger.readFloatArg();
   controller.setFzSetTemp(temp);
-}
-
-void openBaffel(){
-  bool open =  cmdMessenger.readBoolArg();
-  if (open) {
-    baffel.open();
-  } else {
-    baffel.close();
-  }
 }
 
 void setup() {
@@ -73,7 +64,7 @@ void setup() {
   attachCommandCallbacks();
 
   // send the status to the pc that says the Arduino has booted
-  cmdMessenger.sendCmd(kAcknowledge, "Arduino has started");
+  acknowledge();
 } 
 
 void loop() {
@@ -81,14 +72,6 @@ void loop() {
 
   if(updateTimer.check()) {
     controller.maintainTemperature(); 
-    //cmdMessenger.sendCmdStart(kPlotDataPoint);
-    //cmdMessenger.sendCmdArg(fridgeSensor.readTemperature());
-    //cmdMessenger.sendCmdArg(freezerSensor.readTemperature());
-    //cmdMessenger.sendCmdArg(baffel.isOpen());
-    //cmdMessenger.sendCmdArg(compressor.isOn());
-    //cmdMessenger.sendCmdArg(fan.isOn());
-    //cmdMessenger.sendCmdArg(heater.isOn());
-    //cmdMessenger.sendCmdEnd();
     Serial.print("frs: ");
     Serial.print(controller.getFrSetTemp());
     Serial.print(", ");
