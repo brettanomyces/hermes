@@ -18,7 +18,7 @@ TemperatureController::TemperatureController(
   // default values
   m_frSetTemp = 18.0;
   m_fzSetTemp = 10.0;
-  m_diff = 0.5;
+  m_diff = 0.25;
 };
 
 void TemperatureController::setFrSetTemp(double temp){
@@ -49,7 +49,7 @@ void TemperatureController::maintainTemperature(){
   if ( currentFrTemp > m_frSetTemp + m_diff) {
     // fridge too hot, open baffel to allow in cool air from freezer
     m_baffel.open();
-  } else if (currentFrTemp < m_frSetTemp) {
+  } else if (currentFrTemp < m_frSetTemp - m_diff) {
     // stop cooling once fridge reaches the set temp
     m_baffel.close();
   }
@@ -67,7 +67,7 @@ void TemperatureController::maintainTemperature(){
   if (currentFzTemp > m_fzSetTemp + m_diff) {
     // freezer too hot, turn on compressor to lower temp
     m_compressor.on();
-  } else if (currentFzTemp < m_fzSetTemp) {
+  } else if (currentFzTemp < m_fzSetTemp - m_diff) {
     // stop cooling once freezer reaches set temp
     m_compressor.off();
   }
