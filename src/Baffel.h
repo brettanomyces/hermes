@@ -11,6 +11,8 @@ class Baffel {
 
     void open();
     void close();
+    void forceOpen();
+    void forceClose();
     bool isOpen();
 
   private:

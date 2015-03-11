@@ -22,17 +22,14 @@ TemperatureController controller(
 
 void attachCommandCallbacks() {
   cmdMessenger.attach(onUnknownCommand);
-  cmdMessenger.attach(kAcknowledge, acknowledge);
   cmdMessenger.attach(kSetFrSetTemp, setFrSetTemp);
   cmdMessenger.attach(kSetFzSetTemp, setFzSetTemp);
+  cmdMessenger.attach(kForceOpenBaffel, forceOpenBaffel);
+  cmdMessenger.attach(kForceCloseBaffel, forceCloseBaffel);
 }
 
 void onUnknownCommand(){
   cmdMessenger.sendCmd(kError);
-}
-
-void acknowledge(){
-  cmdMessenger.sendCmd(kAcknowledge);
 }
 
 void setFrSetTemp(){
@@ -45,12 +42,22 @@ void setFzSetTemp(){
   controller.setFzSetTemp(temp);
 }
 
+void forceOpenBaffel(){
+  baffel.forceOpen();
+  cmdMessenger.sendCmd(kAcknowledge);
+}
+
+void forceCloseBaffel(){
+  baffel.forceClose();
+  cmdMessenger.sendCmd(kAcknowledge);
+}
+
 void setup() {
   // Listen on serial connection for messages from the pc
   Serial.begin(9600);
 
   // set state of components
-  baffel.close();
+  baffel.forceClose();
   compressor.off();
   fan.off();
   heater.off();
@@ -64,7 +71,7 @@ void setup() {
   attachCommandCallbacks();
 
   // send the status to the pc that says the Arduino has booted
-  acknowledge();
+  cmdMessenger.sendCmd(kAcknowledge);
 } 
 
 void loop() {

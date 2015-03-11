@@ -16,8 +16,8 @@ TemperatureController::TemperatureController(
     m_frSensor(frSensor)
     {
   // default values
-  m_frSetTemp = 18.0;
-  m_fzSetTemp = 10.0;
+  m_frSetTemp = 19.0;
+  m_fzSetTemp = 4.0;
   m_diff = 0.25;
 };
 

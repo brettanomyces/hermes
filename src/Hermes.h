@@ -13,18 +13,19 @@
 int updateInterval = 10000;
 
 enum {
-  kAcknowledge,
-  kError,
-  kSetFrSetTemp,
-  kSetFzSetTemp,
+  kError,           // 0
+  kAcknowledge,     // 1
+  kSetFrSetTemp,    // 2
+  kSetFzSetTemp,    // 3
+  kForceOpenBaffel, // 4
+  kForceCloseBaffel // 5
 };
 
 void attachCommandCallbacks();
 void onUnknownCommand();
-void onArduinoReady();
-void openBaffel();
 void setFzSetTemp();
 void setFrSetTemp();
-void acknowledge();
+void forceOpenBaffel();
+void forceCloseBaffel();
 
 #endif // _HERMES_

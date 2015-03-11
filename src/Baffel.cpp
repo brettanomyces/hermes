@@ -13,35 +13,41 @@ Baffel::Baffel(  int ena, int in1, int in2, int in3, int in4, int enb, int trans
   m_ena = ena;
   m_enb = enb;
   m_stepper.setSpeed(SPEED);
-  // set to true so baffel will be closed on setup
   m_open = true;
 }
 
+// attempt to open baffel. does nothing if baffel is already open
 void Baffel::open(){
-  // check that the baffel is not already open
   if(!isOpen()){
-    enable();
-    m_stepper.step(6 * STEPS);
-    delay(TRAVEL_TIME);
-    disable();
-    m_open = true;
-    Serial.println("baffel opened");
-  } else {
-    //Serial.println("baffel already open");
+    forceOpen();
+  } 
+}
+
+// attempt to close baffel. does nothing if baffel is already closed
+void Baffel::close(){
+  if(isOpen()){
+    forceClose();
   }
 }
 
-void Baffel::close(){
-  if(isOpen()){
-    enable();
-    m_stepper.step(-6 * STEPS);
-    delay(TRAVEL_TIME);
-    disable();
-    m_open = false;
-    Serial.println("baffel closed");
-  } else {
-    //Serial.println("baffel already closed");
-  }
+// attempt to open baffel without checking if baffel is already open
+void Baffel::forceOpen(){
+  enable();
+  m_stepper.step(6 * STEPS);
+  delay(TRAVEL_TIME);
+  disable();
+  m_open = true;
+  Serial.println("baffel opened");
+}
+
+// attempt to close baffel without checking if baffel is already closed
+void Baffel::forceClose(){
+  enable();
+  m_stepper.step(-6 * STEPS);
+  delay(TRAVEL_TIME);
+  disable();
+  m_open = false;
+  Serial.println("baffel closed");
 }
 
 void Baffel::enable(){
