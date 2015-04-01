@@ -10,15 +10,17 @@
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
 
+// how often do we check the temp
 int updateInterval = 10000;
 
 enum {
-  kError,           // 0
-  kAcknowledge,     // 1
-  kSetFrSetTemp,    // 2
-  kSetFzSetTemp,    // 3
-  kForceOpenBaffel, // 4
-  kForceCloseBaffel // 5
+  kError,            // 0
+  kAcknowledge,      // 1
+  kSetFrSetTemp,     // 2
+  kSetFzSetTemp,     // 3
+  kForceOpenBaffel,  // 4
+  kForceCloseBaffel, // 5
+  kSetFrEmpty        // 6
 };
 
 void attachCommandCallbacks();
@@ -27,5 +29,6 @@ void setFzSetTemp();
 void setFrSetTemp();
 void forceOpenBaffel();
 void forceCloseBaffel();
+void setFrEmpty();
 
 #endif // _HERMES_

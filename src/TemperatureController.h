@@ -22,11 +22,14 @@ class TemperatureController {
     void setFrSetTemp(double temp);
     double getFrSetTemp();
     void setDifference(double degrees);
+    void setFrEmpty(bool empty);
+    bool getFrEmpty();
 
   private:
     double m_frSetTemp;
     double m_fzSetTemp;
     double m_diff;
+    bool m_frEmpty;
 
     Baffel& m_baffel;
     Relay& m_compressor;

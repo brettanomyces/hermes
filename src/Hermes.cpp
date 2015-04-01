@@ -26,10 +26,16 @@ void attachCommandCallbacks() {
   cmdMessenger.attach(kSetFzSetTemp, setFzSetTemp);
   cmdMessenger.attach(kForceOpenBaffel, forceOpenBaffel);
   cmdMessenger.attach(kForceCloseBaffel, forceCloseBaffel);
+  cmdMessenger.attach(kSetFrEmpty, setFrEmpty);
 }
 
 void onUnknownCommand(){
   cmdMessenger.sendCmd(kError);
+}
+
+void setFrEmpty(){
+  bool empty = cmdMessenger.readBoolArg();
+  controller.setFrEmpty(empty);
 }
 
 void setFrSetTemp(){
