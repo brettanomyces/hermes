@@ -1,5 +1,5 @@
-#ifndef _HERMES_TEMP_CONTROLLER_
-#define _HERMES_TEMP_CONTROLLER_
+#ifndef SRC_TEMPERATURECONTROLLER_H_
+#define SRC_TEMPERATURECONTROLLER_H_
 
 #include "Baffel.h"
 #include "Relay.h"
@@ -13,8 +13,7 @@ class TemperatureController {
       Relay& fan,
       Relay& heater,
       TemperatureSensor& fzSensor,
-      TemperatureSensor& frSensor
-    );
+      TemperatureSensor& frSensor);
 
     void maintainTemperature();
     void setFzSetTemp(double temp);
@@ -39,4 +38,4 @@ class TemperatureController {
     TemperatureSensor& m_frSensor;
 };
 
-#endif // _HERMES_TEMP_CONTROLLER_
+#endif  // SRC_TEMPERATURECONTROLLER_H_

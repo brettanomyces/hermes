@@ -6,50 +6,48 @@ TemperatureController::TemperatureController(
     Relay& fan,
     Relay& heater,
     TemperatureSensor& fzSensor,
-    TemperatureSensor& frSensor
-    ):
+    TemperatureSensor& frSensor) :
     m_baffel(baffel),
     m_compressor(compressor),
     m_fan(fan),
     m_heater(heater),
     m_fzSensor(fzSensor),
-    m_frSensor(frSensor)
-    {
+    m_frSensor(frSensor) {
   // default values
   m_frSetTemp = 19.0;
   m_fzSetTemp = 4.0;
   m_diff = 0.25;
-};
+}
 
-void TemperatureController::setFrEmpty(bool empty){
+void TemperatureController::setFrEmpty(bool empty) {
   m_frEmpty = empty;
 }
 
-bool TemperatureController::getFrEmpty(){
+bool TemperatureController::getFrEmpty() {
   return m_frEmpty;
 }
 
-void TemperatureController::setFrSetTemp(double temp){
+void TemperatureController::setFrSetTemp(double temp) {
   m_frSetTemp = temp;
 }
 
-double TemperatureController::getFrSetTemp(){
+double TemperatureController::getFrSetTemp() {
   return m_frSetTemp;
 }
 
-void TemperatureController::setFzSetTemp(double temp){
+void TemperatureController::setFzSetTemp(double temp) {
   m_fzSetTemp = temp;
 }
 
-double TemperatureController::getFzSetTemp(){
+double TemperatureController::getFzSetTemp() {
   return m_fzSetTemp;
 }
 
-void TemperatureController::setDifference(double degrees){
+void TemperatureController::setDifference(double degrees) {
   m_diff = degrees;
 }
 
-void TemperatureController::maintainTemperature(){
+void TemperatureController::maintainTemperature() {
   double currentFrTemp = m_frSensor.readTemperature();
   double currentFzTemp = m_fzSensor.readTemperature();
 
@@ -59,7 +57,7 @@ void TemperatureController::maintainTemperature(){
     m_heater.off();
   } else {
     // baffel
-    if ( currentFrTemp > m_frSetTemp + m_diff) {
+    if (currentFrTemp > m_frSetTemp + m_diff) {
       // fridge too hot, open baffel to allow in cool air from freezer
       m_baffel.open();
     } else if (currentFrTemp < m_frSetTemp - m_diff) {
@@ -86,10 +84,9 @@ void TemperatureController::maintainTemperature(){
   }
 
   // fan
-  if (m_baffel.isOpen() || m_compressor.isOn()){
+  if (m_baffel.isOpen() || m_compressor.isOn()) {
     m_fan.on();
-  } else { 
+  } else {
     m_fan.off();
   }
-
 }

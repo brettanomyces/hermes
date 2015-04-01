@@ -1,5 +1,5 @@
-#ifndef _HERMES_BAFFEL_
-#define _HERMES_BAFFEL_
+#ifndef SRC_BAFFEL_H_
+#define SRC_BAFFEL_H_
 
 #include <Arduino.h>
 #include <Stepper.h>
@@ -7,7 +7,14 @@
 
 class Baffel {
   public:
-    Baffel(int ena, int in1, int in2, int in3, int in4, int enb, int transformerPin);
+    Baffel(
+        int ena,
+        int in1,
+        int in2,
+        int in3,
+        int in4,
+        int enb,
+        int transformerPin);
 
     void open();
     void close();
@@ -28,6 +35,5 @@ class Baffel {
 
     void enable();
     void disable();
-
 };
-#endif // _HERMES_BAFFEL_
+#endif  // SRC_BAFFEL_H_

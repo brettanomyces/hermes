@@ -1,8 +1,14 @@
 #include "Baffel.h"
 
-Baffel::Baffel(  int ena, int in1, int in2, int in3, int in4, int enb, int transformerPin ) : 
+Baffel::Baffel(
+    int ena,
+    int in1,
+    int in2,
+    int in3,
+    int in4,
+    int enb,
+    int transformerPin) :
   m_stepper(STEPS, in1, in2, in3, in4), m_transformer(transformerPin) {
-
   pinMode(ena, OUTPUT);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
@@ -17,21 +23,21 @@ Baffel::Baffel(  int ena, int in1, int in2, int in3, int in4, int enb, int trans
 }
 
 // attempt to open baffel. does nothing if baffel is already open
-void Baffel::open(){
-  if(!isOpen()){
+void Baffel::open() {
+  if (!isOpen()) {
     forceOpen();
-  } 
+  }
 }
 
 // attempt to close baffel. does nothing if baffel is already closed
-void Baffel::close(){
-  if(isOpen()){
+void Baffel::close() {
+  if (isOpen()) {
     forceClose();
   }
 }
 
 // attempt to open baffel without checking if baffel is already open
-void Baffel::forceOpen(){
+void Baffel::forceOpen() {
   enable();
   m_stepper.step(6 * STEPS);
   delay(TRAVEL_TIME);
@@ -41,7 +47,7 @@ void Baffel::forceOpen(){
 }
 
 // attempt to close baffel without checking if baffel is already closed
-void Baffel::forceClose(){
+void Baffel::forceClose() {
   enable();
   m_stepper.step(-6 * STEPS);
   delay(TRAVEL_TIME);
@@ -50,16 +56,16 @@ void Baffel::forceClose(){
   Serial.println("baffel closed");
 }
 
-void Baffel::enable(){
+void Baffel::enable() {
   digitalWrite(m_ena, HIGH);
   digitalWrite(m_enb, HIGH);
 }
 
-void Baffel::disable(){
+void Baffel::disable() {
   digitalWrite(m_ena, LOW);
   digitalWrite(m_enb, LOW);
 }
 
-bool Baffel::isOpen(){
+bool Baffel::isOpen() {
   return m_open;
 }
