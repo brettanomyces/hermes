@@ -12,11 +12,11 @@ Relay compressor(5, "compressor", 300000); // 5 minute delay
 Relay fan(6, "fan", 0);
 Relay heater(7, "heater", 30000); // 30 second delay
 TemperatureController controller(
-    baffel, 
-    compressor, 
-    fan, 
+    baffel,
+    compressor,
+    fan,
     heater,
-    freezerSensor, 
+    freezerSensor,
     fridgeSensor
     );
 
@@ -78,13 +78,13 @@ void setup() {
 
   // send the status to the pc that says the Arduino has booted
   cmdMessenger.sendCmd(kAcknowledge);
-} 
+}
 
 void loop() {
   cmdMessenger.feedinSerialData();
 
   if(updateTimer.check()) {
-    controller.maintainTemperature(); 
+    controller.maintainTemperature();
     Serial.print("frs: ");
     Serial.print(controller.getFrSetTemp());
     Serial.print(", ");
