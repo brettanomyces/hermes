@@ -1,7 +1,5 @@
 #include "Relay.h"
 
-// delegating constructors
-Relay::Relay(int pin) : Relay(pin, "relay", 0){} // default name: "relay", default delay: 0
 Relay::Relay(int pin, String name, long delay) : m_delay(delay){
   m_pin = pin;
   m_name = name;

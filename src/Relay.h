@@ -6,8 +6,8 @@
 
 class Relay {
   public:
-    Relay(int pin);
-    Relay(int pin, String name, long delay);
+    // use default parameters
+    Relay(int pin, String name = "", long delay = 0);
 
     void on();
     void off();
