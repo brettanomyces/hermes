@@ -1,5 +1,5 @@
-#ifndef _HERMES_RELAY_
-#define _HERMES_RELAY_
+#ifndef SRC_RELAY_H_
+#define SRC_RELAY_H_
 
 #include <Arduino.h>
 #include "Delay.h"
@@ -7,7 +7,7 @@
 class Relay {
   public:
     // use default parameters
-    Relay(int pin, String name = "", long delay = 0);
+    explicit Relay(int pin, String name = "", double delay = 0);
 
     void on();
     void off();
@@ -22,4 +22,4 @@ class Relay {
     Delay m_delay;
 };
 
-#endif // _HERMES_RELAY_
+#endif  // SRC_RELAY_H_

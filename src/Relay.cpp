@@ -1,6 +1,6 @@
 #include "Relay.h"
 
-Relay::Relay(int pin, String name, long delay) : m_delay(delay){
+Relay::Relay(int pin, String name, double delay) : m_delay(delay) {
   m_pin = pin;
   m_name = name;
   pinMode(m_pin, OUTPUT);
@@ -11,9 +11,9 @@ Relay::Relay(int pin, String name, long delay) : m_delay(delay){
   m_delay.reset();
 }
 
-void Relay::on(){
-  if(!m_on){
-    if(m_delay.ok()){
+void Relay::on() {
+  if (!m_on) {
+    if (m_delay.ok()) {
       digitalWrite(m_pin, LOW);
       m_on = true;
       m_delay.reset();
@@ -24,9 +24,9 @@ void Relay::on(){
   }
 }
 
-void Relay::off(){
-  if(m_on){
-    if(m_delay.ok()){
+void Relay::off() {
+  if (m_on) {
+    if (m_delay.ok()) {
       digitalWrite(m_pin, HIGH);
       m_on = false;
       m_delay.reset();
@@ -37,7 +37,7 @@ void Relay::off(){
   }
 }
 
-void Relay::log(String str){
+void Relay::log(String str) {
   Serial.print(m_name);
   Serial.print("(");
   Serial.print(m_pin);
@@ -46,12 +46,12 @@ void Relay::log(String str){
   Serial.println();
 }
 
-bool Relay::isOn(){
+bool Relay::isOn() {
   return m_on;
 }
 
-bool Relay::waiting(){
-  if(m_delay.ok()){
+bool Relay::waiting() {
+  if (m_delay.ok()) {
     return false;
   } else {
     return true;
