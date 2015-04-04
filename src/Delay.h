@@ -1,18 +1,15 @@
-#ifndef _HERMES_DELAY_
-#define _HERMES_DELAY_
-
-#include <Arduino.h> 
+#ifndef SRC_DELAY_H_
+#define SRC_DELAY_H_
+#include <Arduino.h>
 
 class Delay {
-
   public:
-    Delay(long);
+    explicit Delay(double period);
     void reset();
     bool ok();
 
   private:
-    unsigned long period;
-    unsigned long lastTime;
+    double m_period;
+    double m_lastTime;
 };
-
-#endif // _HERMES_DELAY_
+#endif  // SRC_DELAY_H_
