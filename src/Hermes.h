@@ -1,5 +1,5 @@
-#ifndef _HERMES_
-#define _HERMES_
+#ifndef SRC_HERMES_H_
+#define SRC_HERMES_H_
 
 #include <Arduino.h>
 #include <CmdMessenger.h>
@@ -11,16 +11,16 @@
 #include "TemperatureSensor.h"
 
 // how often do we check the temp
-int updateInterval = 10000;
+int UPDATE_PERIOD = 10000;  // 10 seconds
 
 enum {
-  kError,            // 0
-  kAcknowledge,      // 1
-  kSetFrSetTemp,     // 2
-  kSetFzSetTemp,     // 3
-  kForceOpenBaffel,  // 4
-  kForceCloseBaffel, // 5
-  kSetFrEmpty        // 6
+  kError,             // 0
+  kAcknowledge,       // 1
+  kSetFrSetTemp,      // 2
+  kSetFzSetTemp,      // 3
+  kForceOpenBaffel,   // 4
+  kForceCloseBaffel,  // 5
+  kSetFrEmpty         // 6
 };
 
 void attachCommandCallbacks();
@@ -31,4 +31,4 @@ void forceOpenBaffel();
 void forceCloseBaffel();
 void setFrEmpty();
 
-#endif // _HERMES_
+#endif  // SRC_HERMES_H_

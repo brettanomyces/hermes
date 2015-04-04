@@ -3,22 +3,21 @@
 // Attach a new CmdMessen object ot the default Serial port
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
 
-DoEvery updateTimer(updateInterval);
+DoEvery updateTimer(UPDATE_PERIOD);
 
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
-Relay compressor(5, "compressor", 300000); // 5 minute delay
+Relay compressor(5, "compressor", 300000);  // 5 minutes
 Relay fan(6, "fan", 0);
-Relay heater(7, "heater", 30000); // 30 second delay
+Relay heater(7, "heater", 30000);  // 30 seconds
 TemperatureController controller(
     baffel,
     compressor,
     fan,
     heater,
     freezerSensor,
-    fridgeSensor
-    );
+    fridgeSensor);
 
 void attachCommandCallbacks() {
   cmdMessenger.attach(onUnknownCommand);
@@ -29,31 +28,31 @@ void attachCommandCallbacks() {
   cmdMessenger.attach(kSetFrEmpty, setFrEmpty);
 }
 
-void onUnknownCommand(){
+void onUnknownCommand() {
   cmdMessenger.sendCmd(kError);
 }
 
-void setFrEmpty(){
+void setFrEmpty() {
   bool empty = cmdMessenger.readBoolArg();
   controller.setFrEmpty(empty);
 }
 
-void setFrSetTemp(){
+void setFrSetTemp() {
   float temp = cmdMessenger.readFloatArg();
   controller.setFrSetTemp(temp);
 }
 
-void setFzSetTemp(){
+void setFzSetTemp() {
   float temp = cmdMessenger.readFloatArg();
   controller.setFzSetTemp(temp);
 }
 
-void forceOpenBaffel(){
+void forceOpenBaffel() {
   baffel.forceOpen();
   cmdMessenger.sendCmd(kAcknowledge);
 }
 
-void forceCloseBaffel(){
+void forceCloseBaffel() {
   baffel.forceClose();
   cmdMessenger.sendCmd(kAcknowledge);
 }
@@ -83,7 +82,7 @@ void setup() {
 void loop() {
   cmdMessenger.feedinSerialData();
 
-  if(updateTimer.check()) {
+  if (updateTimer.check()) {
     controller.maintainTemperature();
     Serial.print("frs: ");
     Serial.print(controller.getFrSetTemp());
