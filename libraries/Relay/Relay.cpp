@@ -1,4 +1,4 @@
-#include "Relay.h"
+#include <Relay.h>
 
 Relay::Relay(int pin, String name, double delay) : m_delay(delay) {
   m_pin = pin;

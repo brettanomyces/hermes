@@ -1,4 +1,24 @@
-#include "Hermes.h"
+#include <CmdMessenger.h>  // Arduino will look in 'libraries' folders for includes using <>
+#include <DoEvery.h>
+#include <Baffel.h>
+#include <Stepper.h>
+#include <Delay.h>
+#include <Relay.h>
+#include <TemperatureController.h>
+#include <TemperatureSensor.h>
+
+// how often do we check the temp
+int UPDATE_PERIOD = 10000;  // 10 seconds
+
+enum {
+  kError,             // 0
+  kAcknowledge,       // 1
+  kSetFrSetTemp,      // 2
+  kSetFzSetTemp,      // 3
+  kForceOpenBaffel,   // 4
+  kForceCloseBaffel,  // 5
+  kSetFrEmpty         // 6
+};
 
 // Attach a new CmdMessen object ot the default Serial port
 CmdMessenger cmdMessenger = CmdMessenger(Serial);

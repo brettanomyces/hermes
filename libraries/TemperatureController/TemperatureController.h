@@ -1,9 +1,9 @@
 #ifndef SRC_TEMPERATURECONTROLLER_H_
 #define SRC_TEMPERATURECONTROLLER_H_
 
-#include "Baffel.h"
-#include "Relay.h"
-#include "TemperatureSensor.h"
+#include <Baffel.h>
+#include <Relay.h>
+#include <TemperatureSensor.h>
 
 class TemperatureController {
   public:

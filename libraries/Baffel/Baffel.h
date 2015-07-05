@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Stepper.h>
-#include "Relay.h"
+#include <Relay.h>
 
 class Baffel {
   public:
