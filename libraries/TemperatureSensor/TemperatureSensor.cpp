@@ -61,10 +61,10 @@ double TemperatureSensor::temperatureToResistance(double t) {
   // Temperature in kelvin
   double tKelvin = t + 273.15;
   // Constants
-  double A;
-  double B;
-  double C;
-  double D;
+  double A = -1.4141963E+01;
+  double B = 4.4307830E+03;
+  double C = -3.4078983E+04;
+  double D = -8.8941929E+06;
 
   if (t >= -50 && t < 0) {
     A = -1.4122478E+01;
@@ -72,7 +72,6 @@ double TemperatureSensor::temperatureToResistance(double t) {
     C = -2.9034189E+04;
     D = -9.3875035E+06;
   } else if (t >= 0 && t < 50) {
-    // T > 0
     A = -1.4141963E+01;
     B = 4.4307830E+03;
     C = -3.4078983E+04;
@@ -88,7 +87,7 @@ double TemperatureSensor::temperatureToResistance(double t) {
     C = -1.0004049E+06;
     D = 1.1961431E+08;
   } else {
-    // ERROR
+    // ERROR! Assume temp in 0C to 50C Range
   }
   return R25 * exp(A + B / tKelvin + C / pow(tKelvin, 2) + D / pow(tKelvin, 3));
 }
@@ -98,10 +97,11 @@ double TemperatureSensor::resistanceToTemperature(double Rt) {
   double R25 = 5000;
   double Rt_over_R25 = Rt / R25;
   // Constants
-  double a;
-  double b;
-  double c;
-  double d;
+  // Default values to 0 to 50 degree range
+  double a = 3.3540154E-03;
+  double b = 2.5627725E-04;
+  double c = 2.0829210E-06;
+  double d = 7.3003206E-08;
 
   if (Rt_over_R25 <= 68.600 && Rt_over_R25 > 3.274) {
     // -50 to 0 degrees
@@ -128,7 +128,7 @@ double TemperatureSensor::resistanceToTemperature(double Rt) {
     c = -2.6687093E-06;
     d = -4.0719355E-07;
   } else {
-    // ERROR
+    // ERROR! Assume temp in 0C to 50C range
   }
 
   double log_Rt_over_R25 = log(Rt_over_R25);
