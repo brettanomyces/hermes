@@ -1,24 +1,28 @@
 Hermes
 ======
 
+Install the latest Arduino IDE
+
 # Build
 
-    ino clean
-    ino build
+    arduino --verify hermes.ino
 
 # Upload To Arduino
 
-    ino upload
+    arduino --upload hermes.ino
 
-# View Serial Output
+# Enable auto reset on serial connection
 
-    cat /dev/ttyXXX > log/hermes.log
-    tail -f log/hermes.log
+    stty -F /dev/<tty> -hupcl
+    
+# Enable auto reset on serial connection
 
-# Send commands
+    stty -F /dev/<tty> hupcl
+    
+# Add user to dialout group - allows you to view output without needing sudo 
 
-    // Set fridge temp
-    echo '2, 20.0;' > /dev/ttyXXX
+    sudo adduser <username> dialout
+    
+# View serial output
 
-    // set freezer temp
-    echo '3, 10.0;' > /dev/ttyXXX
+    cat /dev/<tty>
