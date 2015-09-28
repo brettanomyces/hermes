@@ -25,4 +25,5 @@ Install the latest Arduino IDE
     
 # View serial output
 
-    cat /dev/<tty>
+    cat /dev/<tty> >> hermes.log &
+    tail -f hermes.log
