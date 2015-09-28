@@ -8,16 +8,18 @@
 
 // how often do we check the temp
 int UPDATE_PERIOD = 10000;  // 10 seconds
-double FR_SET_TEMP = 25.0;
+double FR_SET_TEMP = 19.0;
 double FZ_SET_TEMP = 4.0;
+double COMP_DELAY = 300000;  // 5 minutes
+double FAN_DELAY = 30000;  // 30 seconds
 
 DoEvery updateTimer(UPDATE_PERIOD);
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
-Relay compressor(5, "compressor", 300000);  // 5 minutes
+Relay compressor(5, "compressor", COMP_DELAY);
 Relay fan(6, "fan", 0);
-Relay heater(7, "heater", 30000);  // 30 seconds
+Relay heater(7, "heater", FAN_DELAY);  // 30 seconds
 TemperatureController controller(
     baffel,
     compressor,
