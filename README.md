@@ -24,5 +24,7 @@ Install the latest Arduino IDE
     sudo adduser <username> dialout
     
 # View serial output
+`moreutils` must be installed for `ts`, `sudo apt-get install moreutils`. $TZ must also be set to get the correct time `tzselect`
 
-    cat /dev/<tty>
+    cat /dev/<tty> | ts >> hermes.log &
+    tail -f hermes.log
