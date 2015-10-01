@@ -49,34 +49,27 @@ void setup() {
 void loop() {
   if (updateTimer.check()) {
     controller.maintainTemperature();
-    Serial.print("frs: ");
+    // output values in the following csv format:
+    // frs, fr, fzs, fz, b, c, cw, f, h, hw
+    String SEPERATOR = ",";
     Serial.print(controller.getFrSetTemp());
-    Serial.print(", ");
-    Serial.print("fr: ");
+    Serial.print(SEPERATOR);
     Serial.print(fridgeSensor.readTemperature());
-    Serial.print(", ");
-    Serial.print("fzs: ");
+    Serial.print(SEPERATOR);
     Serial.print(controller.getFzSetTemp());
-    Serial.print(", ");
-    Serial.print("fz: ");
+    Serial.print(SEPERATOR);
     Serial.print(freezerSensor.readTemperature());
-    Serial.print(", ");
-    Serial.print("b: ");
+    Serial.print(SEPERATOR);
     Serial.print(baffel.isOpen());
-    Serial.print(", ");
-    Serial.print("c: ");
+    Serial.print(SEPERATOR);
     Serial.print(compressor.isOn());
-    Serial.print(", ");
-    Serial.print("cw: ");
+    Serial.print(SEPERATOR);
     Serial.print(compressor.waiting());
-    Serial.print(", ");
-    Serial.print("f: ");
+    Serial.print(SEPERATOR);
     Serial.print(fan.isOn());
-    Serial.print(", ");
-    Serial.print("h: ");
+    Serial.print(SEPERATOR);
     Serial.print(heater.isOn());
-    Serial.print(", ");
-    Serial.print("hw: ");
+    Serial.print(SEPERATOR);
     Serial.print(heater.waiting());
     Serial.println();
   }
