@@ -19,11 +19,11 @@ class TemperatureSensor {
 
     // constants
     // voltage in
-    static const double V_IN = 5.0;
+    const double V_IN = 5.0;
     // arduino has a 10bit analog to digital converter
-    static const double ANALOG_STEPS = 1024;
+    const double ANALOG_STEPS = 1024;
     // number of time to read temp before getting an average
-    static const int NUM_REPITIONS = 100;
+    const int NUM_REPITIONS = 100;
 
     double measureVoltage(int pin);
     double analogToVoltage(double analog);
