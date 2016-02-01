@@ -28,3 +28,14 @@ Install the latest Arduino IDE
 
     cat /dev/<tty> | ts >> hermes.log &
     tail -f hermes.log
+    
+    
+# Bill of Materials
+
+* Arduino UNO R3 (pretty unreliable)
+* 2 X 2 Relay Arduino modules
+* L298N Stepper Motor Driver
+* Stepper motor - voltage/current?
+* Thermistors?
+* Resistors for voltage divider to measure temp
+* Transformer
