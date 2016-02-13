@@ -1,6 +1,4 @@
 #include <DoEvery.h>
-#include <Baffel.h>
-#include <Stepper.h>
 #include <Delay.h>
 #include <Relay.h>
 #include <TemperatureController.h>
@@ -10,7 +8,7 @@
 int UPDATE_PERIOD = 10000;  // 10 seconds
 double FR_SET_TEMP = 19.0;
 double FZ_SET_TEMP = 4.0;
-double COMP_DELAY = 300000;  // 5 minutes
+double COMPRESSOR_DELAY = 300000;  // 5 minutes
 double FAN_DELAY = 30000;  // 30 seconds
 
 // photon pins
@@ -25,9 +23,9 @@ int STEPPER_IN1 = 0;
 int STEPPER_IN2 = 1;  
 int STEPPER_IN3 = 2;  
 int STEPPER_IN4 = 3;  
-int FAN_RELAY = 4;
-int COMPRESSOR_RELAY = 5;
-int HEATER_RELAY = 6;
+int FAN_PIN = 4;
+int COMPRESSOR_PIN = 5;
+int HEATER_PIN = 6;
 
 // stepper motor
 // L1 = yellow
@@ -48,9 +46,12 @@ DoEvery updateTimer(UPDATE_PERIOD);
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
-Relay compressor(5, "compressor", COMP_DELAY);
-Relay fan(6, "fan", 0);
-Relay heater(7, "heater", FAN_DELAY);  // 30 seconds
+
+// relays
+Relay compressor(COMPRESSOR_DELAY);
+Relay fan();
+Relay heater(FAN_DELAY);  // 30 seconds
+
 TemperatureController controller(
     baffel,
     compressor,
@@ -81,7 +82,56 @@ void setup() {
 }
 
 void loop() {
+  if (updateTimer.check()) {
+    // update state
+    controller.maintainTemperature();
 
+ 
+    if (compressor.isOn()) {
+      setRegisterPin(COMPRESSOR_PIN, RELAY_ON);
+    } else {
+      setRegisterPin(COMPRESSOR_PIN, !RELAY_ON);
+    }
+
+    if (heater.isOn()) {
+      setRegisterPin(HEATER_PIN, RELAY_ON);
+    } else {
+      setRegisterPin(HEATER_PIN, !RELAY_ON);
+    }
+
+    if (fan.isOn()) {
+      setRegisterPin(FAN_PIN, RELAY_ON);
+    } else {
+      setRegisterPin(FAN_PIN, !RELAY_ON);
+    }
+
+
+
+
+    // output values in the following csv format:
+    // frs, fr, fzs, fz, b, c, cw, f, h, hw
+    String SEPERATOR = ",";
+    Serial.print(controller.getFrSetTemp());
+    Serial.print(SEPERATOR);
+    Serial.print(fridgeSensor.readTemperature());
+    Serial.print(SEPERATOR);
+    Serial.print(controller.getFzSetTemp());
+    Serial.print(SEPERATOR);
+    Serial.print(freezerSensor.readTemperature());
+    Serial.print(SEPERATOR);
+    Serial.print(baffel.isOpen());
+    Serial.print(SEPERATOR);
+    Serial.print(compressor.isOn());
+    Serial.print(SEPERATOR);
+    Serial.print(compressor.waiting());
+    Serial.print(SEPERATOR);
+    Serial.print(fan.isOn());
+    Serial.print(SEPERATOR);
+    Serial.print(heater.isOn());
+    Serial.print(SEPERATOR);
+    Serial.print(heater.waiting());
+    Serial.println();
+  }
 }
 
 // set all register pins to LOW
@@ -174,35 +224,4 @@ void antiClockwise() {
   setRegisterPin(STEPPER_IN1, HIGH);
   writeRegisters(); 
   delay(STEPPER_SPEED);
-}
-
-
-
-void loop() {
-  if (updateTimer.check()) {
-    controller.maintainTemperature();
-    // output values in the following csv format:
-    // frs, fr, fzs, fz, b, c, cw, f, h, hw
-    String SEPERATOR = ",";
-    Serial.print(controller.getFrSetTemp());
-    Serial.print(SEPERATOR);
-    Serial.print(fridgeSensor.readTemperature());
-    Serial.print(SEPERATOR);
-    Serial.print(controller.getFzSetTemp());
-    Serial.print(SEPERATOR);
-    Serial.print(freezerSensor.readTemperature());
-    Serial.print(SEPERATOR);
-    Serial.print(baffel.isOpen());
-    Serial.print(SEPERATOR);
-    Serial.print(compressor.isOn());
-    Serial.print(SEPERATOR);
-    Serial.print(compressor.waiting());
-    Serial.print(SEPERATOR);
-    Serial.print(fan.isOn());
-    Serial.print(SEPERATOR);
-    Serial.print(heater.isOn());
-    Serial.print(SEPERATOR);
-    Serial.print(heater.waiting());
-    Serial.println();
-  }
 }
