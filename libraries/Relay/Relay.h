@@ -1,21 +1,23 @@
-#ifndef SRC_RELAY_H_
+z#ifndef SRC_RELAY_H_
 #define SRC_RELAY_H_
 
 #include <Delay.h>
+#include <DeviceManager.h>
 
 class Relay {
   public:
-    // use default parameters
-    explicit Relay(double delay = 0);
+    explicit Relay(int pin, double delay = 0, DeviceManager deviceManager);
 
-    void on();
-    void off();
+    void activate();
+    void deactivate();
     bool isOn();
     bool isWaiting();
 
   private:
+    int m_pin;
     bool m_on;
     Delay m_delay;
+    DeviceManager m_dm;
 };
 
 #endif  // SRC_RELAY_H_

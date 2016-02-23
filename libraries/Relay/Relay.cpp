@@ -1,28 +1,28 @@
 #include <Relay.h>
 
-Relay::Relay(double delay) : m_delay(delay) {
+Relay::Relay(int pin, double delay, DeviceManager deviceManager) : m_delay(delay) {
+  m_pin = pin;
   m_on = false;
   m_delay.reset();
+  m_dm = deviceManager;
 }
 
-void Relay::on() {
+void Relay::activate() {
   if (!m_on) {
     if (m_delay.ok()) {
+      m_dm.activate(m_pin);
       m_on = true;
       m_delay.reset();
-    } else {
-      // do nothing
     }
   }
 }
 
-void Relay::off() {
+void Relay::deactivate() {
   if (m_on) {
     if (m_delay.ok()) {
+      m_dm.deactivate(m_pin);
       m_on = false;
       m_delay.reset();
-    } else {
-      // do nothing
     }
   }
 }

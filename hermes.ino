@@ -1,15 +1,42 @@
+<<<<<<< Updated upstream
 #include <DoEvery.h>
+=======
+#include <Baffel.h>
+>>>>>>> Stashed changes
 #include <Delay.h>
+#include <DeviceManager.h>
+#include <DoEvery.h>
 #include <Relay.h>
 #include <TemperatureController.h>
 #include <TemperatureSensor.h>
 
-// how often do we check the temp
 int UPDATE_PERIOD = 10000;  // 10 seconds
+<<<<<<< Updated upstream
 double FR_SET_TEMP = 19.0;
 double FZ_SET_TEMP = 4.0;
 double COMPRESSOR_DELAY = 300000;  // 5 minutes
 double FAN_DELAY = 30000;  // 30 seconds
+=======
+double COMP_DELAY = 300000;  // 5 minutes
+double HEATER_DELAY = 30000;  // 30 seconds
+
+double DEFAULT_FR_TEMP = 19.0;
+double DEFAULT_FZ_TEMP = 4.0;
+
+int IN1 = 0;
+int IN2 = 1;
+int IN3 = 2;
+int IN4 = 3;
+int COMP_PIN = 4
+int FAN_PIN = 5;
+int HEATER_PIN = 6;
+
+int DATA_PIN = D0;
+int LATCH_PIN = D1;
+int CLOCK_PIN = D2;
+
+DeviceManager deviceManager(DATA_PIN, LATCH_PIN, CLOCK_PIN);
+>>>>>>> Stashed changes
 
 // photon pins
 int DATA_PIN = D0;  // DS/SER
@@ -45,12 +72,19 @@ int RELAY_ON = LOW;
 DoEvery updateTimer(UPDATE_PERIOD);
 TemperatureSensor fridgeSensor(2, 2, 10000);
 TemperatureSensor freezerSensor(3, 2, 10000);
+<<<<<<< Updated upstream
 Baffel baffel(13, 12, 11, 10, 9, 8, 4);
 
 // relays
 Relay compressor(COMPRESSOR_DELAY);
 Relay fan();
 Relay heater(FAN_DELAY);  // 30 seconds
+=======
+Baffel baffel(IN1, IN2, IN3, IN4);
+Relay compressor(COMP_PIN, COMP_DELAY);
+Relay fan(FAN_PIN, 0);
+Relay heater(HEATER_PIN, HEATER_DELAY);
+>>>>>>> Stashed changes
 
 TemperatureController controller(
     baffel,
@@ -68,17 +102,17 @@ void setup() {
   pinMode(CLOCK_PIN, OUTPUT);
 
   // set state of components
-  baffel.forceClose();
-  compressor.off();
-  fan.off();
-  heater.off();
+  baffel.close();
+  compressor.deactivate();
+  fan.deactivate();
+  heater.deactivate();
 
   // init timers
   updateTimer.reset();
 
   // set temps
-  controller.setFzSetTemp(FZ_SET_TEMP);
-  controller.setFrSetTemp(FR_SET_TEMP);
+  controller.setFzSetTemp(DEFAULT_FZ_TEMP);
+  controller.setFrSetTemp(DEFAULT_FR_TEMP);
 }
 
 void loop() {

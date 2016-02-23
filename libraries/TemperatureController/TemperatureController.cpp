@@ -84,7 +84,7 @@ void TemperatureController::maintainTemperature() {
   if (m_frEmpty) {
     // fridge is empty so don't try and maintain the temperature
     m_baffel.close();
-    m_heater.off();
+    m_heater.deactivate();
   } else {
     // baffel
     if (currentFrTemp > m_frSetTemp + m_diff) {
@@ -97,26 +97,26 @@ void TemperatureController::maintainTemperature() {
     // heater
     if (currentFrTemp < m_frSetTemp - 2 * m_diff) {
       // fridge too cold, turn on heater to raise temp
-      m_heater.on();
+      m_heater.activate();
     } else if (currentFrTemp > m_frSetTemp) {
       // stop heating once fridge reaches the set temp
-      m_heater.off();
+      m_heater.deactivate();
     }
   }
 
   // compressor
   if (currentFzTemp > m_fzSetTemp + m_diff) {
     // freezer too hot, turn on compressor to lower temp
-    m_compressor.on();
+    m_compressor.activate();
   } else if (currentFzTemp < m_fzSetTemp - m_diff) {
     // stop cooling once freezer reaches set temp
-    m_compressor.off();
+    m_compressor.deactivate();
   }
 
   // fan
   if (m_baffel.isOpen() || m_compressor.isOn()) {
-    m_fan.on();
+    m_fan.activate();
   } else {
-    m_fan.off();
+    m_fan.deactivate();
   }
 }
