@@ -58,3 +58,6 @@ cscope.po.out¬
 # Logs
 log/
 logs/
+
+# Particle
+*.bin
