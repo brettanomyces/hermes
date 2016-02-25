@@ -1,4 +1,4 @@
-z#ifndef SRC_RELAY_H_
+#ifndef SRC_RELAY_H_
 #define SRC_RELAY_H_
 
 #include <Delay.h>
@@ -6,7 +6,7 @@ z#ifndef SRC_RELAY_H_
 
 class Relay {
   public:
-    explicit Relay(int pin, double delay = 0, DeviceManager deviceManager);
+    Relay(int pin, double delay, DeviceManager* deviceManager);
 
     void activate();
     void deactivate();
@@ -17,7 +17,7 @@ class Relay {
     int m_pin;
     bool m_on;
     Delay m_delay;
-    DeviceManager m_dm;
+    DeviceManager* m_dm;
 };
 
 #endif  // SRC_RELAY_H_

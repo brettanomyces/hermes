@@ -1,6 +1,6 @@
 #include <Relay.h>
 
-Relay::Relay(int pin, double delay, DeviceManager deviceManager) : m_delay(delay) {
+Relay::Relay(int pin, double delay, DeviceManager* deviceManager) : m_delay(delay) {
   m_pin = pin;
   m_on = false;
   m_delay.reset();
@@ -10,7 +10,7 @@ Relay::Relay(int pin, double delay, DeviceManager deviceManager) : m_delay(delay
 void Relay::activate() {
   if (!m_on) {
     if (m_delay.ok()) {
-      m_dm.activate(m_pin);
+      m_dm->activateRelay(m_pin);
       m_on = true;
       m_delay.reset();
     }
@@ -20,7 +20,7 @@ void Relay::activate() {
 void Relay::deactivate() {
   if (m_on) {
     if (m_delay.ok()) {
-      m_dm.deactivate(m_pin);
+      m_dm->deactivateRelay(m_pin);
       m_on = false;
       m_delay.reset();
     }
