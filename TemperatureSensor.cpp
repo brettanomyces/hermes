@@ -3,10 +3,14 @@
 TemperatureSensor::TemperatureSensor(
     int pin,
     int thermistorPosition,
-    int resistorValue) {
+    int resistorValue,
+    double vIn,
+    double adcSteps) {
   m_pin = pin;
   m_thermistorPosition = thermistorPosition;
   m_resistorValue = resistorValue;
+  m_vIn = vIn;
+  m_adcSteps = adcSteps;
 }
 
 double TemperatureSensor::readTemperature() {
@@ -28,7 +32,7 @@ double TemperatureSensor::measureVoltage(int pin) {
 }
 
 double TemperatureSensor::analogToVoltage(double analog) {
-  return (analog / static_cast<double>(ANALOG_STEPS)) * V_IN;
+  return (analog / static_cast<double>(m_adcSteps)) * m_vIn;
 }
 
 // Calculate the resistance of the thermistor in the resistive divider
@@ -45,13 +49,13 @@ double TemperatureSensor::voltageToResistance(double vOut) {
 
 double TemperatureSensor::calculateR1(double vOut) {
   double r2 = m_resistorValue;
-  double r1 = ((r2 * V_IN) / vOut) - r2;
+  double r1 = ((r2 * m_vIn) / vOut) - r2;
   return r1;
 }
 
 double TemperatureSensor::calculateR2(double vOut) {
   double r1 = m_resistorValue;
-  double r2 = r1 * (1 / ((V_IN / vOut) - 1));
+  double r2 = r1 * (1 / ((m_vIn / vOut) - 1));
   return r2;
 }
 

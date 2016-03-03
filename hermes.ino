@@ -41,6 +41,9 @@ double HEATER_DELAY = 30000;  // 30 seconds
 double DEFAULT_FR_TEMP = 19.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
+double ADC_STEPS = 4096;
+double V_IN = 3.3;
+
 int STEPPER_SPEED = 5;  // NOTE: also affected by shift register delay
 int STEPPER_STEPS = 475;  // found via trial and error
 
@@ -50,8 +53,8 @@ int RELAY_ON = LOW;
 DeviceManager deviceManager(DATA_PIN, LATCH_PIN, CLOCK_PIN);
 DoEvery updateTimer(UPDATE_PERIOD);
 
-TemperatureSensor fridgeSensor(2, 2, 10000);
-TemperatureSensor freezerSensor(3, 2, 10000);
+TemperatureSensor fridgeSensor(2, 2, 10000, V_IN, ADC_STEPS);
+TemperatureSensor freezerSensor(3, 2, 10000, V_IN, ADC_STEPS);
 
 Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
 Relay compressor(COMP_PIN, COMP_DELAY, &deviceManager);
