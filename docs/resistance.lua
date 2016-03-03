@@ -3,7 +3,8 @@
 -- photon analog pins can handle a max of 3.3v
 v_in = 3.3
 r_25 = 5000
-
+t_min = 0
+t_max = 30
 A = -14.141963
 B = 4430.783
 C = -34078.983
@@ -23,9 +24,10 @@ ohms = 0
 range = 0
 -- resistance 1-100000Ohm
 for j=1,1000000 do
-	local v_0 = v_out(0, j)
-	local v_30 = v_out(30, j)
-	local diff = v_0 - v_30
+	-- max voltage is at minimum temperature
+	local v_max = v_out(t_min, j)
+	local v_min = v_out(t_max, j)
+	local diff = v_max - v_min
 	if diff > range then
 		range = diff
 		ohm = j
