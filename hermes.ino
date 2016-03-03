@@ -12,28 +12,19 @@ int DATA_PIN = D0;  // DS/SER
 int LATCH_PIN = D1;  // ST_CP/RCLK
 int CLOCK_PIN = D2;  // Sh_CP/SRCLK
 
-int FREEZER_SENSOR = A0;
-int FRIDGE_SENSOR = A1;
+int FREEZER_SENSOR_PIN = A0;
+int FRIDGE_SENSOR_PIN = A1;
 
 // shift register pins
-
-int IN1 = 0;
-int IN2 = 1;
-int IN3 = 2;
-int IN4 = 3;
-
-// stepper motor
-// L1 = yellow
-// L2 = red
-// L3 = white 
-// L4 = blue
-
+int IN1 = 0;  // = L1 = yellow
+int IN2 = 1;  // = L2 = red
+int IN3 = 2;  // = L3 = white 
+int IN4 = 3;  // = L4 = blue
 int COMP_PIN = 4;
 int FAN_PIN = 5;
 int HEATER_PIN = 6;
 
 // other constants
-
 int UPDATE_PERIOD = 10000;  // 10 seconds
 double COMP_DELAY = 300000;  // 5 minutes
 double HEATER_DELAY = 30000;  // 30 seconds
@@ -41,20 +32,21 @@ double HEATER_DELAY = 30000;  // 30 seconds
 double DEFAULT_FR_TEMP = 19.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
+// temperature sensor
 double ADC_STEPS = 4096;
-double V_IN = 3.3;
+double V_DIVIDER_V_IN = 3.3;
+int V_DIVIDER_R1 = 10000;
+int V_DIVIDER_THERMISTOR_POSITION = 2;
 
+// baffel
 int STEPPER_SPEED = 5;  // NOTE: also affected by shift register delay
 int STEPPER_STEPS = 475;  // found via trial and error
-
-int RELAY_ON = LOW;
-
 
 DeviceManager deviceManager(DATA_PIN, LATCH_PIN, CLOCK_PIN);
 DoEvery updateTimer(UPDATE_PERIOD);
 
-TemperatureSensor fridgeSensor(2, 2, 10000, V_IN, ADC_STEPS);
-TemperatureSensor freezerSensor(3, 2, 10000, V_IN, ADC_STEPS);
+TemperatureSensor fridgeSensor(FRIDGE_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION, V_DIVIDER_R1, V_DIVIDER_V_IN, ADC_STEPS);
+TemperatureSensor freezerSensor(FREEZER_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION, V_DIVIDER_R1, V_DIVIDER_V_IN, ADC_STEPS);
 
 Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
 Relay compressor(COMP_PIN, COMP_DELAY, &deviceManager);
