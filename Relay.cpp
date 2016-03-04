@@ -27,7 +27,7 @@ void Relay::deactivate() {
   }
 }
 
-bool Relay::isOn() {
+bool Relay::isActive() {
   return m_on;
 }
 

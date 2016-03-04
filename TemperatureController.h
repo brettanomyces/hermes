@@ -12,10 +12,14 @@ class TemperatureController {
     void setDifference(double degrees);
     double getDifference();
 
-    bool toggleCompressor(bool compressorOn, double fzTemp);
-    bool toggleBaffel(bool baffelOpen, double frTemp);
-    bool toggleHeater(bool heaterOn, double frTemp);
-    bool toggleFan(bool fanOn, bool compressorOn, bool baffelOpen);
+    bool activateCompressor(double fzTemp);
+    bool deactivateCompressor(double fzTemp);
+    bool activateBaffel(double frTemp);
+    bool deactivateBaffel(double frTemp);
+    bool activateHeater(double frTemp);
+    bool deactivateHeater(double frTemp);
+    bool activateFan(bool compressorOn, bool baffelOpen);
+    bool deactivateFan(bool compressorOn, bool baffelOpen);
 
   private:
     double m_frSetTemp = 25;

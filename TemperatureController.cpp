@@ -53,74 +53,62 @@ double TemperatureController::getDifference() {
   return m_diff;
 }
 
-// toggle compressor
-// if compressor is off, turn on once temp gets above the set temperature plus the difference
-// if compressor is on, turn off once temp gets below the set temperature minus the difference
-bool TemperatureController::toggleCompressor(bool compressorOn, double fzTemp){
-  if (!compressorOn) {
-    if (fzTemp > m_frSetTemp + m_diff) {
-      return true;
-    }
-    return false;
-  } else {  // compressor on
-    if (fzTemp < m_fzSetTemp - m_diff) {
-      return true;
-    }
-    return false;
+bool TemperatureController::activateCompressor(double fzTemp) {
+  if (fzTemp > m_frSetTemp + m_diff) {
+    return true;
   }
+  return false;
 }
 
-// toggle baffel
-// if baffel is closed, open once temp gets above the set temperature plus the difference
-// if baffel is open, close once temp gets below the set temperature minus the difference
-bool TemperatureController::toggleBaffel(bool baffelOpen, double frTemp) {
-  if (!baffelOpen) {
-    if (frTemp > m_frSetTemp + m_diff) {
-      return true;
-    }
-    return false;
-  } else {  // baffel open
-    if (frTemp < m_frSetTemp - m_diff) {
-      return true;
-    }
-    return false;
+bool TemperatureController::deactivateCompressor(double fzTemp) {
+  if (fzTemp < m_fzSetTemp - m_diff) {
+    return true;
   }
+  return false;
 }
 
-// toggle heater
-// if heater is off, turn on once temp gets below the set temp plus two times the diff
-// if heater is on, turn off once temp gets above the set temp
+bool TemperatureController::openBaffel(double frTemp) {
+  if (frTemp > m_frSetTemp + m_diff) {
+    return true;
+  }
+  return false;
+}
+
+bool TemperatureController::closeBaffel(double frTemp) {
+  if (frTemp < m_frSetTemp - m_diff) {
+    return true;
+  }
+  return false;
+}
+
 // NOTE: we are slower to turn on the heater (2 x diff) and faster to turn off
 // (no diff) because the temp in the fridge will tend to rise by itself due to fermentation
-bool TemperatureController::toggleHeater(bool heaterOn, double frTemp) {
-  if (!heaterOn) {
-    if (currentFrTemp < m_frSetTemp - 2 * m_diff) {
-      // fridge too cold, turn on heater to raise temp
-      return true;
-    }
-    return false;
-  } else {  // heater on
-    if (currentFrTemp > m_frSetTemp) {
-      // stop heating once fridge reaches the set temp
-      return true;
-    }
-    return false;
+// and it is usually worse to be too hot than too cold
+
+bool TemperatureController::activateHeater(double frTemp) {
+  if (currentFrTemp < m_frSetTemp - 2 * m_diff) {
+    return true;
   }
+  return false;
 }
 
-// toggle fan
-// if fan is off, turn off if either the compressor or baffel are on/open
-// if fan is on, turn off if both the compressor and baffel are off/closed
-bool TemperatureController::toggleFan(bool fanOn, bool compressorOn, bool baffelOpen) {
-  if (!fanOn) {
-    if (compressorOn || baffelOpen) {
-      return true;
-    }
-    return false;
-  } else {  // fan on
-    if (!compressorOn && !baffelOpen) {
-      return true;
-    }
-    return false;
+bool TemperatureController::deactivateHeater(double frTemp) {
+  if (currentFrTemp > m_frSetTemp) {
+    return true;
   }
+  return false;
+}
+
+bool TemperatureController::activateFan(bool compressorOn, bool baffelOpen) {
+  if (compressorOn || baffelOpen) {
+    return true;
+  }
+  return false;
+}
+
+bool TemperatureController::deactivateFan(bool compressorOn, bool baffelOpen) {
+  if (!compressorOn && !baffelOpen) {
+    return true;
+  }
+  return false;
 }

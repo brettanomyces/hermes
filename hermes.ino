@@ -85,34 +85,42 @@ void loop() {
     frTemp = fridgeSensor.readTemperature();
     fzTemp = freezerSensor.readTemperature();
 
-    if (controller.toggleCompressor(compressor.isOn(), fzTemp)) {
-      if (compressor.isOn()) {
+    if (compressor.isActive()) {
+      if (controller.deactivateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.deactivate();
-      } else {
+      } 
+    } else {  // compressor off
+      if (controller.activateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.activate();
       }
     }
 
-    if (controller.toggleBaffel(baffel.isOpen(), frTemp)) {
-      if (baffel.isOpen()) {
+    if (baffel.isOpen()) {
+      if (controller.closeBaffel(frTemp)) {
         baffel.close();
-      } else {
+      }
+    } else { // baffel closed
+      if (controller.openBaffel(frTemp)) {
         baffel.open();
       }
     }
 
-    if (controller.toggleHeater(heater.isOn(), frTemp)) {
-      if (heater.isOn()) {
+    if (heater.isActive()) {
+      if (controller.deactivateHeater(fzTemp) && !heater.isWaiting()) {
         heater.deactivate();
-      } else {
+      } 
+    } else {  // heater off
+      if (controller.activateHeater(fzTemp) && !heater.isWaiting()) {
         heater.activate();
       }
     }
 
-    if (controller.toggleFan(fan.isOn(), compressor.isOn(), baffel.isOpen())) {
-      if (fan.isOn()) {
+    if (fan.isActive()) {
+      if (controller.deactivateFan(fzTemp)) {
         fan.deactivate();
-      } else {
+      } 
+    } else {  // fan off
+      if (controller.activateFan(fzTemp)) {
         fan.activate();
       }
     }

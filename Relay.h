@@ -10,7 +10,7 @@ class Relay {
 
     void activate();
     void deactivate();
-    bool isOn();
+    bool isActive();
     bool isWaiting();
 
   private:
