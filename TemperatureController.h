@@ -1,41 +1,26 @@
 #ifndef SRC_TEMPERATURECONTROLLER_H_
 #define SRC_TEMPERATURECONTROLLER_H_
 
-#include <Baffel.h>
-#include <Relay.h>
-#include <TemperatureSensor.h>
-
 class TemperatureController {
   public:
-    TemperatureController(
-      Baffel& baffel,
-      Relay& compressor,
-      Relay& fan,
-      Relay& heater,
-      TemperatureSensor& fzSensor,
-      TemperatureSensor& frSensor);
+    TemperatureController(); 
 
-    void maintainTemperature();
     void setFzSetTemp(double temp);
     double getFzSetTemp();
     void setFrSetTemp(double temp);
     double getFrSetTemp();
     void setDifference(double degrees);
-    void setFrEmpty(bool empty);
-    bool getFrEmpty();
+    double getDifference();
+
+    bool toggleCompressor(bool compressorOn, double fzTemp);
+    bool toggleBaffel(bool baffelOpen, double frTemp);
+    bool toggleHeater(bool heaterOn, double frTemp);
+    bool toggleFan(bool fanOn, bool compressorOn, bool baffelOpen);
 
   private:
-    double m_frSetTemp;
-    double m_fzSetTemp;
-    double m_diff;
-    bool m_frEmpty;
-
-    Baffel& m_baffel;
-    Relay& m_compressor;
-    Relay& m_fan;
-    Relay& m_heater;
-    TemperatureSensor& m_fzSensor;
-    TemperatureSensor& m_frSensor;
+    double m_frSetTemp = 25;
+    double m_fzSetTemp = 4;
+    double m_diff = 0.25;
+    bool m_frEmpty = false;
 };
-
 #endif  // SRC_TEMPERATURECONTROLLER_H_

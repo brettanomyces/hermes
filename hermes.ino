@@ -53,20 +53,15 @@ Relay compressor(COMP_PIN, COMP_DELAY, &deviceManager);
 Relay fan(FAN_PIN, 0, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, &deviceManager);
 
-TemperatureController controller(
-    baffel,
-    compressor,
-    fan,
-    heater,
-    freezerSensor,
-    fridgeSensor);
+TemperatureController controller(); 
 
 void setup() {
-  Serial.begin(9600);
-
   pinMode(DATA_PIN, OUTPUT);
   pinMode(LATCH_PIN, OUTPUT);
   pinMode(CLOCK_PIN, OUTPUT);
+
+  pinMode(FRIDGE_SENSOR_PIN, INPUT);
+  pinMode(FREEZER_SENSOR_PIN, INPUT);
 
   // set state of components
   baffel.close();
@@ -82,34 +77,47 @@ void setup() {
   controller.setFrSetTemp(DEFAULT_FR_TEMP);
 }
 
+double frTemp = DEFAULT_FR_TEMP;
+double fzTemp = DEFAULT_FZ_TEMP;
+
 void loop() {
   if (updateTimer.check()) {
-    // update state
-    controller.maintainTemperature();
+    frTemp = fridgeSensor.readTemperature();
+    fzTemp = freezerSensor.readTemperature();
 
-    // output values in the following csv format:
-    // frs, fr, fzs, fz, b, c, cw, f, h, hw
-    String SEPERATOR = ",";
-    Serial.print(controller.getFrSetTemp());
-    Serial.print(SEPERATOR);
-    Serial.print(fridgeSensor.readTemperature());
-    Serial.print(SEPERATOR);
-    Serial.print(controller.getFzSetTemp());
-    Serial.print(SEPERATOR);
-    Serial.print(freezerSensor.readTemperature());
-    Serial.print(SEPERATOR);
-    Serial.print(baffel.isOpen());
-    Serial.print(SEPERATOR);
-    Serial.print(compressor.isOn());
-    Serial.print(SEPERATOR);
-    Serial.print(compressor.isWaiting());
-    Serial.print(SEPERATOR);
-    Serial.print(fan.isOn());
-    Serial.print(SEPERATOR);
-    Serial.print(heater.isOn());
-    Serial.print(SEPERATOR);
-    Serial.print(heater.isWaiting());
-    Serial.println();
+    if (controller.toggleCompressor(compressor.isOn(), fzTemp)) {
+      if (compressor.isOn()) {
+        compressor.deactivate();
+      } else {
+        compressor.activate();
+      }
+    }
+
+    if (controller.toggleBaffel(baffel.isOpen(), frTemp)) {
+      if (baffel.isOpen()) {
+        baffel.close();
+      } else {
+        baffel.open();
+      }
+    }
+
+    if (controller.toggleHeater(heater.isOn(), frTemp)) {
+      if (heater.isOn()) {
+        heater.deactivate();
+      } else {
+        heater.activate();
+      }
+    }
+
+    if (controller.toggleFan(fan.isOn(), compressor.isOn(), baffel.isOpen())) {
+      if (fan.isOn()) {
+        fan.deactivate();
+      } else {
+        fan.activate();
+      }
+    }
+    
+    // TODO output logs
   }
 }
 
