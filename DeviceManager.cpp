@@ -9,7 +9,7 @@ DeviceManager::DeviceManager(int data, int latch, int clock){
 // set all register pins to LOW
 void DeviceManager::clearRegisters(){
   for(int i = NUM_SHIFT_REGISTER_PINS - 1; i >=  0; i--){
-     m_registers[i] = LOW;
+    m_registers[i] = LOW;
   }
 } 
 
@@ -38,8 +38,8 @@ void DeviceManager::setRegisterPin(int index, int value){
 
 
 void DeviceManager::activateRelay(int pin) {
-	setRegisterPin(pin, m_active);
-	writeRegisters();
+  setRegisterPin(pin, m_active);
+  writeRegisters();
 }
 
 void DeviceManager::deactivateRelay(int pin) {
@@ -56,12 +56,11 @@ void DeviceManager::openBaffel(int in1, int in2, int in3, int in4, int speed, in
 }
 
 void DeviceManager::closeBaffel(int in1, int in2, int in3, int in4, int speed, int steps){
- for (int i = 0; i <= steps; i++ ) {
+  for (int i = 0; i <= steps; i++ ) {
     antiClockwise(in1, in2, in3, in4);
     delay(speed);
   }
 }
-
 
 void DeviceManager::clockwise(int in1, int in2, int in3, int in4) {
   // 1
