@@ -88,40 +88,48 @@ void loop() {
     if (compressor.isActive()) {
       if (controller.deactivateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.deactivate();
+        Particle.publish("compressor", "deactivated");
       } 
     } else {  // compressor off
       if (controller.activateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.activate();
+        Particle.publish("compressor", "activated");
       }
     }
 
     if (baffel.isOpen()) {
       if (controller.closeBaffel(frTemp)) {
         baffel.close();
+        Particle.publish("baffel", "closed");
       }
     } else { // baffel closed
       if (controller.openBaffel(frTemp)) {
         baffel.open();
+        Particle.publish("baffel", "opened");
       }
     }
 
     if (heater.isActive()) {
       if (controller.deactivateHeater(fzTemp) && !heater.isWaiting()) {
         heater.deactivate();
+        Particle.publish("heater", "deactivated");
       } 
     } else {  // heater off
       if (controller.activateHeater(fzTemp) && !heater.isWaiting()) {
         heater.activate();
+        Particle.publish("heater", "activated");
       }
     }
 
     if (fan.isActive()) {
       if (controller.deactivateFan(fzTemp)) {
         fan.deactivate();
+        Particle.publish("fan", "deactivated");
       } 
     } else {  // fan off
       if (controller.activateFan(fzTemp)) {
         fan.activate();
+        Particle.publish("fan", "activated");
       }
     }
     
