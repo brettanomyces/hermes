@@ -6,23 +6,20 @@
 #include <TemperatureController.h>
 #include <TemperatureSensor.h>
 
-// photon pins
+int FREEZER_SENSOR_PIN = 3;
+int FRIDGE_SENSOR_PIN = 2;
 
-int DATA_PIN = D0;  // DS/SER
-int LATCH_PIN = D1;  // ST_CP/RCLK
-int CLOCK_PIN = D2;  // Sh_CP/SRCLK
+// stepper motor
+int IN1 = 12;  // = L1 = yellow
+int IN2 = 11;  // = L2 = red
+int IN3 = 10;  // = L3 = white 
+int IN4 = 9;  // = L4 = blue
+int EN_A = 13;  // always on
+int EN_BA = 8;  // always on
 
-int FREEZER_SENSOR_PIN = A0;
-int FRIDGE_SENSOR_PIN = A1;
-
-// shift register pins
-int IN1 = 0;  // = L1 = yellow
-int IN2 = 1;  // = L2 = red
-int IN3 = 2;  // = L3 = white 
-int IN4 = 3;  // = L4 = blue
-int COMP_PIN = 4;
-int FAN_PIN = 5;
-int HEATER_PIN = 6;
+int COMP_PIN = 5;
+int FAN_PIN = 6;
+int HEATER_PIN = 7;
 
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
@@ -33,8 +30,8 @@ double DEFAULT_FR_TEMP = 19.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
 // temperature sensor
-double ADC_STEPS = 4096;
-double V_DIVIDER_V_IN = 3.3;
+double ADC_STEPS = 1024;
+double V_DIVIDER_V_IN = 5.0;
 int V_DIVIDER_R1 = 10000;
 int V_DIVIDER_THERMISTOR_POSITION = 2;
 
@@ -56,12 +53,22 @@ Relay heater(HEATER_PIN, HEATER_DELAY, &deviceManager);
 TemperatureController controller(); 
 
 void setup() {
-  pinMode(DATA_PIN, OUTPUT);
-  pinMode(LATCH_PIN, OUTPUT);
-  pinMode(CLOCK_PIN, OUTPUT);
-
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
   pinMode(FREEZER_SENSOR_PIN, INPUT);
+
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(EN_A, OUTPUT);
+  digitalWrite(EN_A, HIGH);
+  pinMode(EN_B, OUTPUT);
+  digitalWrite(EN_B, HIGH);
+
+  pinMode(COMP_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  pinMode(HEATER_PIN, OUTPUT);
+
 
   // set state of components
   baffel.close();
