@@ -1,4 +1,4 @@
-#include <TemperatureController.h>
+#include "TemperatureController.h"
 
 // Fridge is cooled by the baffel + fan, bringing cold air into the fridge section from the freezer section.
 // Fridge is warmed by a low wattage heater placed inside the fridge section
@@ -86,14 +86,14 @@ bool TemperatureController::closeBaffel(double frTemp) {
 // and it is usually worse to be too hot than too cold
 
 bool TemperatureController::activateHeater(double frTemp) {
-  if (currentFrTemp < m_frSetTemp - 2 * m_diff) {
+  if (frTemp < m_frSetTemp - 2 * m_diff) {
     return true;
   }
   return false;
 }
 
 bool TemperatureController::deactivateHeater(double frTemp) {
-  if (currentFrTemp > m_frSetTemp) {
+  if (frTemp > m_frSetTemp) {
     return true;
   }
   return false;

@@ -11,14 +11,14 @@ void DeviceManager::deactivateRelay(int pin) {
   digitalWrite(pin, !m_active);
 }
 
-void DeviceManager::openBaffel(int in1, int in2, int in3, int in4, int speed, int steps){
+void DeviceManager::openBaffel(int in1, int in2, int in3, int in4, int speed, int steps) {
   for (int i = 0; i <= steps; i++ ) {
     clockwise(in1, in2, in3, in4);
     delay(speed);
   }
 }
 
-void DeviceManager::closeBaffel(int in1, int in2, int in3, int in4, int speed, int steps){
+void DeviceManager::closeBaffel(int in1, int in2, int in3, int in4, int speed, int steps) {
   for (int i = 0; i <= steps; i++ ) {
     antiClockwise(in1, in2, in3, in4);
     delay(speed);

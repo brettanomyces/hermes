@@ -1,8 +1,8 @@
 #ifndef SRC_RELAY_H_
 #define SRC_RELAY_H_
 
-#include <Delay.h>
-#include <DeviceManager.h>
+#include "Delay.h"
+#include "DeviceManager.h"
 
 class Relay {
   public:

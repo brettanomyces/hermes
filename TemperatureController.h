@@ -14,8 +14,8 @@ class TemperatureController {
 
     bool activateCompressor(double fzTemp);
     bool deactivateCompressor(double fzTemp);
-    bool activateBaffel(double frTemp);
-    bool deactivateBaffel(double frTemp);
+    bool openBaffel(double frTemp);
+    bool closeBaffel(double frTemp);
     bool activateHeater(double frTemp);
     bool deactivateHeater(double frTemp);
     bool activateFan(bool compressorOn, bool baffelOpen);

@@ -1,7 +1,7 @@
 #ifndef SRC_TEMPERATURESENSOR_H_
 #define SRC_TEMPERATURESENSOR_H_
 
-#include "Particle.h"
+#include "Arduino.h"
 #include <math.h>
 
 class TemperatureSensor {

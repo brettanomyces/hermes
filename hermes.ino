@@ -1,10 +1,11 @@
-#include <Baffel.h>
-#include <Delay.h>
-#include <DeviceManager.h>
-#include <DoEvery.h>
-#include <Relay.h>
-#include <TemperatureController.h>
-#include <TemperatureSensor.h>
+#include "Arduino.h"
+#include "Baffel.h"
+#include "Delay.h"
+#include "DeviceManager.h"
+#include "DoEvery.h"
+#include "Relay.h"
+#include "TemperatureController.h"
+#include "TemperatureSensor.h"
 
 int FREEZER_SENSOR_PIN = 3;
 int FRIDGE_SENSOR_PIN = 2;
@@ -15,7 +16,7 @@ int IN2 = 11;  // = L2 = red
 int IN3 = 10;  // = L3 = white 
 int IN4 = 9;  // = L4 = blue
 int EN_A = 13;  // always on
-int EN_BA = 8;  // always on
+int EN_B = 8;  // always on
 
 int COMP_PIN = 5;
 int FAN_PIN = 6;
@@ -39,7 +40,7 @@ int V_DIVIDER_THERMISTOR_POSITION = 2;
 int STEPPER_SPEED = 5;  // NOTE: also affected by shift register delay
 int STEPPER_STEPS = 475;  // found via trial and error
 
-DeviceManager deviceManager(DATA_PIN, LATCH_PIN, CLOCK_PIN);
+DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD);
 
 TemperatureSensor fridgeSensor(FRIDGE_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION, V_DIVIDER_R1, V_DIVIDER_V_IN, ADC_STEPS);
@@ -50,7 +51,7 @@ Relay compressor(COMP_PIN, COMP_DELAY, &deviceManager);
 Relay fan(FAN_PIN, 0, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, &deviceManager);
 
-TemperatureController controller(); 
+TemperatureController controller; 
 
 void setup() {
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
@@ -95,48 +96,48 @@ void loop() {
     if (compressor.isActive()) {
       if (controller.deactivateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.deactivate();
-        Particle.publish("compressor", "deactivated");
+        // compressor deactivated
       } 
     } else {  // compressor off
       if (controller.activateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.activate();
-        Particle.publish("compressor", "activated");
+        // compressor activated
       }
     }
 
     if (baffel.isOpen()) {
       if (controller.closeBaffel(frTemp)) {
         baffel.close();
-        Particle.publish("baffel", "closed");
+        // baffel closed
       }
     } else { // baffel closed
       if (controller.openBaffel(frTemp)) {
         baffel.open();
-        Particle.publish("baffel", "opened");
+        // baffel opened
       }
     }
 
     if (heater.isActive()) {
       if (controller.deactivateHeater(fzTemp) && !heater.isWaiting()) {
         heater.deactivate();
-        Particle.publish("heater", "deactivated");
+        // heater deactivated
       } 
     } else {  // heater off
       if (controller.activateHeater(fzTemp) && !heater.isWaiting()) {
         heater.activate();
-        Particle.publish("heater", "activated");
+        // heater activated
       }
     }
 
     if (fan.isActive()) {
-      if (controller.deactivateFan(fzTemp)) {
+      if (controller.deactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
-        Particle.publish("fan", "deactivated");
+        // fan deactivated
       } 
     } else {  // fan off
-      if (controller.activateFan(fzTemp)) {
+      if (controller.activateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
-        Particle.publish("fan", "activated");
+        // fan activated
       }
     }
     

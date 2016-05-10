@@ -3,7 +3,7 @@
 #define LIBRARY_VERSION	1.0.0
 
 #include <inttypes.h>
-#include "Particle.h"
+#include "Arduino.h"
 
 class DoEvery
 {

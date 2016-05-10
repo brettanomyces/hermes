@@ -1,7 +1,6 @@
 #ifndef SRC_DEVICEMANAGER_H_
 #define SRC_DEVICEMANAGER_H_
 
-#include "Particle.h"
 #include "Arduino.h"
 
 class DeviceManager {
