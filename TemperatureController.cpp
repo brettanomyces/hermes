@@ -53,28 +53,28 @@ double TemperatureController::getDifference() {
   return m_diff;
 }
 
-bool TemperatureController::activateCompressor(double fzTemp) {
+bool TemperatureController::shouldActivateCompressor(double fzTemp) {
   if (fzTemp > m_frSetTemp + m_diff) {
     return true;
   }
   return false;
 }
 
-bool TemperatureController::deactivateCompressor(double fzTemp) {
+bool TemperatureController::shouldDeactivateCompressor(double fzTemp) {
   if (fzTemp < m_fzSetTemp - m_diff) {
     return true;
   }
   return false;
 }
 
-bool TemperatureController::openBaffel(double frTemp) {
+bool TemperatureController::shouldOpenBaffel(double frTemp) {
   if (frTemp > m_frSetTemp + m_diff) {
     return true;
   }
   return false;
 }
 
-bool TemperatureController::closeBaffel(double frTemp) {
+bool TemperatureController::shouldCloseBaffel(double frTemp) {
   if (frTemp < m_frSetTemp - m_diff) {
     return true;
   }
@@ -85,28 +85,28 @@ bool TemperatureController::closeBaffel(double frTemp) {
 // (no diff) because the temp in the fridge will tend to rise by itself due to fermentation
 // and it is usually worse to be too hot than too cold
 
-bool TemperatureController::activateHeater(double frTemp) {
+bool TemperatureController::shouldActivateHeater(double frTemp) {
   if (frTemp < m_frSetTemp - 2 * m_diff) {
     return true;
   }
   return false;
 }
 
-bool TemperatureController::deactivateHeater(double frTemp) {
+bool TemperatureController::shouldDeactivateHeater(double frTemp) {
   if (frTemp > m_frSetTemp) {
     return true;
   }
   return false;
 }
 
-bool TemperatureController::activateFan(bool compressorOn, bool baffelOpen) {
+bool TemperatureController::shouldActivateFan(bool compressorOn, bool baffelOpen) {
   if (compressorOn || baffelOpen) {
     return true;
   }
   return false;
 }
 
-bool TemperatureController::deactivateFan(bool compressorOn, bool baffelOpen) {
+bool TemperatureController::shouldDeactivateFan(bool compressorOn, bool baffelOpen) {
   if (!compressorOn && !baffelOpen) {
     return true;
   }

@@ -94,48 +94,48 @@ void loop() {
     fzTemp = freezerSensor.readTemperature();
 
     if (compressor.isActive()) {
-      if (controller.deactivateCompressor(fzTemp) && !compressor.isWaiting()) {
+      if (controller.shouldDeactivateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.deactivate();
         // compressor deactivated
       } 
     } else {  // compressor off
-      if (controller.activateCompressor(fzTemp) && !compressor.isWaiting()) {
+      if (controller.shouldActivateCompressor(fzTemp) && !compressor.isWaiting()) {
         compressor.activate();
         // compressor activated
       }
     }
 
     if (baffel.isOpen()) {
-      if (controller.closeBaffel(frTemp)) {
+      if (controller.shouldCloseBaffel(frTemp)) {
         baffel.close();
         // baffel closed
       }
     } else { // baffel closed
-      if (controller.openBaffel(frTemp)) {
+      if (controller.shouldOpenBaffel(frTemp)) {
         baffel.open();
         // baffel opened
       }
     }
 
     if (heater.isActive()) {
-      if (controller.deactivateHeater(fzTemp) && !heater.isWaiting()) {
+      if (controller.shouldDeactivateHeater(fzTemp) && !heater.isWaiting()) {
         heater.deactivate();
         // heater deactivated
       } 
     } else {  // heater off
-      if (controller.activateHeater(fzTemp) && !heater.isWaiting()) {
+      if (controller.shouldActivateHeater(fzTemp) && !heater.isWaiting()) {
         heater.activate();
         // heater activated
       }
     }
 
     if (fan.isActive()) {
-      if (controller.deactivateFan(compressor.isActive(), baffel.isOpen())) {
+      if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
         // fan deactivated
       } 
     } else {  // fan off
-      if (controller.activateFan(compressor.isActive(), baffel.isOpen())) {
+      if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
         // fan activated
       }
