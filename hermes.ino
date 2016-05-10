@@ -54,6 +54,9 @@ Relay heater(HEATER_PIN, HEATER_DELAY, &deviceManager);
 TemperatureController controller; 
 
 void setup() {
+
+  Serial.begin(9600);
+
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
   pinMode(FREEZER_SENSOR_PIN, INPUT);
 
@@ -141,7 +144,29 @@ void loop() {
       }
     }
     
-    // TODO output logs
+    // output values in the following csv format:
+    // frs, fr, fzs, fz, b, c, cw, f, h, hw
+    String SEPERATOR = ",";
+    Serial.print(controller.getFrSetTemp());
+    Serial.print(SEPERATOR);
+    Serial.print(fridgeSensor.readTemperature());
+    Serial.print(SEPERATOR);
+    Serial.print(controller.getFzSetTemp());
+    Serial.print(SEPERATOR);
+    Serial.print(freezerSensor.readTemperature());
+    Serial.print(SEPERATOR);
+    Serial.print(baffel.isOpen());
+    Serial.print(SEPERATOR);
+    Serial.print(compressor.isActive());
+    Serial.print(SEPERATOR);
+    Serial.print(compressor.isWaiting());
+    Serial.print(SEPERATOR);
+    Serial.print(fan.isActive());
+    Serial.print(SEPERATOR);
+    Serial.print(heater.isActive());
+    Serial.print(SEPERATOR);
+    Serial.print(heater.isWaiting());
+    Serial.println();
   }
 }
 
