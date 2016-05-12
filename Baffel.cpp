@@ -15,6 +15,7 @@ Baffel::Baffel(int in1, int in2, int in3, int in4, int steps, int speed, DeviceM
 void Baffel::open() {
   if (!isOpen()) {
     m_dm->openBaffel(m_in1, m_in2, m_in3, m_in4, m_steps, m_speed);
+    m_open = true;
   }
 }
 
@@ -22,6 +23,7 @@ void Baffel::open() {
 void Baffel::close() {
   if (isOpen()) {
     m_dm->closeBaffel(m_in1, m_in2, m_in3, m_in4, m_steps, m_speed);
+    m_open = false;
   }
 }
 

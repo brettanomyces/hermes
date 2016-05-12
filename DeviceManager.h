@@ -15,8 +15,8 @@ class DeviceManager {
   private:
     int m_active = HIGH;
 
-    void clockwise(int, int, int, int);
-    void antiClockwise(int, int, int, int);
+    void clockwise(int, int, int, int, int);
+    void antiClockwise(int, int, int, int, int);
 };
 
 #endif  // SRC_DEVICEMANAGER_H_

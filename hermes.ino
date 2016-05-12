@@ -6,6 +6,7 @@
 #include "Relay.h"
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
+#include <Stepper.h>
 
 int FREEZER_SENSOR_PIN = 3;
 int FRIDGE_SENSOR_PIN = 2;
@@ -37,8 +38,8 @@ int V_DIVIDER_R1 = 10000;
 int V_DIVIDER_THERMISTOR_POSITION = 2;
 
 // baffel
-int STEPPER_SPEED = 5;  // NOTE: also affected by shift register delay
-int STEPPER_STEPS = 475;  // found via trial and error
+int STEPPER_SPEED = 5;  // found via trial and error
+int STEPPER_STEPS = 450;  // found via trial and error
 
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD);
@@ -52,6 +53,8 @@ Relay fan(FAN_PIN, 0, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, &deviceManager);
 
 TemperatureController controller; 
+
+Stepper stepper(300, IN1, IN2, IN3, IN4);
 
 void setup() {
 
