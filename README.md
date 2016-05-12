@@ -1,41 +1,37 @@
 Hermes
 ======
 
-Install the latest Arduino IDE
+# PlatformIO
 
-# Build
+http://docs.platformio.org/en/latest/quickstart.html
 
-    arduino --verify hermes.ino
+## Build project
 
-# Upload To Arduino
+    platformio run
 
-    arduino --upload hermes.ino
+## Upload firmware
 
-# Enable auto reset on serial connection
+    platformio run --target upload
 
-    stty -F /dev/<tty> -hupcl
-    
-# Enable auto reset on serial connection
+## Monitor serial conneciton
 
-    stty -F /dev/<tty> hupcl
-    
-# Add user to dialout group - allows you to view output without needing sudo 
+    platformio serialports monitor
+
+
+# Serial connection
+
+## Add user to dialout group
 
     sudo adduser <username> dialout
-    
-# View serial output
-`moreutils` must be installed for `ts`, `sudo apt-get install moreutils`. $TZ must also be set to get the correct time `tzselect`
 
-    cat /dev/<tty> | ts >> hermes.log &
-    tail -f hermes.log
-    
-    
-# Bill of Materials
+## View settings
 
-* Arduino UNO R3 (pretty unreliable)
-* 2 X 2 Relay Arduino modules
-* L298N Stepper Motor Driver
-* Stepper motor - voltage/current?
-* Thermistors?
-* Resistors for voltage divider to measure temp
-* Transformer
+    stty --file /dev/<tty> --all
+    
+## Enable auto reset on serial connection (this is the default)
+
+    stty --file /dev/<tty> hup
+
+## Disable auto reset on serial connection
+
+    stty --file /dev/<tty> hup
