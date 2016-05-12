@@ -58,3 +58,11 @@ cscope.po.out¬
 # Logs
 log/
 logs/
+
+# Particle
+*.bin
+
+### PartileIO ###
+
+.pioenvs
+.travis.yml

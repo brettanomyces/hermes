@@ -1,12 +1,12 @@
 #ifndef SRC_TEMPERATURESENSOR_H_
 #define SRC_TEMPERATURESENSOR_H_
 
-#include <Arduino.h>
+#include "Arduino.h"
 #include <math.h>
 
 class TemperatureSensor {
   public:
-    TemperatureSensor(int pin, int thermistorPosition, int resistorValue);
+    TemperatureSensor(int pin, int thermistorPosition, int resistorValue, double vIn, double adcSteps);
     double readTemperature();
 
   private:
@@ -16,12 +16,12 @@ class TemperatureSensor {
     int m_thermistorPosition;
     // resistance of the resistor (not the thermistor) in ohms
     int m_resistorValue;
+    // voltage in
+    double m_vIn;
+    // analog digital converter steps
+    double m_adcSteps;
 
     // constants
-    // voltage in
-    const double V_IN = 5.0;
-    // arduino has a 10bit analog to digital converter
-    const double ANALOG_STEPS = 1024;
     // number of time to read temp before getting an average
     const int NUM_REPITIONS = 100;
 
