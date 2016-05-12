@@ -26,9 +26,9 @@ int HEATER_PIN = 7;
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
 double COMP_DELAY = 300000;  // 5 minutes
-double HEATER_DELAY = 30000;  // 30 seconds
+double HEATER_DELAY = 0;  // 30 seconds
 
-double DEFAULT_FR_TEMP = 19.0;
+double DEFAULT_FR_TEMP = 10.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
 // temperature sensor

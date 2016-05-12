@@ -8,23 +8,15 @@ Relay::Relay(int pin, double delay, DeviceManager* deviceManager) : m_delay(dela
 }
 
 void Relay::activate() {
-  if (!m_on) {
-    if (m_delay.ok()) {
-      m_dm->activateRelay(m_pin);
-      m_on = true;
-      m_delay.reset();
-    }
-  }
+  m_dm->activateRelay(m_pin);
+  m_on = true;
+  m_delay.reset();
 }
 
 void Relay::deactivate() {
-  if (m_on) {
-    if (m_delay.ok()) {
-      m_dm->deactivateRelay(m_pin);
-      m_on = false;
-      m_delay.reset();
-    }
-  }
+  m_dm->deactivateRelay(m_pin);
+  m_on = false;
+  m_delay.reset();
 }
 
 bool Relay::isActive() {
