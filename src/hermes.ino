@@ -73,9 +73,11 @@ void setup() {
   digitalWrite(EN_B, HIGH);
 
   pinMode(COMP_PIN, OUTPUT);
+  digitalWrite(COMP_PIN, HIGH);
   pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(FAN_PIN, HIGH);
   pinMode(HEATER_PIN, OUTPUT);
-
+  digitalWrite(HEATER_PIN, HIGH);
 
   // set state of components
   baffel.close();
