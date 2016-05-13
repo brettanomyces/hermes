@@ -25,7 +25,8 @@ int HEATER_PIN = 7;
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
 double COMP_DELAY = 300000;  // 5 minutes
-double HEATER_DELAY = 0;  // 30 seconds
+double FAN_DELAY = 0;
+double HEATER_DELAY = 0;
 
 double DEFAULT_FR_TEMP = 10.0;
 double DEFAULT_FZ_TEMP = 4.0;
@@ -50,7 +51,7 @@ TemperatureSensor freezerSensor(FREEZER_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITIO
 
 Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
 Relay compressor(COMP_PIN, COMP_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
-Relay fan(FAN_PIN, 0, RELAY_ACTIVE_LOW, &deviceManager);
+Relay fan(FAN_PIN, FAN_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 
 TemperatureController controller; 
