@@ -102,12 +102,12 @@ void loop() {
     fzTemp = freezerSensor.readTemperature();
 
     if (compressor.isActive()) {
-      if (controller.shouldDeactivateCompressor(fzTemp) && !compressor.isWaiting()) {
+      if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
         // compressor deactivated
       } 
     } else {  // compressor off
-      if (controller.shouldActivateCompressor(fzTemp) && !compressor.isWaiting()) {
+      if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
         // compressor activated
       }
@@ -126,12 +126,12 @@ void loop() {
     }
 
     if (heater.isActive()) {
-      if (controller.shouldDeactivateHeater(fzTemp) && !heater.isWaiting()) {
+      if (controller.shouldDeactivateHeater(fzTemp, heater.isWaiting())) {
         heater.deactivate();
         // heater deactivated
       } 
     } else {  // heater off
-      if (controller.shouldActivateHeater(fzTemp) && !heater.isWaiting()) {
+      if (controller.shouldActivateHeater(fzTemp, heater.isWaiting())) {
         heater.activate();
         // heater activated
       }

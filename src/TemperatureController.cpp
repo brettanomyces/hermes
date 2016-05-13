@@ -53,18 +53,26 @@ double TemperatureController::getDifference() {
   return m_diff;
 }
 
-bool TemperatureController::shouldActivateCompressor(double fzTemp) {
-  if (fzTemp > m_frSetTemp + m_diff) {
-    return true;
+bool TemperatureController::shouldActivateCompressor(double fzTemp, bool isWaiting) {
+  if (isWaiting) {
+    return false;
+  } else {
+    if (fzTemp > m_frSetTemp + m_diff) {
+      return true;
+    }
+    return false;
   }
-  return false;
 }
 
-bool TemperatureController::shouldDeactivateCompressor(double fzTemp) {
-  if (fzTemp < m_fzSetTemp - m_diff) {
-    return true;
+bool TemperatureController::shouldDeactivateCompressor(double fzTemp, bool isWaiting) {
+  if (isWaiting) {
+    return false;
+  } else {
+    if (fzTemp < m_fzSetTemp - m_diff) {
+      return true;
+    }
+    return false;
   }
-  return false;
 }
 
 bool TemperatureController::shouldOpenBaffel(double frTemp) {
@@ -85,18 +93,26 @@ bool TemperatureController::shouldCloseBaffel(double frTemp) {
 // (no diff) because the temp in the fridge will tend to rise by itself due to fermentation
 // and it is usually worse to be too hot than too cold
 
-bool TemperatureController::shouldActivateHeater(double frTemp) {
-  if (frTemp < m_frSetTemp - 2 * m_diff) {
-    return true;
+bool TemperatureController::shouldActivateHeater(double frTemp, bool isWaiting) {
+  if (isWaiting) {
+    return false;
+  } else {
+    if (frTemp < m_frSetTemp - 2 * m_diff) {
+      return true;
+    }
+    return false;
   }
-  return false;
 }
 
-bool TemperatureController::shouldDeactivateHeater(double frTemp) {
-  if (frTemp > m_frSetTemp) {
-    return true;
+bool TemperatureController::shouldDeactivateHeater(double frTemp, bool isWaiting) {
+  if (isWaiting) {
+    return false;
+  } else {
+    if (frTemp > m_frSetTemp) {
+      return true;
+    }
+    return false;
   }
-  return false;
 }
 
 bool TemperatureController::shouldActivateFan(bool compressorOn, bool baffelOpen) {
