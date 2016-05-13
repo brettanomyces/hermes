@@ -6,7 +6,7 @@
 
 class Relay {
   public:
-    Relay(int pin, double delay, DeviceManager* deviceManager);
+    Relay(int pin, double delay, bool activeLow, DeviceManager* deviceManager);
 
     void activate();
     void deactivate();
@@ -15,7 +15,8 @@ class Relay {
 
   private:
     int m_pin;
-    bool m_on;
+    bool m_active;
+    bool m_activeLow;
     Delay m_delay;
     DeviceManager* m_dm;
 };

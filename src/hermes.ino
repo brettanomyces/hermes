@@ -6,7 +6,6 @@
 #include "Relay.h"
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
-#include <Stepper.h>
 
 int FREEZER_SENSOR_PIN = 3;
 int FRIDGE_SENSOR_PIN = 2;
@@ -41,6 +40,8 @@ int V_DIVIDER_THERMISTOR_POSITION = 2;
 int STEPPER_SPEED = 5;  // found via trial and error
 int STEPPER_STEPS = 450;  // found via trial and error
 
+int RELAY_ACTIVE_LOW = true;
+
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD);
 
@@ -48,13 +49,11 @@ TemperatureSensor fridgeSensor(FRIDGE_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION,
 TemperatureSensor freezerSensor(FREEZER_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION, V_DIVIDER_R1, V_DIVIDER_V_IN, ADC_STEPS);
 
 Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
-Relay compressor(COMP_PIN, COMP_DELAY, &deviceManager);
-Relay fan(FAN_PIN, 0, &deviceManager);
-Relay heater(HEATER_PIN, HEATER_DELAY, &deviceManager);
+Relay compressor(COMP_PIN, COMP_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
+Relay fan(FAN_PIN, 0, RELAY_ACTIVE_LOW, &deviceManager);
+Relay heater(HEATER_PIN, HEATER_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 
 TemperatureController controller; 
-
-Stepper stepper(300, IN1, IN2, IN3, IN4);
 
 void setup() {
 

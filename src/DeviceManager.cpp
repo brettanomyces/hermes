@@ -3,12 +3,20 @@
 DeviceManager::DeviceManager(){
 }
 
-void DeviceManager::activateRelay(int pin) {
-  digitalWrite(pin, m_active);
+void DeviceManager::activateRelay(int pin, bool activeLow) {
+  if (activeLow) {
+    digitalWrite(pin, LOW);
+  } else {
+    digitalWrite(pin, HIGH);
+  }
 }
 
-void DeviceManager::deactivateRelay(int pin) {
-  digitalWrite(pin, !m_active);
+void DeviceManager::deactivateRelay(int pin, bool activeLow) {
+  if (activeLow) {
+    digitalWrite(pin, HIGH);
+  } else {
+    digitalWrite(pin, LOW);
+  }
 }
 
 void DeviceManager::openBaffel(int in1, int in2, int in3, int in4, int steps, int speed) {

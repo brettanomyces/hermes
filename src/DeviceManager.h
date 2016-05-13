@@ -9,8 +9,8 @@ class DeviceManager {
 
     void openBaffel(int, int, int, int, int, int);
     void closeBaffel(int, int, int, int, int, int);
-    void activateRelay(int);
-    void deactivateRelay(int);
+    void activateRelay(int, bool);
+    void deactivateRelay(int, bool);
 
   private:
     int m_active = HIGH;
