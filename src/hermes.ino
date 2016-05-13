@@ -56,6 +56,8 @@ Relay heater(HEATER_PIN, HEATER_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 
 TemperatureController controller; 
 
+bool deviceStateSet = false;
+
 void setup() {
 
   Serial.begin(9600);
@@ -79,12 +81,6 @@ void setup() {
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, HIGH);
 
-  // set state of components
-  baffel.close();
-  compressor.deactivate();
-  fan.deactivate();
-  heater.deactivate();
-
   // init timers
   updateTimer.reset();
 
@@ -97,6 +93,14 @@ double frTemp = DEFAULT_FR_TEMP;
 double fzTemp = DEFAULT_FZ_TEMP;
 
 void loop() {
+  if(!deviceStateSet){
+    baffel.close();
+    compressor.deactivate();
+    fan.deactivate();
+    heater.deactivate();
+    deviceStateSet = true;
+  }
+
   if (updateTimer.check()) {
     frTemp = fridgeSensor.readTemperature();
     fzTemp = freezerSensor.readTemperature();
@@ -104,48 +108,48 @@ void loop() {
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
-        // compressor deactivated
+        Serial.println("deactivating compressor");
       } 
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
-        // compressor activated
+        Serial.println("activating compressor");
       }
     }
 
     if (baffel.isOpen()) {
       if (controller.shouldCloseBaffel(frTemp)) {
         baffel.close();
-        // baffel closed
+        Serial.println("closing baffel");
       }
     } else { // baffel closed
       if (controller.shouldOpenBaffel(frTemp)) {
         baffel.open();
-        // baffel opened
+        Serial.println("opening baffel");
       }
     }
 
     if (heater.isActive()) {
-      if (controller.shouldDeactivateHeater(fzTemp, heater.isWaiting())) {
+      if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
         heater.deactivate();
-        // heater deactivated
+        Serial.println("deactivating heater");
       } 
     } else {  // heater off
-      if (controller.shouldActivateHeater(fzTemp, heater.isWaiting())) {
+      if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
         heater.activate();
-        // heater activated
+        Serial.println("activating heater");
       }
     }
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
-        // fan deactivated
+        Serial.println("deactivating fan");
       } 
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
-        // fan activated
+        Serial.println("activating fan");
       }
     }
     
