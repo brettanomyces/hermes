@@ -34,4 +34,4 @@ http://docs.platformio.org/en/latest/quickstart.html
 
 ## Disable auto reset on serial connection
 
-    stty --file /dev/<tty> hup
+    stty --file /dev/<tty> -hup
