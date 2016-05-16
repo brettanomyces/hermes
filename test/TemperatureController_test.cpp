@@ -132,7 +132,7 @@ TEST_CASE("shouldCloseBaffel") {
     REQUIRE(controller.shouldCloseBaffel(14.5) == false);
   }
 
-  SECTION("temp less than frSetTemp but greater than frSetTemp plus diff") {
+  SECTION("temp less than frSetTemp but greater than frSetTemp minus diff") {
     REQUIRE(controller.shouldCloseBaffel(14.75) == false);
   }
 
@@ -142,5 +142,63 @@ TEST_CASE("shouldCloseBaffel") {
 
   SECTION("temp greater than frSetTemp") {
     REQUIRE(controller.shouldCloseBaffel(20.00) == false);
+  }
+}
+
+TEST_CASE("shouldActivateHeater") {
+  TemperatureController controller;
+
+  controller.setFrSetTemp(15.0);
+  controller.setDifference(0.5);
+
+  SECTION("temp less than frSetTemp and delay not active") {
+    REQUIRE(controller.shouldActivateHeater(10.0, false) == true);
+  }
+
+  SECTION("temp less than frSetTemp and delay active") {
+    REQUIRE(controller.shouldActivateHeater(10.0, true) == false);
+  }
+
+  SECTION("temp equal to frSetTemp minus 2 * diff") {
+    REQUIRE(controller.shouldActivateHeater(14.0, false) == false);
+  }
+
+  SECTION("temp less than frSetTemp but greater than frSetTemp minus 2 * diff") {
+    REQUIRE(controller.shouldActivateHeater(14.5, false) == false);
+  }
+
+  SECTION("temp equal to frSetTemp") {
+    REQUIRE(controller.shouldActivateHeater(15.0, false) == false);
+  }
+
+  SECTION("temp greater than frSetTemp") {
+    REQUIRE(controller.shouldActivateHeater(20.0, false) == false);
+  }
+}
+
+TEST_CASE("shouldDeactivateHeater") {
+  TemperatureController controller;
+
+  controller.setFrSetTemp(15.0);
+  controller.setDifference(0.5);
+
+  SECTION("temp greater than frSetTemp and delay not active") {
+    REQUIRE(controller.shouldDeactivateHeater(20.0, false) == true);
+  }
+
+  SECTION("temp greater than frSetTemp and delay active") {
+    REQUIRE(controller.shouldDeactivateHeater(20.0, true) == false);
+  }
+
+  SECTION("temp greater than frSetTemp but less than frSetTemp plus diff") {
+    REQUIRE(controller.shouldDeactivateHeater(15.25, false) == true);
+  }
+
+  SECTION("temp equal to frSetTemp") {
+    REQUIRE(controller.shouldDeactivateHeater(15.0, false) == false);
+  }
+
+  SECTION("temp less than frSetTemp") {
+    REQUIRE(controller.shouldDeactivateHeater(10.0, false) == false);
   }
 }
