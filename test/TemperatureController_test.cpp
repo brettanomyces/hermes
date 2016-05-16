@@ -202,3 +202,43 @@ TEST_CASE("shouldDeactivateHeater") {
     REQUIRE(controller.shouldDeactivateHeater(10.0, false) == false);
   }
 }
+
+TEST_CASE("shouldActivateFan") {
+  TemperatureController controller;
+  
+  SECTION("compresser on, baffel open") {
+    REQUIRE(controller.shouldActivateFan(true, true) == true);
+  }
+
+  SECTION("compresser on, baffel closed") {
+    REQUIRE(controller.shouldActivateFan(true, false) == true);
+  }
+
+  SECTION("compresser off, baffel open") {
+    REQUIRE(controller.shouldActivateFan(false, true) == true);
+  }
+
+  SECTION("compresser off, baffel closed") {
+    REQUIRE(controller.shouldActivateFan(false, false) == false);
+  }
+}
+
+TEST_CASE("shouldDeactivateFan") {
+  TemperatureController controller;
+  
+  SECTION("compresser on, baffel open") {
+    REQUIRE(controller.shouldDeactivateFan(true, true) == false);
+  }
+
+  SECTION("compresser on, baffel closed") {
+    REQUIRE(controller.shouldDeactivateFan(true, false) == false);
+  }
+
+  SECTION("compresser off, baffel open") {
+    REQUIRE(controller.shouldDeactivateFan(false, true) == false);
+  }
+
+  SECTION("compresser off, baffel closed") {
+    REQUIRE(controller.shouldDeactivateFan(false, false) == true);
+  }
+}
