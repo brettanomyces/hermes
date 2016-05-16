@@ -1,9 +1,10 @@
 #ifndef SRC_DEVICEMANAGER_H_
 #define SRC_DEVICEMANAGER_H_
 
+#include "IDeviceManager.h"
 #include "Arduino.h"
 
-class DeviceManager {
+class DeviceManager : public IDeviceManager {
   public:
     DeviceManager();
 
@@ -11,6 +12,7 @@ class DeviceManager {
     void closeBaffel(int, int, int, int, int, int);
     void activateRelay(int, bool);
     void deactivateRelay(int, bool);
+    unsigned long getMillis();
 
   private:
     int m_active = HIGH;
