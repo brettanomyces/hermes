@@ -1,6 +1,6 @@
 #include "Relay.h"
 
-Relay::Relay(int pin, double delay, bool activeLow, DeviceManager* deviceManager) : m_delay(delay) {
+Relay::Relay(int pin, double delay, bool activeLow, IDeviceManager* deviceManager) : m_delay(delay, deviceManager) {
   m_pin = pin;
   m_active = false;
   m_activeLow = activeLow;

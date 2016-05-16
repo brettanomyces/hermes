@@ -13,7 +13,7 @@ int FRIDGE_SENSOR_PIN = 2;
 // stepper motor
 int IN1 = 12;  // = L1 = yellow
 int IN2 = 11;  // = L2 = red
-int IN3 = 10;  // = L3 = white 
+int IN3 = 10;  // = L3 = white
 int IN4 = 9;  // = L4 = blue
 int EN_A = 13;  // always on
 int EN_B = 8;  // always on
@@ -44,17 +44,30 @@ int STEPPER_STEPS = 450;  // found via trial and error
 int RELAY_ACTIVE_LOW = true;
 
 DeviceManager deviceManager;
-DoEvery updateTimer(UPDATE_PERIOD);
+DoEvery updateTimer(UPDATE_PERIOD, &deviceManager);
 
-TemperatureSensor fridgeSensor(FRIDGE_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION, V_DIVIDER_R1, V_DIVIDER_V_IN, ADC_STEPS);
-TemperatureSensor freezerSensor(FREEZER_SENSOR_PIN, V_DIVIDER_THERMISTOR_POSITION, V_DIVIDER_R1, V_DIVIDER_V_IN, ADC_STEPS);
+TemperatureSensor fridgeSensor(
+  FRIDGE_SENSOR_PIN,
+  V_DIVIDER_THERMISTOR_POSITION,
+  V_DIVIDER_R1,
+  V_DIVIDER_V_IN,
+  ADC_STEPS,
+  &deviceManager);
+
+TemperatureSensor freezerSensor(
+  FREEZER_SENSOR_PIN,
+  V_DIVIDER_THERMISTOR_POSITION,
+  V_DIVIDER_R1,
+  V_DIVIDER_V_IN,
+  ADC_STEPS,
+  &deviceManager);
 
 Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
 Relay compressor(COMP_PIN, COMP_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay fan(FAN_PIN, FAN_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 
-TemperatureController controller; 
+TemperatureController controller;
 
 bool deviceStateSet = false;
 
@@ -109,7 +122,7 @@ void loop() {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
         Serial.println("deactivating compressor");
-      } 
+      }
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
@@ -133,7 +146,7 @@ void loop() {
       if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
         heater.deactivate();
         Serial.println("deactivating heater");
-      } 
+      }
     } else {  // heater off
       if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
         heater.activate();
@@ -145,14 +158,14 @@ void loop() {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
         Serial.println("deactivating fan");
-      } 
+      }
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
         Serial.println("activating fan");
       }
     }
-    
+
     // output values in the following csv format:
     // frs, fr, fzs, fz, b, c, cw, f, h, hw
     String SEPERATOR = ",";

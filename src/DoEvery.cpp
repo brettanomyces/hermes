@@ -5,17 +5,18 @@
 
 #include "DoEvery.h"
 
-DoEvery::DoEvery(long _period) {
+DoEvery::DoEvery(long _period, IDeviceManager* deviceManager) {
 	period=_period;
+        m_dm = deviceManager;
 	lastTime=0;
 }
 
 void DoEvery::reset() {
-	lastTime=millis();
+	lastTime=m_dm->getMillis();
 }
 
 bool DoEvery::check() {
-	if (millis()-lastTime > period) {
+	if (m_dm->getMillis()-lastTime > period) {
 		lastTime+=period;
 		return true;
 	} else {
@@ -24,7 +25,7 @@ bool DoEvery::check() {
 }
 
 bool DoEvery::before(double threshTime) {
-	if (millis()-lastTime < threshTime) {
+	if (m_dm->getMillis()-lastTime < threshTime) {
 		return true;
 	} else {
 		return false;

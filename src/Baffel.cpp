@@ -1,6 +1,6 @@
 #include "Baffel.h"
 
-Baffel::Baffel(int in1, int in2, int in3, int in4, int steps, int speed, DeviceManager* deviceManager) {
+Baffel::Baffel(int in1, int in2, int in3, int in4, int steps, int speed, IDeviceManager* deviceManager) {
   m_in1 = in1;
   m_in2 = in2;
   m_in3 = in3;

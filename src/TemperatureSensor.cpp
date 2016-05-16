@@ -5,30 +5,25 @@ TemperatureSensor::TemperatureSensor(
     int thermistorPosition,
     int resistorValue,
     double vIn,
-    double adcSteps) {
+    double adcSteps,
+    IDeviceManager* deviceManager) {
   m_pin = pin;
   m_thermistorPosition = thermistorPosition;
   m_resistorValue = resistorValue;
   m_vIn = vIn;
   m_adcSteps = adcSteps;
+  m_dm = deviceManager;
 }
 
-double TemperatureSensor::readTemperature() {
-  double vOut = measureVoltage(m_pin);
-  double res = voltageToResistance(vOut);
-  double temp = resistanceToTemperature(res);
-  return temp;
+double TemperatureSensor::readTemperature(){
+  return analogToTemperature(m_dm->readAnalogValue(m_pin));
 }
 
-double TemperatureSensor::measureVoltage(int pin) {
-  double sum = 0;
-  int i;
-  for (i = 0; i < NUM_REPITIONS; i++) {
-    sum += static_cast<double>(analogRead(pin));
-  }
-  double analog =  sum / static_cast<double>(NUM_REPITIONS);
-  double vOut  = analogToVoltage(analog);
-  return vOut;
+double TemperatureSensor::analogToTemperature(double analog) {
+  double voltage  = analogToVoltage(analog);
+  double resistance = voltageToResistance(voltage);
+  double temperature = resistanceToTemperature(resistance);
+  return temperature;;
 }
 
 double TemperatureSensor::analogToVoltage(double analog) {

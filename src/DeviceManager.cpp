@@ -91,6 +91,16 @@ void DeviceManager::antiClockwise(int in1, int in2, int in3, int in4, int speed)
   digitalWrite(in1, HIGH);
   delay(speed);
 }
+
+double DeviceManager::readAnalogValue(int pin){
+  double sum = 0;
+  int i;
+  for (i = 0; i < NUM_REPITIONS; i++) {
+    sum += static_cast<double>(analogRead(pin));
+  }
+  double analog =  sum / static_cast<double>(NUM_REPITIONS);
+  return analog;
+}
  
 unsigned long DeviceManager::getMillis(){
   return millis();

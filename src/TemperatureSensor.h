@@ -1,12 +1,12 @@
 #ifndef SRC_TEMPERATURESENSOR_H_
 #define SRC_TEMPERATURESENSOR_H_
 
-#include "Arduino.h"
+#include "IDeviceManager.h"
 #include <math.h>
 
 class TemperatureSensor {
   public:
-    TemperatureSensor(int pin, int thermistorPosition, int resistorValue, double vIn, double adcSteps);
+    TemperatureSensor(int pin, int thermistorPosition, int resistorValue, double vIn, double adcSteps, IDeviceManager* deviceManager);
     double readTemperature();
 
   private:
@@ -21,11 +21,9 @@ class TemperatureSensor {
     // analog digital converter steps
     double m_adcSteps;
 
-    // constants
-    // number of time to read temp before getting an average
-    const int NUM_REPITIONS = 100;
+    IDeviceManager* m_dm;
 
-    double measureVoltage(int pin);
+    double analogToTemperature(double analog);
     double analogToVoltage(double analog);
     double voltageToResistance(double vOut);
     double calculateR1(double vOut);

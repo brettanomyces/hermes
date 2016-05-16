@@ -1,11 +1,11 @@
 #ifndef SRC_BAFFEL_H_
 #define SRC_BAFFEL_H_
 
-#include "DeviceManager.h"
+#include "IDeviceManager.h"
 
 class Baffel {
   public:
-    Baffel(int in1, int in2, int in3, int in4, int steps, int speed, DeviceManager* deviceManager);
+    Baffel(int in1, int in2, int in3, int in4, int steps, int speed, IDeviceManager* deviceManager);
 
     void open(); 
     void close();
@@ -20,6 +20,6 @@ class Baffel {
     int m_steps;
     int m_speed;
 
-    DeviceManager* m_dm;
+    IDeviceManager* m_dm;
 };
 #endif  // SRC_BAFFEL_H_
