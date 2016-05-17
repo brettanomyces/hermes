@@ -1,7 +1,7 @@
 #! /usr/bin/env lua
 
 -- photon analog pins can handle a max of 3.3v
--- arduino analog pins can handle a max of 3.3v
+-- arduino analog pins can handle a max of 5.0v
 -- v_in = 3.3
 v_in = 5.0
 r_25 = 5000
