@@ -22,7 +22,7 @@ function v_out(celcius, r1)
 end
 
 for i=0,50,5 do
-	local step = v_out(i, 10000) / 0.0049
+	local step = math.floor(v_out(i, 10000) / 0.0049)
 	print("temp: " .. i .. "C")
 	print("step: " .. step)
 end
