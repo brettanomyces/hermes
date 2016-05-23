@@ -1,7 +1,5 @@
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "fakeit.hpp"
-
 #include "TemperatureSensor.cpp"
 #include "IDeviceManager.h"
 #include <math.h>

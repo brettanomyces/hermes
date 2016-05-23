@@ -1,6 +1,4 @@
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-
 #include "TemperatureController.cpp"
 
 TEST_CASE("get/set frSetTemp") {
