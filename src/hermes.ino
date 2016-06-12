@@ -1,4 +1,5 @@
-#include "Arduino.h"
+//#include "Arduino.h"
+#include "Particle.h"
 #include "Baffel.h"
 #include "Delay.h"
 #include "DeviceManager.h"
@@ -7,20 +8,20 @@
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
 
-int FREEZER_SENSOR_PIN = 3;
-int FRIDGE_SENSOR_PIN = 2;
+int FREEZER_SENSOR_PIN = 0; // 3;
+int FRIDGE_SENSOR_PIN = 1;  // 2;
 
 // stepper motor
-int IN1 = 12;  // = L1 = yellow
-int IN2 = 11;  // = L2 = red
-int IN3 = 10;  // = L3 = white
-int IN4 = 9;  // = L4 = blue
-int EN_A = 13;  // always on
-int EN_B = 8;  // always on
+int IN1 = 0; // 12;  // = L1 = yellow
+int IN2 = 1; // 11;  // = L2 = red
+int IN3 = 2; // 10;  // = L3 = white
+int IN4 = 3; // 9;   // = L4 = blue
+//int EN_A = 13;  // always on
+//int EN_B = 8;  // always on
 
-int COMP_PIN = 5;
-int FAN_PIN = 6;
-int HEATER_PIN = 7;
+int COMP_PIN = 4;   // 5;
+int FAN_PIN = 5;    // 6;
+int HEATER_PIN = 6; // 7;
 
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
@@ -28,12 +29,14 @@ double COMP_DELAY = 300000;  // 5 minutes
 double FAN_DELAY = 0;
 double HEATER_DELAY = 0;
 
-double DEFAULT_FR_TEMP = 10.0;
+double DEFAULT_FR_TEMP = 19.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
 // temperature sensor
-double ADC_STEPS = 1024;
-double V_DIVIDER_V_IN = 5.0;
+//double ADC_STEPS = 1024;
+double ADC_STEPS = 4096;
+//double V_DIVIDER_V_IN = 5.0;
+double V_DIVIDER_V_IN = 3.3;
 int V_DIVIDER_R1 = 10000;
 int V_DIVIDER_THERMISTOR_POSITION = 2;
 
@@ -71,9 +74,29 @@ TemperatureController controller;
 
 bool deviceStateSet = false;
 
+double frSet = DEFAULT_FR_TEMP;
+double frTemp = DEFAULT_FR_TEMP;
+double fzSet = DEFAULT_FZ_TEMP;
+double fzTemp = DEFAULT_FZ_TEMP;
+bool compActive = false;
+bool compWait = false;
+bool baffelOpen = false;
+bool fanActive = false;
+bool heatActive = false;
+bool heatWait = false;
+
 void setup() {
 
-  Serial.begin(9600);
+  Particle.variable("frSet", frSet);
+  Particle.variable("frTemp", frTemp);
+  Particle.variable("fzSet", fzSet);
+  Particle.variable("fzTemp", fzTemp);
+  Particle.variable("compActive", compActive);
+  Particle.variable("compWait", compWait);
+  Particle.variable("baffelOpen", baffelOpen);
+  Particle.variable("fanActive", fanActive);
+  Particle.variable("heatActive", heatActive);
+  Particle.variable("heatWait", heatWait);
 
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
   pinMode(FREEZER_SENSOR_PIN, INPUT);
@@ -82,10 +105,10 @@ void setup() {
   pinMode(IN2, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-  pinMode(EN_A, OUTPUT);
-  digitalWrite(EN_A, HIGH);
-  pinMode(EN_B, OUTPUT);
-  digitalWrite(EN_B, HIGH);
+  //pinMode(EN_A, OUTPUT);
+  //digitalWrite(EN_A, HIGH);
+  //pinMode(EN_B, OUTPUT);
+  //digitalWrite(EN_B, HIGH);
 
   pinMode(COMP_PIN, OUTPUT);
   digitalWrite(COMP_PIN, HIGH);
@@ -101,9 +124,6 @@ void setup() {
   controller.setFzSetTemp(DEFAULT_FZ_TEMP);
   controller.setFrSetTemp(DEFAULT_FR_TEMP);
 }
-
-double frTemp = DEFAULT_FR_TEMP;
-double fzTemp = DEFAULT_FZ_TEMP;
 
 void loop() {
   if(!deviceStateSet){
@@ -121,74 +141,62 @@ void loop() {
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
-        Serial.println("deactivating compressor");
+        Particle.publish("compressor deactivated");
       }
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
-        Serial.println("activating compressor");
+        Particle.publish("compressor activated");
       }
     }
 
     if (baffel.isOpen()) {
       if (controller.shouldCloseBaffel(frTemp)) {
         baffel.close();
-        Serial.println("closing baffel");
+        Particle.publish("baffel closed");
       }
     } else { // baffel closed
       if (controller.shouldOpenBaffel(frTemp)) {
         baffel.open();
-        Serial.println("opening baffel");
+        Particle.publish("baffel opened");
       }
     }
 
     if (heater.isActive()) {
       if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
         heater.deactivate();
-        Serial.println("deactivating heater");
+        Particle.publish("heater deactivated");
       }
     } else {  // heater off
       if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
         heater.activate();
-        Serial.println("activating heater");
+        Particle.publish("heater activated");
       }
     }
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
-        Serial.println("deactivating fan");
+        Particle.publish("fan dectivated");
       }
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
-        Serial.println("activating fan");
+        Particle.publish("fan activated");
       }
     }
 
-    // output values in the following csv format:
-    // frs, fr, fzs, fz, b, c, cw, f, h, hw
-    String SEPERATOR = ",";
-    Serial.print(controller.getFrSetTemp());
-    Serial.print(SEPERATOR);
-    Serial.print(fridgeSensor.readTemperature());
-    Serial.print(SEPERATOR);
-    Serial.print(controller.getFzSetTemp());
-    Serial.print(SEPERATOR);
-    Serial.print(freezerSensor.readTemperature());
-    Serial.print(SEPERATOR);
-    Serial.print(baffel.isOpen());
-    Serial.print(SEPERATOR);
-    Serial.print(compressor.isActive());
-    Serial.print(SEPERATOR);
-    Serial.print(compressor.isWaiting());
-    Serial.print(SEPERATOR);
-    Serial.print(fan.isActive());
-    Serial.print(SEPERATOR);
-    Serial.print(heater.isActive());
-    Serial.print(SEPERATOR);
-    Serial.print(heater.isWaiting());
-    Serial.println();
+    // update variable
+    frSet = controller.getFrSetTemp();
+    frTemp = fridgeSensor.readTemperature();
+    fzSet = controller.getFzSetTemp();
+    fzTemp = freezerSensor.readTemperature();
+    baffelOpen = baffel.isOpen();
+    compActive = compressor.isActive();
+    compWait = compressor.isWaiting();
+    fanActive = fan.isActive();
+    heatActive = heater.isActive();
+    heatWait = heater.isWaiting();
   }
 }
 
