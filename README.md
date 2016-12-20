@@ -1,37 +1,22 @@
 Hermes
 ======
 
-# PlatformIO
+Temperature controller for a double door fridge/freezer.
 
-http://docs.platformio.org/en/latest/quickstart.html
+# Build
 
-## Build project
+```
+particle compile photon src/*
+```
 
-    platformio run
+# Flash
 
-## Upload firmware
+```
+particle flash <device> src/*
+```
 
-    platformio run --target upload
+# View State
 
-## Monitor serial conneciton
-
-    platformio serialports monitor
-
-
-# Serial connection
-
-## Add user to dialout group
-
-    sudo adduser <username> dialout
-
-## View settings
-
-    stty --file /dev/<tty> --all
-    
-## Enable auto reset on serial connection (this is the default)
-
-    stty --file /dev/<tty> hup
-
-## Disable auto reset on serial connection
-
-    stty --file /dev/<tty> -hup
+```
+./srcipts/status.sh
+```
