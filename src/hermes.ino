@@ -1,5 +1,11 @@
-//#include "Arduino.h"
+#define PARTICLE
+
+#ifdef PARTICLE
 #include "Particle.h"
+#else
+#include "Arduino.h"
+#endif
+
 #include "Baffel.h"
 #include "Delay.h"
 #include "DeviceManager.h"
@@ -89,7 +95,7 @@ bool heatActive = false;
 bool heatWait = false;
 
 void setup() {
-
+  #ifdef PARTICLE
   Particle.variable("frSet", frSet);
   Particle.variable("frTemp", frTemp);
   Particle.variable("fzSet", fzSet);
@@ -100,6 +106,7 @@ void setup() {
   Particle.variable("fanActive", fanActive);
   Particle.variable("heatActive", heatActive);
   Particle.variable("heatWait", heatWait);
+  #endif
 
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
   pinMode(FREEZER_SENSOR_PIN, INPUT);
@@ -141,62 +148,80 @@ void loop() {
     frTemp = fridgeSensor.readTemperature();
     fzTemp = freezerSensor.readTemperature();
 
+    #ifdef PARTICLE
     sprintf(data, "{\"frTemp\":\"%.2f\",\"fzTemp\":\"%.2f\"}", frTemp, fzTemp);
     Particle.publish("reading", data);
+    #endif
 
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"compressor\",\"state\":\"off\"}");
         Particle.publish("event", data);
+        #endif
       }
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"compressor\",\"state\":\"on\"}");
         Particle.publish("event", data);
+        #endif
       }
     }
 
     if (baffel.isOpen()) {
       if (controller.shouldCloseBaffel(frTemp)) {
         baffel.close();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"baffel\",\"state\":\"closed\"}");
         Particle.publish("event", data);
+        #endif
       }
     } else { // baffel closed
       if (controller.shouldOpenBaffel(frTemp)) {
         baffel.open();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"baffel\",\"state\":\"open\"}");
         Particle.publish("event", data);
+        #endif
       }
     }
 
     if (heater.isActive()) {
       if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
         heater.deactivate();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"heater\",\"state\":\"off\"}");
         Particle.publish("event", data);
+        #endif
       }
     } else {  // heater off
       if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
         heater.activate();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"heater\",\"state\":\"on\"}");
         Particle.publish("event", data);
+        #endif
       }
     }
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"fan\",\"state\":\"off\"}");
         Particle.publish("event", data);
+        #endif
       }
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
+        #ifdef PARTICLE
         sprintf(data, "{\"device\":\"fan\",\"state\":\"on\"}");
         Particle.publish("event", data);
+        #endif
       }
     }
 
