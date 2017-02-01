@@ -131,10 +131,6 @@ void setup() {
   pinMode(IN2, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-  //pinMode(EN_A, OUTPUT);
-  //digitalWrite(EN_A, HIGH);
-  //pinMode(EN_B, OUTPUT);
-  //digitalWrite(EN_B, HIGH);
 
   pinMode(COMP_PIN, OUTPUT);
   digitalWrite(COMP_PIN, HIGH);
