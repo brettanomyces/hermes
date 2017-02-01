@@ -1,8 +1,8 @@
-#define PARTICLE
+// #define PARTICLE
 
 #ifdef PARTICLE
 #include "Particle.h"
-#else
+#else  // Arduino
 #include "Arduino.h"
 #endif
 
@@ -14,20 +14,39 @@
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
 
-int FREEZER_SENSOR_PIN = 0; // 3;
-int FRIDGE_SENSOR_PIN = 1;  // 2;
+#ifdef PARTICLE
+int FREEZER_SENSOR_PIN = 0;
+int FRIDGE_SENSOR_PIN = 1;
 
 // stepper motor
-int IN1 = 0; // 12;  // = L1 = yellow
-int IN2 = 1; // 11;  // = L2 = red
-int IN3 = 2; // 10;  // = L3 = white
-int IN4 = 3; // 9;   // = L4 = blue
-//int EN_A = 13;  // always on
-//int EN_B = 8;  // always on
+int IN1 = 0;  // = L1 = yellow
+int IN2 = 1;  // = L2 = red
+int IN3 = 2;  // = L3 = white
+int IN4 = 3;  // = L4 = blue
 
-int COMP_PIN = 4;   // 5;
-int FAN_PIN = 5;    // 6;
-int HEATER_PIN = 6; // 7;
+int COMP_PIN = 4;
+int FAN_PIN = 5;
+int HEATER_PIN = 6;
+
+// temperature sensor
+double ADC_STEPS = 4096;
+double V_DIVIDER_V_IN = 3.3;
+#else  // Arduino
+int FREEZER_SENSOR_PIN = 3;
+int FRIDGE_SENSOR_PIN = 2;
+
+int IN1 = 12;
+int IN2 = 11;
+int IN3 = 10;
+int IN4 = 9;
+
+int COMP_PIN = 5;
+int FAN_PIN = 6;
+int HEATER_PIN = 7;
+
+double ADC_STEPS = 1024;
+double V_DIVIDER_V_IN = 5.0;
+#endif
 
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
@@ -38,11 +57,6 @@ double HEATER_DELAY = 0;
 double DEFAULT_FR_TEMP = 19.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
-// temperature sensor
-//double ADC_STEPS = 1024;
-double ADC_STEPS = 4096;
-//double V_DIVIDER_V_IN = 5.0;
-double V_DIVIDER_V_IN = 3.3;
 int V_DIVIDER_R1 = 10000;
 int V_DIVIDER_THERMISTOR_POSITION = 2;
 
@@ -52,8 +66,10 @@ int STEPPER_STEPS = 450;  // found via trial and error
 
 int RELAY_ACTIVE_LOW = true;
 
+#ifdef PARTICLE
 // optional data for Particle.publish()
 char data[64];
+#endif
 
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD, &deviceManager);
