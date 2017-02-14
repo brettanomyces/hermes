@@ -1,4 +1,4 @@
-// #define PARTICLE
+#define PARTICLE
 
 #ifdef PARTICLE
 #include "Particle.h"
@@ -45,7 +45,7 @@ int FAN_PIN = 6;
 int HEATER_PIN = 7;
 
 double ADC_STEPS = 1024;
-double V_DIVIDER_V_IN = 5.0;
+double V_DIVIDER_V_IN = 5.0;  // Arduino can also output 3.3v
 #endif
 
 // other constants
@@ -65,11 +65,6 @@ int STEPPER_SPEED = 5;  // found via trial and error
 int STEPPER_STEPS = 450;  // found via trial and error
 
 int RELAY_ACTIVE_LOW = true;
-
-#ifdef PARTICLE
-// optional data for Particle.publish()
-char data[64];
-#endif
 
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD, &deviceManager);
@@ -122,6 +117,8 @@ void setup() {
   Particle.variable("fanActive", fanActive);
   Particle.variable("heatActive", heatActive);
   Particle.variable("heatWait", heatWait);
+  #else  // Arduino
+  Serial.begin(115200);
   #endif
 
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
@@ -161,81 +158,86 @@ void loop() {
     fzTemp = freezerSensor.readTemperature();
 
     #ifdef PARTICLE
+    char data[64];
     sprintf(data, "{\"frTemp\":\"%.2f\",\"fzTemp\":\"%.2f\"}", frTemp, fzTemp);
     Particle.publish("reading", data);
+    #else
+    // Arduino cannot sprintf floats
+    Serial.print("{\"frTemp\":");
+    Serial.print(frTemp);
+    Serial.print("\",\"fzTemp\":");
+    Serial.print(fzTemp);
+    Serial.println("\"}");
     #endif
 
+    String message;
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"compressor\",\"state\":\"off\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"compressor\",\"state\":\"off\"}";
       }
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"compressor\",\"state\":\"on\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"compressor\",\"state\":\"on\"}";
       }
     }
+    #ifdef PARTICLE
+    Particle.publish(message);
+    #else
+    Serial.println(message);
+    #endif
 
     if (baffel.isOpen()) {
       if (controller.shouldCloseBaffel(frTemp)) {
         baffel.close();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"baffel\",\"state\":\"closed\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"baffel\",\"state\":\"closed\"}";
       }
     } else { // baffel closed
       if (controller.shouldOpenBaffel(frTemp)) {
         baffel.open();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"baffel\",\"state\":\"open\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"baffel\",\"state\":\"open\"}";
       }
     }
+    #ifdef PARTICLE
+    Particle.publish(message);
+    #else
+    Serial.println(message);
+    #endif
 
     if (heater.isActive()) {
       if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
         heater.deactivate();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"heater\",\"state\":\"off\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"heater\",\"state\":\"off\"}";
       }
     } else {  // heater off
       if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
         heater.activate();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"heater\",\"state\":\"on\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"heater\",\"state\":\"on\"}";
       }
     }
+    #ifdef PARTICLE
+    Particle.publish(message);
+    #else
+    Serial.println(message);
+    #endif
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"fan\",\"state\":\"off\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"fan\",\"state\":\"off\"}";
       }
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
-        #ifdef PARTICLE
-        sprintf(data, "{\"device\":\"fan\",\"state\":\"on\"}");
-        Particle.publish("event", data);
-        #endif
+        message = "{\"device\":\"fan\",\"state\":\"on\"}";
       }
     }
+    #ifdef PARTICLE
+    Particle.publish(message);
+    #else
+    Serial.println(message);
+    #endif
 
     // update variable
     frSet = controller.getFrSetTemp();
