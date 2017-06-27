@@ -1,14 +1,8 @@
 #ifndef SRC_DEVICEMANAGER_H_
 #define SRC_DEVICEMANAGER_H_
 
-#ifdef PARTICLE
-#include "Particle.h"
-#else
 #include "Arduino.h"
-#endif
-
 #include "IDeviceManager.h"
-
 
 class DeviceManager : public IDeviceManager {
   public:

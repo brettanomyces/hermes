@@ -1,11 +1,4 @@
-#define PARTICLE
-
-#ifdef PARTICLE
-#include "Particle.h"
-#else  // Arduino
 #include "Arduino.h"
-#endif
-
 #include "Baffel.h"
 #include "Delay.h"
 #include "DeviceManager.h"
@@ -14,24 +7,6 @@
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
 
-#ifdef PARTICLE
-int FREEZER_SENSOR_PIN = 0;
-int FRIDGE_SENSOR_PIN = 1;
-
-// stepper motor
-int IN1 = 0;  // = L1 = yellow
-int IN2 = 1;  // = L2 = red
-int IN3 = 2;  // = L3 = white
-int IN4 = 3;  // = L4 = blue
-
-int COMP_PIN = 4;
-int FAN_PIN = 5;
-int HEATER_PIN = 6;
-
-// temperature sensor
-double ADC_STEPS = 4096;
-double V_DIVIDER_V_IN = 3.3;
-#else  // Arduino
 int FREEZER_SENSOR_PIN = 3;
 int FRIDGE_SENSOR_PIN = 2;
 
@@ -46,7 +21,6 @@ int HEATER_PIN = 7;
 
 double ADC_STEPS = 1024;
 double V_DIVIDER_V_IN = 5.0;  // Arduino can also output 3.3v
-#endif
 
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
@@ -106,20 +80,7 @@ bool heatActive = false;
 bool heatWait = false;
 
 void setup() {
-  #ifdef PARTICLE
-  Particle.variable("frSet", frSet);
-  Particle.variable("frTemp", frTemp);
-  Particle.variable("fzSet", fzSet);
-  Particle.variable("fzTemp", fzTemp);
-  Particle.variable("compActive", compActive);
-  Particle.variable("compWait", compWait);
-  Particle.variable("baffelOpen", baffelOpen);
-  Particle.variable("fanActive", fanActive);
-  Particle.variable("heatActive", heatActive);
-  Particle.variable("heatWait", heatWait);
-  #else  // Arduino
   Serial.begin(115200);
-  #endif
 
   pinMode(FRIDGE_SENSOR_PIN, INPUT);
   pinMode(FREEZER_SENSOR_PIN, INPUT);
@@ -157,18 +118,12 @@ void loop() {
     frTemp = fridgeSensor.readTemperature();
     fzTemp = freezerSensor.readTemperature();
 
-    #ifdef PARTICLE
-    char data[64];
-    sprintf(data, "{\"frTemp\":\"%.2f\",\"fzTemp\":\"%.2f\"}", frTemp, fzTemp);
-    Particle.publish("reading", data);
-    #else
     // Arduino cannot sprintf floats
     Serial.print("{\"frTemp\":");
     Serial.print(frTemp);
     Serial.print("\",\"fzTemp\":");
     Serial.print(fzTemp);
     Serial.println("\"}");
-    #endif
 
     String message;
     if (compressor.isActive()) {
@@ -182,11 +137,7 @@ void loop() {
         message = "{\"device\":\"compressor\",\"state\":\"on\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
     Serial.println(message);
-    #endif
 
     if (baffel.isOpen()) {
       if (controller.shouldCloseBaffel(frTemp)) {
@@ -199,11 +150,7 @@ void loop() {
         message = "{\"device\":\"baffel\",\"state\":\"open\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
     Serial.println(message);
-    #endif
 
     if (heater.isActive()) {
       if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
@@ -216,11 +163,7 @@ void loop() {
         message = "{\"device\":\"heater\",\"state\":\"on\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
     Serial.println(message);
-    #endif
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
@@ -233,11 +176,7 @@ void loop() {
         message = "{\"device\":\"fan\",\"state\":\"on\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
     Serial.println(message);
-    #endif
 
     // update variable
     frSet = controller.getFrSetTemp();
@@ -252,4 +191,3 @@ void loop() {
     heatWait = heater.isWaiting();
   }
 }
-
