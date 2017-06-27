@@ -1,3 +1,5 @@
+This branch may be compiled to run on either a particle photon board or an arduino uno. Future development is intended to be for the esp32 board but this branch will be kept as a fallback.
+
 Hermes
 ======
 
