@@ -57,7 +57,7 @@ bool TemperatureController::shouldActivateCompressor(double fzTemp, bool isWaiti
   if (isWaiting) {
     return false;
   } else {
-    if (fzTemp > m_fzSetTemp + m_diff) {
+    if (fzTemp > m_fzSetTemp + m_diff && fzTemp > m_fzMinTemp) {
       return true;
     }
     return false;
@@ -68,7 +68,7 @@ bool TemperatureController::shouldDeactivateCompressor(double fzTemp, bool isWai
   if (isWaiting) {
     return false;
   } else {
-    if (fzTemp < m_fzSetTemp - m_diff) {
+    if (fzTemp < m_fzSetTemp - m_diff || fzTemp < m_fzMinTemp) {
       return true;
     }
     return false;

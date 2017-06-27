@@ -25,6 +25,7 @@ class TemperatureController {
     double m_frSetTemp = 25;
     double m_fzSetTemp = 4;
     double m_diff = 0.25;
+    double m_fzMinTemp = 0.5;
     bool m_frEmpty = false;
 };
 #endif  // SRC_TEMPERATURECONTROLLER_H_
