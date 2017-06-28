@@ -7,17 +7,17 @@
 #include "TemperatureController.h"
 #include "TemperatureSensor.h"
 
-int FREEZER_SENSOR_PIN = 3;
-int FRIDGE_SENSOR_PIN = 2;
+int FREEZER_SENSOR_PIN = 36;
+int FRIDGE_SENSOR_PIN = 39;
 
-int IN1 = 12;
-int IN2 = 11;
-int IN3 = 10;
-int IN4 = 9;
+int IN1 = 34;
+int IN2 = 35;
+int IN3 = 32;
+int IN4 = 33;
 
-int COMP_PIN = 5;
-int FAN_PIN = 6;
-int HEATER_PIN = 7;
+int COMP_PIN = 27;
+int FAN_PIN = 14;
+int HEATER_PIN = 12;
 
 double ADC_STEPS = 1024;
 double V_DIVIDER_V_IN = 5.0;  // Arduino can also output 3.3v
