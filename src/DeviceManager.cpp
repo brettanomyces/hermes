@@ -21,74 +21,81 @@ void DeviceManager::deactivateRelay(int pin, bool activeLow) {
 
 void DeviceManager::openBaffel(int in1, int in2, int in3, int in4, int steps, int speed) {
   for (int i = 0; i <= steps; i++ ) {
-    clockwise(in1, in2, in3, in4, speed);
+    reverse(in1, in2, in3, in4, speed);
   }
 }
 
 void DeviceManager::closeBaffel(int in1, int in2, int in3, int in4, int steps, int speed) {
   for (int i = 0; i <= steps; i++ ) {
-    antiClockwise(in1, in2, in3, in4, speed);
+    forward(in1, in2, in3, in4, speed);
   }
 }
 
-void DeviceManager::clockwise(int in1, int in2, int in3, int in4, int speed) {
+void DeviceManager::forward(int in1, int in2, int in3, int in4, int speed) {
   // 1
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 1);
+
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 1);
   delay(speed);
 
   // 2
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 1);
+
+  digitalWrite(in3, 1);
+  digitalWrite(in4, 0);
   delay(speed);
 
   // 3
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(in1, 1);
+  digitalWrite(in2, 0);
+
+  digitalWrite(in3, 1);
+  digitalWrite(in4, 0);
   delay(speed);
 
   // 4
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(in1, 1);
+  digitalWrite(in2, 0);
+
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 1);
   delay(speed);
 }
 
-void DeviceManager::antiClockwise(int in1, int in2, int in3, int in4, int speed) {
-  // note the order onf the inX has changed
-  // 1
-  digitalWrite(in4, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in1, LOW);
-  delay(speed);
+void DeviceManager::reverse(int in1, int in2, int in3, int in4, int speed) {
+  //1
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 1);
+
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 1);
+  delay(speed);  
 
   // 2
-  digitalWrite(in4, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in1, LOW);
+  digitalWrite(in1, 1);
+  digitalWrite(in2, 0);
+
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 1);
   delay(speed);
 
   // 3
-  digitalWrite(in4, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in1, HIGH);
+  digitalWrite(in1, 1);
+  digitalWrite(in2, 0);
+
+  digitalWrite(in3, 1);
+  digitalWrite(in4, 0);
   delay(speed);
 
   // 4
-  digitalWrite(in4, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in1, HIGH);
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 1);
+
+  digitalWrite(in3, 1);
+  digitalWrite(in4, 0);
   delay(speed);
 }
 

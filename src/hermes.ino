@@ -18,10 +18,10 @@ DeviceAddress frSensor1Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x3
 DeviceAddress frSensor2Address = { 0x28, 0xFF, 0xB7, 0xA0, 0x68, 0x14, 0x04, 0xC9 };  // sensor #2
 DeviceAddress fzSensorAddress  = { 0x28, 0xFF, 0x0C, 0x3A, 0x63, 0x14, 0x03, 0x4E };  // sensor #3
 
-int IN1 = 34;
-int IN2 = 35;
-int IN3 = 32;
-int IN4 = 33;
+int IN1 = 5;
+int IN2 = 17;
+int IN3 = 16;
+int IN4 = 4;
 
 int FAN_PIN = 25;
 int HEATER_PIN = 26;
@@ -33,7 +33,7 @@ double COMP_DELAY = 300000;  // 5 minutes
 double FAN_DELAY = 0;
 double HEATER_DELAY = 0;
 
-double DEFAULT_FR_TEMP = 19.0;
+double DEFAULT_FR_TEMP = 10.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
 // baffel
@@ -61,6 +61,10 @@ double frSet = DEFAULT_FR_TEMP;
 double frTemp = DEFAULT_FR_TEMP;
 double fzSet = DEFAULT_FZ_TEMP;
 double fzTemp = DEFAULT_FZ_TEMP;
+
+StaticJsonBuffer<200> jsonBuffer;
+JsonObject& root = jsonBuffer.createObject();
+String message;
 
 void setup() {
   Serial.begin(115200);
@@ -94,71 +98,62 @@ void setup() {
 }
 
 void loop() {
-
   if (updateTimer.check()) {
-    temperatureSensors.requestTemperatures();
 
+    message = "";
+
+    temperatureSensors.requestTemperatures();
     frTemp = temperatureSensors.getTempC(frSensor1Address);
     fzTemp = temperatureSensors.getTempC(fzSensorAddress);
 
-    // Arduino cannot sprintf floats
-    Serial.print("{\"frTemp\":");
-    Serial.print(frTemp);
-    Serial.print("\",\"fzTemp\":");
-    Serial.print(fzTemp);
-    Serial.println("\"}");
-
-    String message;
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
-        message = "{\"device\":\"compressor\",\"state\":\"off\"}";
       }
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
-        message = "{\"device\":\"compressor\",\"state\":\"on\"}";
       }
     }
-    Serial.println(message);
 
     if (baffel.isOpen()) {
       if (controller.shouldCloseBaffel(frTemp)) {
         baffel.close();
-        message = "{\"device\":\"baffel\",\"state\":\"closed\"}";
       }
     } else { // baffel closed
       if (controller.shouldOpenBaffel(frTemp)) {
         baffel.open();
-        message = "{\"device\":\"baffel\",\"state\":\"open\"}";
       }
     }
-    Serial.println(message);
 
     if (heater.isActive()) {
       if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
         heater.deactivate();
-        message = "{\"device\":\"heater\",\"state\":\"off\"}";
       }
     } else {  // heater off
       if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
         heater.activate();
-        message = "{\"device\":\"heater\",\"state\":\"on\"}";
       }
     }
-    Serial.println(message);
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
-        message = "{\"device\":\"fan\",\"state\":\"off\"}";
       }
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
-        message = "{\"device\":\"fan\",\"state\":\"on\"}";
       }
     }
+
+    root["fridgeTemperature"] = frTemp;
+    root["freezerTemperature"] = fzTemp;
+    root["baffelOpen"] = baffel.isOpen();
+    root["fanActive"] = fan.isActive();
+    root["heaterActive"] = heater.isActive();
+    root["compressorActive"] = compressor.isActive();
+
+    root.printTo(message);
     Serial.println(message);
   }
 
@@ -183,19 +178,10 @@ void loop() {
       while (client.connected()) {
         if (client.available()) {
           client.flush();
-
-          StaticJsonBuffer<200> jsonBuffer;
-          JsonObject& root = jsonBuffer.createObject();
-          root["fr"] = frTemp;
-          root["fz"] = fzTemp;
-
-          String response;
-          root.printTo(response);
-
           client.printf(
             "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %u\r\n\r\n%s",
-            response.length(),
-            response.c_str()
+            message.length(),
+            message.c_str()
           );
           client.flush();
           break;

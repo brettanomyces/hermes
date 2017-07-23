@@ -18,8 +18,8 @@ class DeviceManager : public IDeviceManager {
   private:
     const int NUM_REPITIONS = 1000;
 
-    void clockwise(int, int, int, int, int);
-    void antiClockwise(int, int, int, int, int);
+    void forward(int, int, int, int, int);
+    void reverse(int, int, int, int, int);
 };
 
 #endif  // SRC_DEVICEMANAGER_H_
