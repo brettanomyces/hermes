@@ -15,12 +15,12 @@ int IN2 = 35;
 int IN3 = 32;
 int IN4 = 33;
 
+int FAN_PIN = 25;
+int HEATER_PIN = 26;
 int COMP_PIN = 27;
-int FAN_PIN = 14;
-int HEATER_PIN = 12;
 
-double ADC_STEPS = 1024;
-double V_DIVIDER_V_IN = 5.0;  // Arduino can also output 3.3v
+double ADC_STEPS = 4096;
+double V_DIVIDER_V_IN = 3.3;
 
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
