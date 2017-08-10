@@ -1,5 +1,6 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <WiFi.h>
 
 #include "Baffel.h"
 #include "Delay.h"
@@ -7,6 +8,9 @@
 #include "DoEvery.h"
 #include "Relay.h"
 #include "TemperatureController.h"
+
+char SSID[] = "vodafone";
+char PASSWORD[] = "vodafone";
 
 int ONE_WIRE_SENSOR_PIN = 14;
 DeviceAddress frSensor1Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #1
@@ -37,6 +41,8 @@ int STEPPER_STEPS = 450;  // found via trial and error
 
 int RELAY_ACTIVE_LOW = true;
 
+WiFiServer server(80);
+
 OneWire oneWire(ONE_WIRE_SENSOR_PIN);
 DallasTemperature temperatureSensors(&oneWire);
 
@@ -57,6 +63,8 @@ double fzTemp = DEFAULT_FZ_TEMP;
 
 void setup() {
   Serial.begin(115200);
+
+  delay(100);  // magic pause
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -85,6 +93,7 @@ void setup() {
 }
 
 void loop() {
+
   if (updateTimer.check()) {
     temperatureSensors.requestTemperatures();
 
@@ -150,5 +159,39 @@ void loop() {
       }
     }
     Serial.println(message);
+  }
+
+  // attempt to connect to Wifi for 5 seconds
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(SSID, PASSWORD);
+    for(int i = 0; i < 10; i++) {
+      delay(500);
+      if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("WiFi Connected");
+        Serial.println(WiFi.localIP());
+        server.begin();
+        break;
+      }
+    }
+  }
+
+  // check for incoming clients
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client = server.available();
+    if (client) {
+      while (client.connected()) {
+        if (client.available()) {
+          // no need to parse the request because we will return the same response every time
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-type:text/html");
+          client.println();
+          client.println(temperatureSensors.getTempC(frSensor1Address));
+          client.println(temperatureSensors.getTempC(fzSensorAddress));
+          client.println();
+          break;
+        }
+      }
+      client.stop();
+    }
   }
 }
