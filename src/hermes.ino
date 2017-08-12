@@ -1,6 +1,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <WiFi.h>
+#include <ArduinoJson.h>
 
 #include "Baffel.h"
 #include "Delay.h"
@@ -9,13 +10,13 @@
 #include "Relay.h"
 #include "TemperatureController.h"
 
-char SSID[] = "vodafone";
-char PASSWORD[] = "vodafone";
+char SSID[] = "vodafoneFAF5";
+char PASSWORD[] = "CB9FG6FY95";
 
 int ONE_WIRE_SENSOR_PIN = 14;
 DeviceAddress frSensor1Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #1
-DeviceAddress frSensor2Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #2
-DeviceAddress fzSensorAddress = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #3
+DeviceAddress frSensor2Address = { 0x28, 0xFF, 0xB7, 0xA0, 0x68, 0x14, 0x04, 0xC9 };  // sensor #2
+DeviceAddress fzSensorAddress  = { 0x28, 0xFF, 0x0C, 0x3A, 0x63, 0x14, 0x03, 0x4E };  // sensor #3
 
 int IN1 = 34;
 int IN2 = 35;
@@ -181,13 +182,22 @@ void loop() {
     if (client) {
       while (client.connected()) {
         if (client.available()) {
-          // no need to parse the request because we will return the same response every time
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-type:text/html");
-          client.println();
-          client.println(temperatureSensors.getTempC(frSensor1Address));
-          client.println(temperatureSensors.getTempC(fzSensorAddress));
-          client.println();
+          client.flush();
+
+          StaticJsonBuffer<200> jsonBuffer;
+          JsonObject& root = jsonBuffer.createObject();
+          root["fr"] = frTemp;
+          root["fz"] = fzTemp;
+
+          String response;
+          root.printTo(response);
+
+          client.printf(
+            "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %u\r\n\r\n%s",
+            response.length(),
+            response.c_str()
+          );
+          client.flush();
           break;
         }
       }
