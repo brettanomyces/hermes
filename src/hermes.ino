@@ -13,6 +13,10 @@
 char SSID[] = "vodafoneFAF5";
 char PASSWORD[] = "CB9FG6FY95";
 
+IPAddress IP(192, 168, 1, 201);
+IPAddress GATEWAY(192, 168, 1, 1);
+IPAddress SUBNET(255, 255, 255, 0);
+
 int ONE_WIRE_SENSOR_PIN = 14;
 DeviceAddress frSensor1Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #1
 DeviceAddress frSensor2Address = { 0x28, 0xFF, 0xB7, 0xA0, 0x68, 0x14, 0x04, 0xC9 };  // sensor #2
@@ -95,6 +99,8 @@ void setup() {
   compressor.deactivate();
   fan.deactivate();
   heater.deactivate();
+
+  WiFi.config(IP, GATEWAY, SUBNET);
 }
 
 void loop() {
@@ -146,12 +152,12 @@ void loop() {
       }
     }
 
-    root["fridgeTemperature"] = frTemp;
-    root["freezerTemperature"] = fzTemp;
-    root["baffelOpen"] = baffel.isOpen();
-    root["fanActive"] = fan.isActive();
-    root["heaterActive"] = heater.isActive();
-    root["compressorActive"] = compressor.isActive();
+    root["fridge_temperature"] = frTemp;
+    root["freezer_temperature"] = fzTemp;
+    root["baffel_open"] = baffel.isOpen();
+    root["fan_active"] = fan.isActive();
+    root["heater_active"] = heater.isActive();
+    root["compressor_active"] = compressor.isActive();
 
     root.printTo(message);
     Serial.println(message);
