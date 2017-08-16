@@ -1,23 +1,20 @@
 #include "Baffel.h"
 
-Baffel::Baffel(int in1, int in2, int in3, int in4, int steps, int speed, IDeviceManager* deviceManager) {
-  m_in1 = in1;
-  m_in2 = in2;
-  m_in3 = in3;
-  m_in4 = in4;
+Baffel::Baffel(Stepper* stepper, int steps, int speed) {
   m_steps = steps;
   m_speed = speed;
   m_open = false;
-  m_dm = deviceManager;
+  m_stepper = stepper;
+  m_stepper->setSpeed(speed);
 }
 
 void Baffel::open() {
-  m_dm->openBaffel(m_in1, m_in2, m_in3, m_in4, m_steps, m_speed);
+  m_stepper->step(m_steps);
   m_open = true;
 }
 
 void Baffel::close() {
-  m_dm->closeBaffel(m_in1, m_in2, m_in3, m_in4, m_steps, m_speed);
+  m_stepper->step(-m_steps);
   m_open = false;
 }
 

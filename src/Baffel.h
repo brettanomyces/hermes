@@ -1,11 +1,11 @@
 #ifndef SRC_BAFFEL_H_
 #define SRC_BAFFEL_H_
 
-#include "IDeviceManager.h"
+#include <Stepper.h>
 
 class Baffel {
   public:
-    Baffel(int in1, int in2, int in3, int in4, int steps, int speed, IDeviceManager* deviceManager);
+    Baffel(Stepper* stepper, int steps, int speed);
 
     void open(); 
     void close();
@@ -13,13 +13,9 @@ class Baffel {
 
   private:
     bool m_open;
-    int m_in1;
-    int m_in2;
-    int m_in3;
-    int m_in4;
     int m_steps;
     int m_speed;
 
-    IDeviceManager* m_dm;
+    Stepper* m_stepper;
 };
 #endif  // SRC_BAFFEL_H_

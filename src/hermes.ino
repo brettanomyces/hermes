@@ -2,6 +2,7 @@
 #include <DallasTemperature.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
+#include <Stepper.h>
 
 #include "Baffel.h"
 #include "Delay.h"
@@ -13,9 +14,10 @@
 char SSID[] = "vodafoneFAF5";
 char PASSWORD[] = "CB9FG6FY95";
 
-IPAddress IP(192, 168, 1, 201);
+IPAddress IP(192, 168, 1, 201);  // static IP
 IPAddress GATEWAY(192, 168, 1, 1);
 IPAddress SUBNET(255, 255, 255, 0);
+WiFiServer server(80);
 
 int ONE_WIRE_SENSOR_PIN = 14;
 DeviceAddress frSensor1Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #1
@@ -46,7 +48,7 @@ int STEPPER_STEPS = 450;  // found via trial and error
 
 int RELAY_ACTIVE_LOW = true;
 
-WiFiServer server(80);
+Stepper stepper(STEPPER_STEPS, IN1, IN2, IN2, IN4);
 
 OneWire oneWire(ONE_WIRE_SENSOR_PIN);
 DallasTemperature temperatureSensors(&oneWire);
@@ -54,7 +56,8 @@ DallasTemperature temperatureSensors(&oneWire);
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD, &deviceManager);
 
-Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
+Baffel baffel(&stepper, STEPPER_STEPS, STEPPER_SPEED);
+
 Relay compressor(COMP_PIN, COMP_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay fan(FAN_PIN, FAN_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
@@ -72,8 +75,6 @@ String message;
 
 void setup() {
   Serial.begin(115200);
-
-  delay(100);  // magic pause
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -101,6 +102,11 @@ void setup() {
   heater.deactivate();
 
   WiFi.config(IP, GATEWAY, SUBNET);
+  if(WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(SSID, PASSWORD);
+  } else {
+    WiFi.reconnect();
+  }
 }
 
 void loop() {
@@ -109,8 +115,20 @@ void loop() {
     message = "";
 
     temperatureSensors.requestTemperatures();
-    frTemp = temperatureSensors.getTempC(frSensor1Address);
-    fzTemp = temperatureSensors.getTempC(fzSensorAddress);
+
+    float temp = temperatureSensors.getTempC(frSensor1Address);
+    if (temp < 0) {  // -127.00
+      Serial.println("Failed to read fridge temperature");
+    } else {
+      frTemp = temp;
+    }
+
+    temp = temperatureSensors.getTempC(fzSensorAddress);
+    if (temp < 0) {  // -127.00
+      Serial.println("Failed to read freezer temperature");
+    } else {
+      fzTemp = temp;
+    }
 
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
@@ -165,7 +183,8 @@ void loop() {
 
   // attempt to connect to Wifi for 5 seconds
   if (WiFi.status() != WL_CONNECTED) {
-    WiFi.begin(SSID, PASSWORD);
+    server.end();
+    WiFi.reconnect();
     for(int i = 0; i < 10; i++) {
       delay(500);
       if (WiFi.status() == WL_CONNECTED) {
@@ -183,17 +202,14 @@ void loop() {
     if (client) {
       while (client.connected()) {
         if (client.available()) {
-          client.flush();
           client.printf(
             "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %u\r\n\r\n%s",
             message.length(),
             message.c_str()
           );
           client.flush();
-          break;
         }
       }
-      client.stop();
     }
   }
 }
