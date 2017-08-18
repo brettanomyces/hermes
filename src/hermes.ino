@@ -2,7 +2,6 @@
 #include <DallasTemperature.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
-#include <Stepper.h>
 
 #include "Baffel.h"
 #include "Delay.h"
@@ -43,12 +42,11 @@ double DEFAULT_FR_TEMP = 10.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
 // baffel
-int STEPPER_SPEED = 5;  // found via trial and error
-int STEPPER_STEPS = 450;  // found via trial and error
+int STEPPER_DELAY_MICROS = 10000;
+int STEPPER_STEPS = 1800;
 
 int RELAY_ACTIVE_LOW = true;
 
-Stepper stepper(STEPPER_STEPS, IN1, IN2, IN2, IN4);
 
 OneWire oneWire(ONE_WIRE_SENSOR_PIN);
 DallasTemperature temperatureSensors(&oneWire);
@@ -56,7 +54,7 @@ DallasTemperature temperatureSensors(&oneWire);
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD, &deviceManager);
 
-Baffel baffel(&stepper, STEPPER_STEPS, STEPPER_SPEED);
+Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_DELAY_MICROS);
 
 Relay compressor(COMP_PIN, COMP_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay fan(FAN_PIN, FAN_DELAY, RELAY_ACTIVE_LOW, &deviceManager);

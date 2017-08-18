@@ -1,21 +1,26 @@
 #ifndef SRC_BAFFEL_H_
 #define SRC_BAFFEL_H_
 
-#include <Stepper.h>
+#include <Arduino.h>
 
 class Baffel {
   public:
-    Baffel(Stepper* stepper, int steps, int speed);
+    Baffel(int in1, int in2, int in3, int in4, int steps, int delay);
 
     void open(); 
     void close();
     bool isOpen();
 
   private:
-    bool m_open;
+    int m_in1;
+    int m_in2;
+    int m_in3;
+    int m_in4;
     int m_steps;
-    int m_speed;
+    int m_delay;
+    bool m_open;
 
-    Stepper* m_stepper;
+    void step(int steps);
+
 };
 #endif  // SRC_BAFFEL_H_
