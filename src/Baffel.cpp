@@ -11,12 +11,12 @@ Baffel::Baffel(int in1, int in2, int in3, int in4, int steps, int delay) {
 }
 
 void Baffel::open() {
-  this->step(m_steps);
+  this->step(-m_steps);
   m_open = true;
 }
 
 void Baffel::close() {
-  this->step(-m_steps);
+  this->step(m_steps);
   m_open = false;
 }
 
@@ -37,28 +37,24 @@ void Baffel::step(int steps) {
       int step = abs(steps) % 4;
       switch (step) {
         case 0:  // 1010
-          Serial.println("1010");
           digitalWrite(m_in1, 1);
           digitalWrite(m_in2, 0);
           digitalWrite(m_in3, 1);
           digitalWrite(m_in4, 0);
         break;
         case 1:  // 0110
-          Serial.println("0110");
           digitalWrite(m_in1, 0);
           digitalWrite(m_in2, 1);
           digitalWrite(m_in3, 1);
           digitalWrite(m_in4, 0);
         break;
         case 2:  // 0101
-          Serial.println("0101");
           digitalWrite(m_in1, 0);
           digitalWrite(m_in2, 1);
           digitalWrite(m_in3, 0);
           digitalWrite(m_in4, 1);
         break;
         case 3:  // 1001
-          Serial.println("1001");
           digitalWrite(m_in1, 1);
           digitalWrite(m_in2, 0);
           digitalWrite(m_in3, 0);

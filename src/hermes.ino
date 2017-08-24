@@ -3,6 +3,8 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
 
+#include <esp_int_wdt.h>
+
 #include "Baffel.h"
 #include "Delay.h"
 #include "DeviceManager.h"
@@ -38,6 +40,7 @@ double COMP_DELAY = 300000;  // 5 minutes
 double FAN_DELAY = 0;
 double HEATER_DELAY = 0;
 
+boolean MAINTAIN_FRIDGE_TEMP = false;
 double DEFAULT_FR_TEMP = 10.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
@@ -46,7 +49,6 @@ int STEPPER_DELAY_MICROS = 10000;
 int STEPPER_STEPS = 1800;
 
 int RELAY_ACTIVE_LOW = true;
-
 
 OneWire oneWire(ONE_WIRE_SENSOR_PIN);
 DallasTemperature temperatureSensors(&oneWire);
@@ -73,6 +75,8 @@ String message;
 
 void setup() {
   Serial.begin(115200);
+
+  esp_int_wdt_init();
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -138,23 +142,29 @@ void loop() {
       }
     }
 
-    if (baffel.isOpen()) {
-      if (controller.shouldCloseBaffel(frTemp)) {
-        baffel.close();
+    if (MAINTAIN_FRIDGE_TEMP) {
+      if (baffel.isOpen()) {
+        if (controller.shouldCloseBaffel(frTemp)) {
+          baffel.close();
+        }
+      } else { // baffel closed
+        if (controller.shouldOpenBaffel(frTemp)) {
+          baffel.open();
+        }
       }
-    } else { // baffel closed
-      if (controller.shouldOpenBaffel(frTemp)) {
-        baffel.open();
-      }
-    }
 
-    if (heater.isActive()) {
-      if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
-        heater.deactivate();
+      if (heater.isActive()) {
+        if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
+          heater.deactivate();
+        }
+      } else {  // heater off
+        if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
+          heater.activate();
+        }
       }
-    } else {  // heater off
-      if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
-        heater.activate();
+    } else {  // MAINTAIN_FRIDGE_TEMP = false;
+      if (baffel.isOpen()) {
+        baffel.close();
       }
     }
 
