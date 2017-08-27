@@ -5,7 +5,6 @@ Temperature controller for a double door fridge/freezer.
 
 # Test
 
-
 ```
 g++ -std=c++11 -I lib/fakeit/ -I lib/catch/ -I src/ test/UnitTest.cpp -o test/UnitTest.out
 ./test/UnitTest.out
@@ -13,43 +12,18 @@ g++ -std=c++11 -I lib/fakeit/ -I lib/catch/ -I src/ test/UnitTest.cpp -o test/Un
 
 # Build
 
-To build for Arduino:
-
-
 ```
-platforio run
+platforio run --environment=esp32
 ```
-
-
-To build for Particle Photon, uncomment `#define PARTICLE` in `src/hermes.ino` then:
-
-
-```
-particle compile photon src/*
-```
-
-Particle Photon has a different V_OUT (used to read temperature), ADC steps and clock speed. 
 
 # Flash
 
-To flash Arduino:
-
-
 ```
-platformio --target upload
+platformio --environment=esp32 --target upload
 ```
 
-
-To flash Photon:
-
+# Monitor
 
 ```
-particle flash <device> src/*
-```
-
-# View State
-
-
-```
-./srcipts/status.sh
+platforimio device monitor --baud 115200
 ```

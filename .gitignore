@@ -66,6 +66,7 @@ logs/
 
 .pioenvs
 .travis.yml
+.piolibdeps
 
 ### C++ ###
 # Compiled Object files

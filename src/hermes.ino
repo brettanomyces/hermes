@@ -1,10 +1,9 @@
-#define PARTICLE
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <WiFi.h>
+#include <ArduinoJson.h>
 
-#ifdef PARTICLE
-#include "Particle.h"
-#else  // Arduino
-#include "Arduino.h"
-#endif
+#include <esp_int_wdt.h>
 
 #include "Baffel.h"
 #include "Delay.h"
@@ -12,41 +11,28 @@
 #include "DoEvery.h"
 #include "Relay.h"
 #include "TemperatureController.h"
-#include "TemperatureSensor.h"
 
-#ifdef PARTICLE
-int FREEZER_SENSOR_PIN = 0;
-int FRIDGE_SENSOR_PIN = 1;
+char SSID[] = "vodafoneFAF5";
+char PASSWORD[] = "CB9FG6FY95";
 
-// stepper motor
-int IN1 = 0;  // = L1 = yellow
-int IN2 = 1;  // = L2 = red
-int IN3 = 2;  // = L3 = white
-int IN4 = 3;  // = L4 = blue
+IPAddress IP(192, 168, 1, 201);  // static IP
+IPAddress GATEWAY(192, 168, 1, 1);
+IPAddress SUBNET(255, 255, 255, 0);
+WiFiServer server(80);
 
-int COMP_PIN = 4;
-int FAN_PIN = 5;
-int HEATER_PIN = 6;
+int ONE_WIRE_SENSOR_PIN = 14;
+DeviceAddress frSensor1Address = { 0x28, 0xFF, 0xA5, 0xA0, 0x68, 0x14, 0x04, 0x36 };  // sensor #1
+DeviceAddress frSensor2Address = { 0x28, 0xFF, 0xB7, 0xA0, 0x68, 0x14, 0x04, 0xC9 };  // sensor #2
+DeviceAddress fzSensorAddress  = { 0x28, 0xFF, 0x0C, 0x3A, 0x63, 0x14, 0x03, 0x4E };  // sensor #3
 
-// temperature sensor
-double ADC_STEPS = 4096;
-double V_DIVIDER_V_IN = 3.3;
-#else  // Arduino
-int FREEZER_SENSOR_PIN = 3;
-int FRIDGE_SENSOR_PIN = 2;
+int IN1 = 5;
+int IN2 = 17;
+int IN3 = 16;
+int IN4 = 4;
 
-int IN1 = 12;
-int IN2 = 11;
-int IN3 = 10;
-int IN4 = 9;
-
-int COMP_PIN = 5;
-int FAN_PIN = 6;
-int HEATER_PIN = 7;
-
-double ADC_STEPS = 1024;
-double V_DIVIDER_V_IN = 5.0;  // Arduino can also output 3.3v
-#endif
+int FAN_PIN = 25;
+int HEATER_PIN = 26;
+int COMP_PIN = 27;
 
 // other constants
 int UPDATE_PERIOD = 10000;  // 10 seconds
@@ -54,75 +40,43 @@ double COMP_DELAY = 300000;  // 5 minutes
 double FAN_DELAY = 0;
 double HEATER_DELAY = 0;
 
-double DEFAULT_FR_TEMP = 19.0;
+boolean MAINTAIN_FRIDGE_TEMP = false;
+double DEFAULT_FR_TEMP = 10.0;
 double DEFAULT_FZ_TEMP = 4.0;
 
-int V_DIVIDER_R1 = 10000;
-int V_DIVIDER_THERMISTOR_POSITION = 2;
-
 // baffel
-int STEPPER_SPEED = 5;  // found via trial and error
-int STEPPER_STEPS = 450;  // found via trial and error
+int STEPPER_DELAY_MICROS = 10000;
+int STEPPER_STEPS = 1800;
 
 int RELAY_ACTIVE_LOW = true;
+
+OneWire oneWire(ONE_WIRE_SENSOR_PIN);
+DallasTemperature temperatureSensors(&oneWire);
 
 DeviceManager deviceManager;
 DoEvery updateTimer(UPDATE_PERIOD, &deviceManager);
 
-TemperatureSensor fridgeSensor(
-  FRIDGE_SENSOR_PIN,
-  V_DIVIDER_THERMISTOR_POSITION,
-  V_DIVIDER_R1,
-  V_DIVIDER_V_IN,
-  ADC_STEPS,
-  &deviceManager);
+Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_DELAY_MICROS);
 
-TemperatureSensor freezerSensor(
-  FREEZER_SENSOR_PIN,
-  V_DIVIDER_THERMISTOR_POSITION,
-  V_DIVIDER_R1,
-  V_DIVIDER_V_IN,
-  ADC_STEPS,
-  &deviceManager);
-
-Baffel baffel(IN1, IN2, IN3, IN4, STEPPER_STEPS, STEPPER_SPEED, &deviceManager);
 Relay compressor(COMP_PIN, COMP_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay fan(FAN_PIN, FAN_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 Relay heater(HEATER_PIN, HEATER_DELAY, RELAY_ACTIVE_LOW, &deviceManager);
 
 TemperatureController controller;
 
-bool deviceStateSet = false;
-
 double frSet = DEFAULT_FR_TEMP;
 double frTemp = DEFAULT_FR_TEMP;
 double fzSet = DEFAULT_FZ_TEMP;
 double fzTemp = DEFAULT_FZ_TEMP;
-bool compActive = false;
-bool compWait = false;
-bool baffelOpen = false;
-bool fanActive = false;
-bool heatActive = false;
-bool heatWait = false;
+
+StaticJsonBuffer<200> jsonBuffer;
+JsonObject& root = jsonBuffer.createObject();
+String message;
 
 void setup() {
-  #ifdef PARTICLE
-  Particle.variable("frSet", frSet);
-  Particle.variable("frTemp", frTemp);
-  Particle.variable("fzSet", fzSet);
-  Particle.variable("fzTemp", fzTemp);
-  Particle.variable("compActive", compActive);
-  Particle.variable("compWait", compWait);
-  Particle.variable("baffelOpen", baffelOpen);
-  Particle.variable("fanActive", fanActive);
-  Particle.variable("heatActive", heatActive);
-  Particle.variable("heatWait", heatWait);
-  #else  // Arduino
   Serial.begin(115200);
-  #endif
 
-  pinMode(FRIDGE_SENSOR_PIN, INPUT);
-  pinMode(FREEZER_SENSOR_PIN, INPUT);
+  esp_int_wdt_init();
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -139,117 +93,131 @@ void setup() {
   // init timers
   updateTimer.reset();
 
-  // set temps
+  // set default temps
   controller.setFzSetTemp(DEFAULT_FZ_TEMP);
   controller.setFrSetTemp(DEFAULT_FR_TEMP);
+   
+  temperatureSensors.begin();
+  baffel.close();
+  compressor.deactivate();
+  fan.deactivate();
+  heater.deactivate();
+
+  WiFi.config(IP, GATEWAY, SUBNET);
+  if(WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(SSID, PASSWORD);
+  } else {
+    WiFi.reconnect();
+  }
 }
 
 void loop() {
-  if(!deviceStateSet){
-    baffel.close();
-    compressor.deactivate();
-    fan.deactivate();
-    heater.deactivate();
-    deviceStateSet = true;
-  }
-
   if (updateTimer.check()) {
-    frTemp = fridgeSensor.readTemperature();
-    fzTemp = freezerSensor.readTemperature();
 
-    #ifdef PARTICLE
-    char data[64];
-    sprintf(data, "{\"frTemp\":\"%.2f\",\"fzTemp\":\"%.2f\"}", frTemp, fzTemp);
-    Particle.publish("reading", data);
-    #else
-    // Arduino cannot sprintf floats
-    Serial.print("{\"frTemp\":");
-    Serial.print(frTemp);
-    Serial.print("\",\"fzTemp\":");
-    Serial.print(fzTemp);
-    Serial.println("\"}");
-    #endif
+    message = "";
 
-    String message;
+    temperatureSensors.requestTemperatures();
+
+    float temp = temperatureSensors.getTempC(frSensor1Address);
+    if (temp < 0) {  // -127.00
+      Serial.println("Failed to read fridge temperature");
+    } else {
+      frTemp = temp;
+    }
+
+    temp = temperatureSensors.getTempC(fzSensorAddress);
+    if (temp < 0) {  // -127.00
+      Serial.println("Failed to read freezer temperature");
+    } else {
+      fzTemp = temp;
+    }
+
     if (compressor.isActive()) {
       if (controller.shouldDeactivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.deactivate();
-        message = "{\"device\":\"compressor\",\"state\":\"off\"}";
       }
     } else {  // compressor off
       if (controller.shouldActivateCompressor(fzTemp, compressor.isWaiting())) {
         compressor.activate();
-        message = "{\"device\":\"compressor\",\"state\":\"on\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
-    Serial.println(message);
-    #endif
 
-    if (baffel.isOpen()) {
-      if (controller.shouldCloseBaffel(frTemp)) {
+    if (MAINTAIN_FRIDGE_TEMP) {
+      if (baffel.isOpen()) {
+        if (controller.shouldCloseBaffel(frTemp)) {
+          baffel.close();
+        }
+      } else { // baffel closed
+        if (controller.shouldOpenBaffel(frTemp)) {
+          baffel.open();
+        }
+      }
+
+      if (heater.isActive()) {
+        if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
+          heater.deactivate();
+        }
+      } else {  // heater off
+        if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
+          heater.activate();
+        }
+      }
+    } else {  // MAINTAIN_FRIDGE_TEMP = false;
+      if (baffel.isOpen()) {
         baffel.close();
-        message = "{\"device\":\"baffel\",\"state\":\"closed\"}";
-      }
-    } else { // baffel closed
-      if (controller.shouldOpenBaffel(frTemp)) {
-        baffel.open();
-        message = "{\"device\":\"baffel\",\"state\":\"open\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
-    Serial.println(message);
-    #endif
-
-    if (heater.isActive()) {
-      if (controller.shouldDeactivateHeater(frTemp, heater.isWaiting())) {
-        heater.deactivate();
-        message = "{\"device\":\"heater\",\"state\":\"off\"}";
-      }
-    } else {  // heater off
-      if (controller.shouldActivateHeater(frTemp, heater.isWaiting())) {
-        heater.activate();
-        message = "{\"device\":\"heater\",\"state\":\"on\"}";
-      }
-    }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
-    Serial.println(message);
-    #endif
 
     if (fan.isActive()) {
       if (controller.shouldDeactivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.deactivate();
-        message = "{\"device\":\"fan\",\"state\":\"off\"}";
       }
     } else {  // fan off
       if (controller.shouldActivateFan(compressor.isActive(), baffel.isOpen())) {
         fan.activate();
-        message = "{\"device\":\"fan\",\"state\":\"on\"}";
       }
     }
-    #ifdef PARTICLE
-    Particle.publish(message);
-    #else
-    Serial.println(message);
-    #endif
 
-    // update variable
-    frSet = controller.getFrSetTemp();
-    frTemp = fridgeSensor.readTemperature();
-    fzSet = controller.getFzSetTemp();
-    fzTemp = freezerSensor.readTemperature();
-    baffelOpen = baffel.isOpen();
-    compActive = compressor.isActive();
-    compWait = compressor.isWaiting();
-    fanActive = fan.isActive();
-    heatActive = heater.isActive();
-    heatWait = heater.isWaiting();
+    root["fridge_temperature"] = frTemp;
+    root["freezer_temperature"] = fzTemp;
+    root["baffel_open"] = baffel.isOpen();
+    root["fan_active"] = fan.isActive();
+    root["heater_active"] = heater.isActive();
+    root["compressor_active"] = compressor.isActive();
+
+    root.printTo(message);
+    Serial.println(message);
+  }
+
+  // attempt to connect to Wifi for 5 seconds
+  if (WiFi.status() != WL_CONNECTED) {
+    server.end();
+    WiFi.reconnect();
+    for(int i = 0; i < 10; i++) {
+      delay(500);
+      if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("WiFi Connected");
+        Serial.println(WiFi.localIP());
+        server.begin();
+        break;
+      }
+    }
+  }
+
+  // check for incoming clients
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client = server.available();
+    if (client) {
+      while (client.connected()) {
+        if (client.available()) {
+          client.printf(
+            "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %u\r\n\r\n%s",
+            message.length(),
+            message.c_str()
+          );
+          client.flush();
+        }
+      }
+    }
   }
 }
-
